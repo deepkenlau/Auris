@@ -5,6 +5,6 @@
 class HTTPChannel : public Channel {
 public:
     HTTPChannel();
-    void std::string desc();
+    std::string desc();
     void accepted(int fd);
 };
