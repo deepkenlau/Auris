@@ -3,5 +3,5 @@
 
 class ConnectionInterface {
 public:
-    virtual void start();
-}
+    virtual void start() {}
+};
