@@ -43,6 +43,18 @@ void * ConnectionInterfaceHTTP::Handler::threadMain(void * handler)
 {
     Handler * h = (Handler *)handler;
     
+    //Read the HTTP header.
+    std::stringstream headerBuffer;
+    std::map<std::string, std::string> headers;
+    char buffer[1024];
+    do {
+        int i = 1;
+        read(h->fd, buffer 1024);
+        
+        while (buffer[i-1] != '\r' && buffer[i] != '\n')
+            headerBuffer << buffer[i++];
+    } while (
+    
     //Do the communication.
     char buffer[10000];
     read(h->fd, buffer, 10000);
