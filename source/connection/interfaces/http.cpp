@@ -45,67 +45,84 @@ void ConnectionInterfaceHTTP::Handler::start()
 void * ConnectionInterfaceHTTP::Handler::threadMain(void * handler)
 {
     Handler * h = (Handler *)handler;
-	std::map<std::string,std::string> headerField;
-	std::string command;
-   /* 
-    //Read the HTTP header.
-    std::stringstream headerBuffer;
-    std::map<std::string, std::string> headers;
-    char buffer[1024];
-    do {
-        int i = 1;
-        read(h->fd, buffer 1024);
-        
-        while (buffer[i-1] != '\r' && buffer[i] != '\n')
-            headerBuffer << buffer[i++];
-    } while (*/
     
-    //Do the communication.
+    //Prepare some space for the parsed HTTP request.
+	std::string request;
+    std::string path;
+	std::map<std::string,std::string> headers;
+    
+    //Read buffer.
     char rawBuffer[1024];
 	std::stringstream lineBuffer;
-
-	int nRead;
+    
+    //Read state machine.
 	bool keepReading = true;
-	bool firstLineDone = false;
+	bool firstLine = true;
 	bool skipNextChar = false;
 	
-	while(keepReading)
-	{
-		nRead = read(h->fd, rawBuffer, 1024);
-		for(int i = 0; i < nRead; i++)
-		{
-			if(rawBuffer[i] == '\r' && rawBuffer[i+1] == '\n')
-			{
+    //As long as we're still inside the header, keep reading.
+	while (keepReading) {
+        
+        //Fetch the next portions of the buffer and iterate over it.
+		int nRead = read(h->fd, rawBuffer, 1024);
+		for (int i = 0; i < nRead; i++) {
+            
+            //If we've arrived at a CRLF, interpret the line.
+			if (rawBuffer[i] == '\r' && rawBuffer[i+1] == '\n') {
+                
+                //Skip the next character which will be the \n.
 				skipNextChar = true;
+                
+                //Fetch whatever is in the line buffer and empty it for the next
+                //line.
 				std::string line = lineBuffer.str();
 				lineBuffer.str("");
-				if (line.empty()) keepReading = false;
-				else
-				{
-					if (firstLineDone)
-					{
-						int pos = line.find_first_of(':');
-						std::string key(line, 0, pos);
-						std::string value(line, pos+2);
-						std::cout << "Key: " << key << std::endl << "Value: " << value << std::endl << std::endl;
+                
+                //If we've read an empty line, this indicates that the header of
+                //the HTTP request is over.
+				if (line.empty())
+                    keepReading = false;
+                
+                //Otherwise we have to parse the line.
+				else {
+                    
+                    //If this is the first line, we have to proceed differently
+                    //than with the rest of the header lines.
+                    if (firstLine) {
+                        firstLine = false;
+                        
+                        //Separate the request type (GET, PUT, etc.) from the
+                        //requested URL.
+                        int space1 = line.find_first_of(' ');
+                        int space2 = line.find_last_of(' ');
+                        request = std::string(line, 0, space1);
+                        path = std::string(line, space1 + 1, space2 - space1 - 1);
+                    }
+                    
+                    //Otherwise this is a header line which we have to split
+                    //into key and value portions.
+                    else {
+						int colon = line.find_first_of(':');
+						std::string key(line, 0, colon);
+						std::string value(line, colon + 2);
+                        headers[key] = value;
 					}
-					else {command = line; firstLineDone = true;}
 				}
 			}
-			else if (skipNextChar) skipNextChar = false;
+            
+            //Otherwise move the next character into the line buffer if not told
+            //to ignore it.
+			else if (skipNextChar)
+                skipNextChar = false;
 			else
-			{
 				lineBuffer << rawBuffer[i];
-			}
 		}
-		
 	}
-    //read(h->fd, buffer, 10000);
-    //log << buffer << std::endl;
-
-
-
-
+    
+    //Dump some information on what kind of request we have received.
+    log << request << " request for " << path << std::endl;
+    
+    //We're through, close the connection.
     close(h->fd);
     h->fd = 0;
     
