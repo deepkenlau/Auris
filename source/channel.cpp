@@ -74,7 +74,7 @@ void Channel::run()
                 int pid = fork();
                 if (pid == 0) {
                     accepted(clientfd);
-                    exit(EXIT_SUCCESS);
+                    //exit(0);
                 }
                 
                 //The parent keeps listening for connections.

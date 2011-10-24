@@ -5,6 +5,9 @@
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
+#include <cstring>
+#include <map>
+#include <sstream>
 
 
 class ConnectionInterfaceHTTP::Handler {
@@ -42,7 +45,9 @@ void ConnectionInterfaceHTTP::Handler::start()
 void * ConnectionInterfaceHTTP::Handler::threadMain(void * handler)
 {
     Handler * h = (Handler *)handler;
-    
+	std::map<std::string,std::string> headerField;
+	std::string command;
+   /* 
     //Read the HTTP header.
     std::stringstream headerBuffer;
     std::map<std::string, std::string> headers;
@@ -53,12 +58,54 @@ void * ConnectionInterfaceHTTP::Handler::threadMain(void * handler)
         
         while (buffer[i-1] != '\r' && buffer[i] != '\n')
             headerBuffer << buffer[i++];
-    } while (
+    } while (*/
     
     //Do the communication.
-    char buffer[10000];
-    read(h->fd, buffer, 10000);
-    log << buffer << std::endl;
+    char rawBuffer[1024];
+	std::stringstream lineBuffer;
+
+	int nRead;
+	bool keepReading = true;
+	bool firstLineDone = false;
+	bool skipNextChar = false;
+	
+	while(keepReading)
+	{
+		nRead = read(h->fd, rawBuffer, 1024);
+		for(int i = 0; i < nRead; i++)
+		{
+			if(rawBuffer[i] == '\r' && rawBuffer[i+1] == '\n')
+			{
+				skipNextChar = true;
+				std::string line = lineBuffer.str();
+				lineBuffer.str("");
+				if (line.empty()) keepReading = false;
+				else
+				{
+					if (firstLineDone)
+					{
+						int pos = line.find_first_of(':');
+						std::string key(line, 0, pos);
+						std::string value(line, pos+2);
+						std::cout << "Key: " << key << std::endl << "Value: " << value << std::endl << std::endl;
+					}
+					else {command = line; firstLineDone = true;}
+				}
+			}
+			else if (skipNextChar) skipNextChar = false;
+			else
+			{
+				lineBuffer << rawBuffer[i];
+			}
+		}
+		
+	}
+    //read(h->fd, buffer, 10000);
+    //log << buffer << std::endl;
+
+
+
+
     close(h->fd);
     h->fd = 0;
     

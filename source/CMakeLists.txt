@@ -4,3 +4,6 @@ project(Auris)
 # Server
 file(GLOB_RECURSE sources RELATIVE ${CMAKE_SOURCE_DIR} *.cpp)
 add_executable(aurisd ${sources})
+
+find_package (Threads)
+target_link_libraries (aurisd ${CMAKE_THREAD_LIBS_INIT})
