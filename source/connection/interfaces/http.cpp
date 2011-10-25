@@ -53,6 +53,7 @@ void * ConnectionInterfaceHTTP::Handler::threadMain(void * handler)
     
     //Read buffer.
     char rawBuffer[1024];
+    int leftoverStart = 0, leftoverEnd = 0;
 	std::stringstream lineBuffer;
     
     //Read state machine.
@@ -80,8 +81,14 @@ void * ConnectionInterfaceHTTP::Handler::threadMain(void * handler)
                 
                 //If we've read an empty line, this indicates that the header of
                 //the HTTP request is over.
-				if (line.empty())
+				if (line.empty()) {
                     keepReading = false;
+                    
+                    //Mark which portion of the raw buffer already contains bi-
+                    //nary data.
+                    leftoverStart = (i + 2);
+                    leftoverEnd = nRead;
+                }
                 
                 //Otherwise we have to parse the line.
 				else {
@@ -121,6 +128,52 @@ void * ConnectionInterfaceHTTP::Handler::threadMain(void * handler)
     
     //Dump some information on what kind of request we have received.
     log << request << " request for " << path << std::endl;
+    for (std::map<std::string, std::string>::iterator it = headers.begin();
+         it != headers.end(); it++)
+        log << "   " << it->first << ": " << it->second << std::endl;
+    log << "- [" << leftoverStart << ", " << leftoverEnd << "] already contains binary data" << std::endl;
+    
+    //If this is either a POST or PUT command, extract the content length so we
+    //know how much binary data we ought to expect.
+    unsigned long contentLength = 0;
+    if (request == "POST" || request == "PUT")
+        contentLength = atol(headers["Content-Length"].c_str());
+    log << "- expecting " << contentLength << " bytes of data" << std::endl;
+    
+    //Receive the entire file.
+    unsigned char * content = NULL;
+    if (contentLength > 0) {
+        
+        //Allocate enough memory for the file.
+        content = new unsigned char [contentLength];
+        unsigned long i = 0;
+        
+        //Copy the existing buffer.
+        i = (leftoverEnd - leftoverStart);
+        memcpy(content, rawBuffer + leftoverStart, i);
+        
+        //Receive the entire file.
+        while (i < contentLength) {
+            int nRead = read(h->fd, content + i, 1024);
+            i += nRead;
+        }
+        log << "- done" << std::endl;
+    }
+    
+    //Dump the object temporarily.
+    std::stringstream name;
+    name << "/tmp/";
+    name << "aurisd_reception_";
+    name << time(NULL);
+    name << ".mp3";
+    const char * p = name.str().c_str();
+    FILE * df = fopen(p, "w");
+    fwrite(content, 1, contentLength, df);
+    fclose(df);
+    log << "- received file written to " << p << std::endl;
+    
+    //Wrap the reception up in a command object.
+    //... insert code here ...
     
     //We're through, close the connection.
     close(h->fd);
