@@ -6,6 +6,8 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <cstring>
+#include <cstdio>
+#include <cstdlib>
 #include <map>
 #include <sstream>
 
