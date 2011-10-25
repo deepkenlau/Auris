@@ -8,6 +8,8 @@ void Server::run()
     //Start the subsystems.
     log << "starting subsystems…" << std::endl;
     connection.start();
+    command.start();
+    storage.start();
     
     //Enter the main wait loop.
     log << "running" << std::endl;

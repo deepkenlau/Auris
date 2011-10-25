@@ -2,7 +2,7 @@
 #include "interfaces/http.h"
 
 
-class Connection {
+class ConnectionSubsystem {
 private:
     ConnectionInterfaceHTTP httpInterface;
     

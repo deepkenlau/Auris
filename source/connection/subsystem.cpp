@@ -1,9 +1,9 @@
-#include "connection.h"
+#include "subsystem.h"
 #define logn "Connection subsystem"
 #include "../log.h"
 
 
-void Connection::start()
+void ConnectionSubsystem::start()
 {
     log << "starting…" << std::endl;
     httpInterface.start();

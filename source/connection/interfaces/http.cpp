@@ -8,6 +8,7 @@
 #include <cstring>
 #include <map>
 #include <sstream>
+#include "../../command/rawcommand.h"
 
 
 class ConnectionInterfaceHTTP::Handler {
@@ -172,8 +173,23 @@ void * ConnectionInterfaceHTTP::Handler::threadMain(void * handler)
     fclose(df);
     log << "- received file written to " << p << std::endl;
     
-    //Wrap the reception up in a command object.
-    //... insert code here ...
+    //Wrap the reception up in a command object. The path the HTTP request is
+    //considering is split apart at the forward slashes to generate a list of
+    //arguments.
+    //TODO: urldecode the arguments
+    RawCommand * c = new RawCommand;
+    std::string s(path, (path[0] == '/' ? 1 : 0));
+    while (true) {
+        int fwds = s.find_first_of('/');
+        if (fwds == std::string::npos)
+            break;
+        c->arguments.push_back(std::string(s, 0, fwds));
+        s = std::string(s, fwds + 1);
+    }
+    c->arguments.push_back(s);
+    c->data = content;
+    log << "= " << c->desc() << std::endl;
+    delete c;
     
     //We're through, close the connection.
     close(h->fd);
