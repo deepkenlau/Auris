@@ -4,7 +4,12 @@
 #include <unistd.h>
 #include <sys/types.h>
 #include <pwd.h>
+#include "../command/rawcommand.h"
 
+
+StorageSubsystem::StorageSubsystem(Server * s) : Subsystem(s)
+{
+}
 
 void StorageSubsystem::start()
 {
@@ -18,4 +23,25 @@ void StorageSubsystem::start()
     path += "/Music/Auris";
     StorageLibrary * l = new StorageLibrary(path);
     libraries.insert(l);
+}
+
+bool StorageSubsystem::onRawCommand(RawCommand * c)
+{
+    //Ignore empty commands.
+    if (c->arguments.empty())
+        return false;
+    
+    //We process upload commands.
+    if (c->arguments[0] == "upload") {
+        
+        //Extract the suffix.
+        std::string & name = c->arguments[1];
+        int colon = name.find_last_of('.');
+        std::string suffix(name, colon + 1);
+        
+        //Add the uploaded file to each library object.
+        for (std::set<StorageLibrary *>::iterator il = libraries.begin();
+             il != libraries.end(); il++)
+            (*il)->addFile(suffix, c->data);
+    }
 }

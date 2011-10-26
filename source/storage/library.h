@@ -11,4 +11,6 @@ private:
 public:
     StorageLibrary(std::string directory);
     ~StorageLibrary();
+    
+    void addFile(std::string suffix, unsigned char * data);
 };

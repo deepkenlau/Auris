@@ -3,6 +3,15 @@
 #include "log.h"
 
 
+Server::Server() : connection(this), command(this), storage(this)
+{
+    //Initialize the list of subsystems.
+    subsystems.insert(&connection);
+    subsystems.insert(&command);
+    subsystems.insert(&storage);
+}
+
+
 void Server::run()
 {
     //Start the subsystems.

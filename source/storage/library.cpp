@@ -4,6 +4,9 @@
 #include <cerrno>
 #include <sys/types.h>
 #include <sys/stat.h>
+#include <sstream>
+#include <fstream>
+#include "../uuid.h"
 
 
 void StorageLibrary::ensureDirectoryExists()
@@ -28,4 +31,25 @@ StorageLibrary::StorageLibrary(std::string d) : directory(d)
 
 StorageLibrary::~StorageLibrary()
 {
+}
+
+void StorageLibrary::addFile(std::string suffix, unsigned char * data)
+{
+    //Assemble the file name for this file.
+    std::stringstream name;
+    name << generateUUID();
+    name << ".";
+    name << suffix;
+    
+    //Assemble the storage path.
+    std::stringstream path;
+    path << directory;
+    path << "/";
+    path << name.str();
+    
+    //Store the file.
+    std::ofstream f(path.str().c_str());
+    //f.write();
+    f << "Hallo";
+    f.close();
 }

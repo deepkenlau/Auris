@@ -21,7 +21,7 @@ protected:
     void onHandlerDone(Handler * h);
     
 public:
-    ConnectionInterfaceHTTP(int port = /*80*/12345);
+    ConnectionInterfaceHTTP(ConnectionSubsystem * c, int port = /*80*/12345);
     ~ConnectionInterfaceHTTP();
     
     void start();

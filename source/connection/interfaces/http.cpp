@@ -10,6 +10,7 @@
 #include <cstdlib>
 #include <map>
 #include <sstream>
+#include "../subsystem.h"
 #include "../../command/rawcommand.h"
 
 
@@ -191,7 +192,9 @@ void * ConnectionInterfaceHTTP::Handler::threadMain(void * handler)
     c->arguments.push_back(s);
     c->data = content;
     log << "= " << c->desc() << std::endl;
-    delete c;
+    
+    //Inject the command.
+    h->interface->connection->onReceivedCommand(c);
     
     //We're through, close the connection.
     close(h->fd);
@@ -214,7 +217,7 @@ void ConnectionInterfaceHTTP::onHandlerDone(Handler * h)
     pthread_mutex_unlock(&handlersMutex);
 }
 
-ConnectionInterfaceHTTP::ConnectionInterfaceHTTP(int port) : port(port)
+ConnectionInterfaceHTTP::ConnectionInterfaceHTTP(ConnectionSubsystem * c, int port) : ConnectionInterface(c), port(port)
 {
     pthread_mutex_init(&handlersMutex, NULL);
     listenerfd = 0;
