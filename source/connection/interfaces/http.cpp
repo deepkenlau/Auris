@@ -145,11 +145,11 @@ void * ConnectionInterfaceHTTP::Handler::threadMain(void * handler)
     log << "- expecting " << contentLength << " bytes of data" << std::endl;
     
     //Receive the entire file.
-    unsigned char * content = NULL;
+    char * content = NULL;
     if (contentLength > 0) {
         
         //Allocate enough memory for the file.
-        content = new unsigned char [contentLength];
+        content = new char [contentLength];
         unsigned long i = 0;
         
         //Copy the existing buffer.
@@ -190,7 +190,7 @@ void * ConnectionInterfaceHTTP::Handler::threadMain(void * handler)
         s = std::string(s, fwds + 1);
     }
     c->arguments.push_back(s);
-    c->data = content;
+    c->data = new Blob(content, contentLength);
     log << "= " << c->desc() << std::endl;
     
     //Inject the command.

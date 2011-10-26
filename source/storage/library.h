@@ -1,5 +1,6 @@
 #pragma once
 #include <string>
+#include "../blob.h"
 
 
 class StorageLibrary {
@@ -12,5 +13,5 @@ public:
     StorageLibrary(std::string directory);
     ~StorageLibrary();
     
-    void addFile(std::string suffix, unsigned char * data);
+    void addFile(std::string suffix, Blob * data);
 };

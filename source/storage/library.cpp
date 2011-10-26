@@ -33,7 +33,7 @@ StorageLibrary::~StorageLibrary()
 {
 }
 
-void StorageLibrary::addFile(std::string suffix, unsigned char * data)
+void StorageLibrary::addFile(std::string suffix, Blob * data)
 {
     //Assemble the file name for this file.
     std::stringstream name;
@@ -49,7 +49,6 @@ void StorageLibrary::addFile(std::string suffix, unsigned char * data)
     
     //Store the file.
     std::ofstream f(path.str().c_str());
-    //f.write();
-    f << "Hallo";
+    f.write(data->getData(), data->getLength());
     f.close();
 }
