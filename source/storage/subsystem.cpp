@@ -17,12 +17,12 @@ void StorageSubsystem::start()
     
     //DEBUG: Initialize a music library under ~/Music/Auris since the main part
     //of the program is developped under Mac OS X.
-    struct passwd * pw = getpwuid(getuid());
+    /*struct passwd * pw = getpwuid(getuid());
     const char * homedir = pw->pw_dir;
     std::string path(homedir);
     path += "/Music/Auris";
     StorageLibrary * l = new StorageLibrary(path);
-    libraries.insert(l);
+    libraries.insert(l);*/
 }
 
 bool StorageSubsystem::onRawCommand(RawCommand * c)
@@ -40,8 +40,8 @@ bool StorageSubsystem::onRawCommand(RawCommand * c)
         std::string suffix(name, colon + 1);
         
         //Add the uploaded file to each library object.
-        for (std::set<StorageLibrary *>::iterator il = libraries.begin();
+        /*for (std::set<StorageLibrary *>::iterator il = libraries.begin();
              il != libraries.end(); il++)
-            (*il)->addFile(suffix, c->data);
+            (*il)->addFile(suffix, c->data);*/
     }
 }

@@ -1,17 +1,17 @@
 #pragma once
 #include <string>
-#include "../blob.h"
+#include "blob.h"
 
 
-class StorageLibrary {
+class Library {
 private:
     const std::string directory;
     
     void ensureDirectoryExists();
     
 public:
-    StorageLibrary(std::string directory);
-    ~StorageLibrary();
+    Library(std::string directory);
+    ~Library();
     
     void addFile(std::string suffix, Blob * data);
 };

@@ -1,15 +1,15 @@
 #include "library.h"
 #define logn "Library"
-#include "../log.h"
+#include "log.h"
 #include <cerrno>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <sstream>
 #include <fstream>
-#include "../uuid.h"
+#include "uuid.h"
 
 
-void StorageLibrary::ensureDirectoryExists()
+void Library::ensureDirectoryExists()
 {
     //Check if the directory exists, returning immediately if that is the case.
     struct stat st;
@@ -23,17 +23,17 @@ void StorageLibrary::ensureDirectoryExists()
        << strerror(errno) << std::endl;
 }
 
-StorageLibrary::StorageLibrary(std::string d) : directory(d)
+Library::Library(std::string d) : directory(d)
 {
     //Make sure that the directory for the library exists.
     ensureDirectoryExists();
 }
 
-StorageLibrary::~StorageLibrary()
+Library::~Library()
 {
 }
 
-void StorageLibrary::addFile(std::string suffix, Blob * data)
+void Library::addFile(std::string suffix, Blob * data)
 {
     //Assemble the file name for this file.
     std::stringstream name;
