@@ -57,9 +57,11 @@ void Response::write(Blob * data)
 Response & Response::operator << (Blob * data)
 {
     write(data);
+    return *this;
 }
 
 Response & Response::operator << (const std::string & s)
 {
     write(s.c_str(), s.length());
+    return *this;
 }
