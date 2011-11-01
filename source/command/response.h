@@ -14,9 +14,16 @@ public:
 
 
 class Response {
+	friend class ResponseHandler;
+	
 private:
     bool finished;
+    unsigned long expectedLength;
     pthread_mutex_t mutex;
+       
+protected:
+	bool isFinished();
+	unsigned long getExpectedLength();
     
 public:
     ResponseHandler * const handler;
@@ -25,6 +32,7 @@ public:
     ~Response();
     
     void finish();
+    void setExpectedLength(unsigned long l);
     
     void write(const char * data, unsigned long length);
     void write(Blob * data);

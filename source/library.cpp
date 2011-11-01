@@ -2,6 +2,7 @@
 #define logn "Library"
 #include "log.h"
 #include <cerrno>
+#include <cstring>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <sstream>

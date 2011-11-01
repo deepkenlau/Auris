@@ -1,6 +1,22 @@
 #include "response.h"
 
 
+bool Response::isFinished()
+{
+	pthread_mutex_lock(&mutex);
+	bool v = finished;
+	pthread_mutex_unlock(&mutex);
+	return v;
+}
+
+unsigned long Response::getExpectedLength()
+{
+	pthread_mutex_lock(&mutex);
+	unsigned long v = expectedLength;
+	pthread_mutex_unlock(&mutex);
+	return v;
+}
+
 Response::Response(ResponseHandler * handler) : handler(handler)
 {
     finished = false;
@@ -9,6 +25,7 @@ Response::Response(ResponseHandler * handler) : handler(handler)
 
 Response::~Response()
 {
+	pthread_mutex_destroy(&mutex);
 }
 
 void Response::finish()
@@ -17,6 +34,15 @@ void Response::finish()
     finished = true;
     pthread_mutex_unlock(&mutex);
 }
+
+void Response::setExpectedLength(unsigned long l)
+{
+	pthread_mutex_lock(&mutex);
+	expectedLength = l;
+	pthread_mutex_unlock(&mutex);
+}
+
+
 
 void Response::write(const char * data, unsigned long length)
 {
