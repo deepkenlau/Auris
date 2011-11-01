@@ -39,7 +39,7 @@ void ConnectionInterfaceHTTP::Handler::onResponseData(Response * r, const char *
 	if(!headerSent)
 	{
 		std::stringstream header;
-		header << "HTTP/1.1 "
+		header << "HTTP/1.1 ";
 		if(r->isSuccessful()) header << "200 OK\r\n"; else header << "500 internal server error\r\n";
 		if(length) header << "Content-Length: " << length << "\r\n";
 		header << "\r\n";
