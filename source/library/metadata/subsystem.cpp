@@ -1,9 +1,9 @@
 #include "subsystem.h"
 #define logn "Metadata subsystem"
-#include "../log.h"
+#include "../../log.h"
 
 
-MetadataSubsystem::MetadataSubsystem(Server * s) : Subsystem(s)
+MetadataSubsystem::MetadataSubsystem(Library * l) : LibrarySubsystem(l)
 {
 }
 

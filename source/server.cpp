@@ -7,23 +7,8 @@
 
 Server::Server() :
 connection(this),
-command(this),
-storage(this),
-metadata(this)
+command(this)
 {
-    //Initialize the list of subsystems.
-    subsystems.insert(&connection);
-    subsystems.insert(&command);
-    subsystems.insert(&storage);
-    subsystems.insert(&metadata);
-    
-    //Initialize a debugging library.
-    struct passwd * pw = getpwuid(getuid());
-    const char * homedir = pw->pw_dir;
-    std::string path(homedir);
-    path += "/Music/Auris";
-    Library * l = new Library(path);
-    libraries.insert(l);
 }
 
 
@@ -36,8 +21,16 @@ void Server::run()
     log << "starting subsystems…" << std::endl;
     connection.start();
     command.start();
-    storage.start();
-    metadata.start();
+    
+    //Initialize a debugging library.
+    log << "initializing debug library..." << std::endl;
+    struct passwd * pw = getpwuid(getuid());
+    const char * homedir = pw->pw_dir;
+    std::string path(homedir);
+    path += "/Music/Auris";
+    Library * l = new Library(this, path);
+    libraries.insert(l);
+    l->start();
     
     //Enter the main wait loop.
     log << "running" << std::endl;

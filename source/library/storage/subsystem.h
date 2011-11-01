@@ -2,9 +2,9 @@
 #include "../subsystem.h"
 
 
-class StorageSubsystem : public Subsystem {
+class StorageSubsystem : public LibrarySubsystem {
 public:
-    StorageSubsystem(Server * s);
+    StorageSubsystem(Library * l);
     void start();
     
     bool onRawCommand(RawCommand * c);

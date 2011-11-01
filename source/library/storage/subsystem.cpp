@@ -1,13 +1,10 @@
 #include "subsystem.h"
 #define logn "Storage subsystem"
 #include "../log.h"
-#include <unistd.h>
-#include <sys/types.h>
-#include <pwd.h>
 #include "../command/rawcommand.h"
 
 
-StorageSubsystem::StorageSubsystem(Server * s) : Subsystem(s)
+StorageSubsystem::StorageSubsystem(Library * l) : Library::Subsystem(l)
 {
 }
 

@@ -22,11 +22,22 @@ void CommandSubsystem::processRawCommand(RawCommand * c)
 {
     log << "received raw command " << c->desc() << std::endl;
     
+    //Try to find a library this command relates to.
+    Library * library = NULL;
+    for (std::set<Library *>::iterator i = server->libraries.begin();
+    	 i != server->libraries.end(); i++) {
+    	if ((*i)->getUUID() == c->arguments[0]) {
+    		library = *i;
+    		break;
+    	}
+    }
+    
+    //Try to relay the raw command to the library's subsystems.
+    if (library && library->onRawCommand(c)) return;
+    
     //Try to relay the raw command to the subsystems.
-    for (std::set<Subsystem *>::iterator is = server->subsystems.begin();
-         is != server->subsystems.end(); is++)
-        if ((*is)->onRawCommand(c))
-            return;
+    if (server->connection.onRawCommand(c)) return;
+    if (server->command.onRawCommand(c)) return;
     
     //TODO: Convert the command according to the suffix to YAML, JSON, etc..
     //... insert code here ...
