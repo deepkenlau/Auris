@@ -14,19 +14,40 @@
 #include "../../command/rawcommand.h"
 
 
-class ConnectionInterfaceHTTP::Handler {
+class ConnectionInterfaceHTTP::Handler: public ResponseHandler {
 private:
     ConnectionInterfaceHTTP * const interface;
     int fd;
     pthread_t thread;
     static void * threadMain(void * handler);
-    
+
+	bool headerSent;
+
+protected:
+	void onResponseData(Response * r, const char * data, unsigned long length);    
+
 public:
     Handler(ConnectionInterfaceHTTP * interface, int socket);
     ~Handler();
     
     void start();
 };
+
+
+void ConnectionInterfaceHTTP::Handler::onResponseData(Response * r, const char * data, unsigned long length)
+{
+	if(!headerSent)
+	{
+		std::stringstream header;
+		header << "HTTP/1.1 200 OK\r\n";
+		header << "Content-Length: " << length << "\r\n";
+		header << "\r\n";
+		write(fd, header.str().c_str(), header.str().size());
+	}
+
+	write(fd, data, length);
+}
+
 
 ConnectionInterfaceHTTP::Handler::Handler(ConnectionInterfaceHTTP * interface, int socket) : interface(interface)
 {
@@ -195,6 +216,11 @@ void * ConnectionInterfaceHTTP::Handler::threadMain(void * handler)
     
     //Inject the command.
     h->interface->connection->onReceivedCommand(c);
+
+	while (!c->getResponse->isFinished())
+	{
+		usleep(100000);
+	}
     
     //We're through, close the connection.
     close(h->fd);
