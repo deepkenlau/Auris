@@ -29,6 +29,8 @@ bool Response::isSuccessful()
 Response::Response(ResponseHandler * handler) : handler(handler)
 {
     finished = false;
+    expectedLength = 0;
+    successful = true;
     pthread_mutex_init(&mutex, NULL);
 }
 
