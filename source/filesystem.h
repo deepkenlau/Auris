@@ -2,6 +2,7 @@
 #include "path.h"
 
 
-namespace FileSystem {
+namespace FS {
     bool fileExists(const std::string & path);
+    bool makeDirectory(const std::string & path);
 }

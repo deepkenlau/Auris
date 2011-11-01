@@ -23,7 +23,7 @@ void Library::ensureDirectoryExists()
        << strerror(errno) << std::endl;
 }
 
-Library::Library(std::string d) : directory(d)
+Library::Library(const Path & directory) : directory(directory)
 {
     //Make sure that the directory for the library exists.
     ensureDirectoryExists();
@@ -31,6 +31,16 @@ Library::Library(std::string d) : directory(d)
 
 Library::~Library()
 {
+}
+
+const std::string & Library::getUUID() const
+{
+    return uuid;
+}
+
+const std::string & Library::getName() const
+{
+    return name;
 }
 
 void Library::addFile(std::string suffix, Blob * data)

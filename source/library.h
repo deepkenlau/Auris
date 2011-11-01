@@ -1,17 +1,23 @@
 #pragma once
 #include <string>
+#include "path.h"
 #include "blob.h"
 
 
 class Library {
 private:
-    const std::string directory;
+    std::string uuid;
+    std::string name;
+    const Path directory;
     
     void ensureDirectoryExists();
     
 public:
-    Library(std::string directory);
+    Library(const Path & directory);
     ~Library();
+    
+    const std::string & getUUID() const;
+    const std::string & getName() const;
     
     void addFile(std::string suffix, Blob * data);
 };
