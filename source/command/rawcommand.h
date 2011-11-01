@@ -3,14 +3,16 @@
 #include <sstream>
 #include <vector>
 #include "../blob.h"
+#include "response.h"
 
 
 class RawCommand {
 public:
+	Response response;
     std::vector<std::string> arguments;
     Blob * data;
     
-    RawCommand() { data = NULL; }
+    RawCommand(ResponseHandler * rh = NULL) : response(rh) { data = NULL; }
     ~RawCommand() { if (data) delete (data); data = NULL; }
     
     const std::string desc() const {

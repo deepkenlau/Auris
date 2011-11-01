@@ -17,6 +17,14 @@ unsigned long Response::getExpectedLength()
 	return v;
 }
 
+bool Response::isSuccessful()
+{
+	pthread_mutex_lock(&mutex);
+	bool v = successful;
+	pthread_mutex_unlock(&mutex);
+	return v;
+}
+
 Response::Response(ResponseHandler * handler) : handler(handler)
 {
     finished = false;
@@ -42,15 +50,24 @@ void Response::setExpectedLength(unsigned long l)
 	pthread_mutex_unlock(&mutex);
 }
 
+void Response::setSuccessful(bool s)
+{
+	pthread_mutex_lock(&mutex);
+	successful = s;
+	pthread_mutex_unlock(&mutex);
+}
+
 
 
 void Response::write(const char * data, unsigned long length)
 {
-    handler->onResponseData(this, data, length);
+	if (!handler) return;
+	handler->onResponseData(this, data, length);
 }
 
 void Response::write(Blob * data)
 {
+    if (!handler) return;
     handler->onResponseData(this, data->getData(), data->getLength());
 }
 
