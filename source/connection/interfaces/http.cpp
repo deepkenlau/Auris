@@ -14,19 +14,42 @@
 #include "../../command/rawcommand.h"
 
 
-class ConnectionInterfaceHTTP::Handler {
+class ConnectionInterfaceHTTP::Handler: public ResponseHandler {
 private:
     ConnectionInterfaceHTTP * const interface;
     int fd;
     pthread_t thread;
     static void * threadMain(void * handler);
-    
+
+	bool headerSent;
+
+protected:
+	void onResponseData(Response * r, const char * data, unsigned long length);    
+
 public:
     Handler(ConnectionInterfaceHTTP * interface, int socket);
     ~Handler();
     
     void start();
 };
+
+
+void ConnectionInterfaceHTTP::Handler::onResponseData(Response * r, const char * data, unsigned long length)
+{
+	if(!headerSent)
+	{
+		std::stringstream header;
+		header << "HTTP/1.1 ";
+		if(r->isSuccessful()) header << "200 OK\r\n"; else header << "500 internal server error\r\n";
+		if(length) header << "Content-Length: " << length << "\r\n";
+		header << "\r\n";
+		write(fd, header.str().c_str(), header.str().size());
+		headerSent = true;
+	}
+
+	write(fd, data, length);
+}
+
 
 ConnectionInterfaceHTTP::Handler::Handler(ConnectionInterfaceHTTP * interface, int socket) : interface(interface)
 {
@@ -180,7 +203,7 @@ void * ConnectionInterfaceHTTP::Handler::threadMain(void * handler)
     //considering is split apart at the forward slashes to generate a list of
     //arguments.
     //TODO: urldecode the arguments
-    RawCommand * c = new RawCommand;
+    RawCommand * c = new RawCommand(h);
     std::string s(path, (path[0] == '/' ? 1 : 0));
     while (true) {
         int fwds = s.find_first_of('/');
@@ -195,6 +218,11 @@ void * ConnectionInterfaceHTTP::Handler::threadMain(void * handler)
     
     //Inject the command.
     h->interface->connection->onReceivedCommand(c);
+
+	while (!c->response.isFinished())
+	{
+		usleep(100000);
+	}
     
     //We're through, close the connection.
     close(h->fd);

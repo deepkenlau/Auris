@@ -32,7 +32,7 @@ bool StorageSubsystem::onRawCommand(RawCommand * c)
         return false;
     
     //We process upload commands.
-    if (c->arguments[0] == "upload") {
+    /*if (c->arguments[0] == "upload") {
         
         //Extract the suffix.
         std::string & name = c->arguments[1];
@@ -40,8 +40,14 @@ bool StorageSubsystem::onRawCommand(RawCommand * c)
         std::string suffix(name, colon + 1);
         
         //Add the uploaded file to each library object.
-        /*for (std::set<StorageLibrary *>::iterator il = libraries.begin();
+        for (std::set<StorageLibrary *>::iterator il = libraries.begin();
              il != libraries.end(); il++)
-            (*il)->addFile(suffix, c->data);*/
+            (*il)->addFile(suffix, c->data);
+    }*/
+    
+    //Debug.
+    if (c->arguments[0] == "hello") {
+    	c->response << "world!";
+    	c->response.finish();
     }
 }
