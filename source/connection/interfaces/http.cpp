@@ -201,7 +201,7 @@ void * ConnectionInterfaceHTTP::Handler::threadMain(void * handler)
     //considering is split apart at the forward slashes to generate a list of
     //arguments.
     //TODO: urldecode the arguments
-    RawCommand * c = new RawCommand;
+    RawCommand * c = new RawCommand(h);
     std::string s(path, (path[0] == '/' ? 1 : 0));
     while (true) {
         int fwds = s.find_first_of('/');
@@ -217,7 +217,7 @@ void * ConnectionInterfaceHTTP::Handler::threadMain(void * handler)
     //Inject the command.
     h->interface->connection->onReceivedCommand(c);
 
-	while (!c->getResponse->isFinished())
+	while (!c->response.isFinished())
 	{
 		usleep(100000);
 	}

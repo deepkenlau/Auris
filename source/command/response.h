@@ -21,11 +21,6 @@ private:
     unsigned long expectedLength;
     bool successful;
     pthread_mutex_t mutex;
-       
-protected:
-	bool isFinished();
-	unsigned long getExpectedLength();
-	bool isSuccessful();
     
 public:
     ResponseHandler * const handler;
@@ -37,6 +32,10 @@ public:
     void setExpectedLength(unsigned long l);
     void setSuccessful(bool s);
     
+	bool isFinished();
+	unsigned long getExpectedLength();
+	bool isSuccessful();
+
     void write(const char * data, unsigned long length);
     void write(Blob * data);
     
