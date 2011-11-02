@@ -15,8 +15,8 @@ if (UUID_FOUND)
 	target_link_libraries(aurisd ${UUID_LIBRARIES})
 endif (UUID_FOUND)
 
-pkg_check_modules(CONFIG libconfig)
-target_link_libraries(aurisd ${CONFIG_LIBRARIES})
+pkg_check_modules(LIBCONFIG "libconfig++")
+target_link_libraries(aurisd ${LIBCONFIG_LIBRARIES})
 
 # Automatically generate the documentation using Doxygen.
 find_package(Doxygen)

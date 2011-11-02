@@ -22,6 +22,9 @@ private:
     
     Path getConfigPath() const;
     
+    void loadConfig();
+    void storeConfig();
+    
 protected:
     //Subsystems.
     StorageSubsystem storage;
