@@ -43,10 +43,10 @@ void Path::setString(std::string path)
     components.clear();
     int offset = 0;
     do {
-        int sep = path.find_first_of(SEPARATOR);
-        components.push_back(std::string(path, 0, sep));
-        if (sep != std::string::npos)
-            path = std::string(path, sep + 1);
+        offset = path.find_first_of(SEPARATOR);
+        components.push_back(std::string(path, 0, offset));
+        if (offset != std::string::npos)
+            path = std::string(path, offset + 1);
     } while (offset != std::string::npos);
     invalidateCache();
 }
@@ -77,4 +77,51 @@ const std::string & Path::getString() const
 Path::operator std::string () const
 {
     return getString();
+}
+
+
+
+/** Appends the given path to this path. */
+void Path::append(const std::string & path)
+{
+    append(Path(path));
+}
+
+/** Appends the given path to this path. */
+void Path::append(const Path & path)
+{
+    for (int i = 0; i < path.components.size(); i++)
+        components.push_back(path.components[i]);
+}
+
+
+
+/** Returns a new path with the given path appended. */
+Path Path::operator + (const std::string & path) const
+{
+    Path p(*this);
+    p.append(path);
+    return p;
+}
+
+/** Returns a new path with the given path appended. */
+Path Path::operator + (const Path & path) const
+{
+    Path p(*this);
+    p.append(path);
+    return p;
+}
+
+
+
+/** Convenience wrapper around the append function. */
+Path & Path::operator += (const std::string & path)
+{
+    append(path);
+}
+
+/** Convenience wrapper around the append function. */
+Path & Path::operator += (const Path & path)
+{
+    append(path);
 }

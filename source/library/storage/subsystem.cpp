@@ -1,10 +1,10 @@
 #include "subsystem.h"
 #define logn "Storage subsystem"
-#include "../log.h"
-#include "../command/rawcommand.h"
+#include "../../log.h"
+#include "../../command/rawcommand.h"
 
 
-StorageSubsystem::StorageSubsystem(Library * l) : Library::Subsystem(l)
+StorageSubsystem::StorageSubsystem(Library * l) : LibrarySubsystem(l)
 {
 }
 

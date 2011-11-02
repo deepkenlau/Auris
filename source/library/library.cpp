@@ -3,11 +3,9 @@
 #include "../log.h"
 #include <cerrno>
 #include <cstring>
-#include <sys/types.h>
-#include <sys/stat.h>
 #include <sstream>
-#include <fstream>
-#include "uuid.h"
+#include "../uuid.h"
+#include "../filesystem.h"
 
 
 void Library::initialize()
@@ -15,20 +13,32 @@ void Library::initialize()
 	//Ensure the directory exists.
 	ensureDirectoryExists();
 	
+    //Open the configuration file.
+    log << "config path = " << (std::string)getConfigPath() << std::endl;
+    
 	//Generate a UUID for the library.
 	//TODO: load this stuff from the library config file!
 	uuid = generateUUID();
 	name = "Debug Library";
+    log << "initialized new library " << uuid << ", \"" << name << "\"" << std::endl;
 }
 
+/** If the library directory does not exist, creates it. */
 void Library::ensureDirectoryExists()
 {
-	if (!FS::fileExists(directory)) {
-    	log << "creating library directory at " << (std::string)directory << std::endl;
-		if (!FS::makeDirectory(directory))
-			err << "unable to create library directory at " << (std::string)directory << ", "
-       		<< strerror(errno) << std::endl;
-	}
+	if (FS::fileExists(directory))
+        return;
+    
+    log << "creating library directory at " << (std::string)directory << std::endl;
+    if (!FS::makeDirectory(directory))
+        err << "unable to create library directory at " << (std::string)directory << ", "
+        << strerror(errno) << std::endl;
+}
+
+/** Returns the path to this library's configuration file. */
+Path Library::getConfigPath() const
+{
+    return (directory + "config");
 }
 
 Library::Library(Server * s, const Path & directory)

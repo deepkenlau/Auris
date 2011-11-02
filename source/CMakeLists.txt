@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION 2.6)
 project(Auris)
 
+find_package(PkgConfig)
+
 # Server
 file(GLOB_RECURSE sources RELATIVE ${CMAKE_SOURCE_DIR} *.cpp)
 add_executable(aurisd ${sources})
@@ -8,11 +10,13 @@ add_executable(aurisd ${sources})
 find_package(Threads)
 target_link_libraries(aurisd ${CMAKE_THREAD_LIBS_INIT})
 
-find_package(PkgConfig)
 pkg_check_modules(UUID uuid)
 if (UUID_FOUND)
 	target_link_libraries(aurisd ${UUID_LIBRARIES})
 endif (UUID_FOUND)
+
+pkg_check_modules(CONFIG libconfig)
+target_link_libraries(aurisd ${CONFIG_LIBRARIES})
 
 # Automatically generate the documentation using Doxygen.
 find_package(Doxygen)

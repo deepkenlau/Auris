@@ -1,4 +1,3 @@
-#pragma once
 #include "library.h"
 #include "subsystem.h"
 

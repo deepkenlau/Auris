@@ -20,6 +20,8 @@ private:
     void initialize();
     void ensureDirectoryExists();
     
+    Path getConfigPath() const;
+    
 protected:
     //Subsystems.
     StorageSubsystem storage;

@@ -11,3 +11,15 @@ The following is a list of things that need to be done at this particular stage 
 - *ConnectionInterfaceHTTP*: disassemble multipart-form-data so the user may upload files via the webbrowser.
 - Think of a way how the commands are interpreted. At the moment, there's a `RawCommand` object that doesn't do any content-sensitive processing. Maybe the command portion should try to disassemble JSON, YAML, Confuse or whatever into a more meaningful structure and put that into a `Command` object. An additional `DataCommand` or whatever would also be quite helpful.
 - Think of a way how commands should be distributed to subsystems and whether they should be interpreted in the command subsystem already or later on in the individual subsystems.
+
+Dependencies
+------------
+The Auris project depends on the following other projects and libraries:
+
+- libuuid
+- libconfig
+
+And *will* probably depend on the following in the future:
+
+- OpenAL
+- libavcodec *from FFmpeg*
