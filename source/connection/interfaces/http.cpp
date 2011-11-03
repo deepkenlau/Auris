@@ -24,6 +24,7 @@ private:
 	bool headerSent;
 
 protected:
+    void sendResponseHeaderIfRequired(Response * r);
 	void onResponseData(Response * r, const char * data, unsigned long length);    
 
 public:
@@ -34,19 +35,34 @@ public:
 };
 
 
+
+void ConnectionInterfaceHTTP::Handler::sendResponseHeaderIfRequired(Response * r)
+{
+	if (headerSent) return;
+	
+    std::stringstream header;
+    header << "HTTP/1.1 ";
+    
+    //Add the flavour of the response, positive or negative.
+    if (r->isSuccessful())
+        header << "200 OK\r\n";
+    else
+        header << "500 Internal Server Error\r\n";
+    
+    //If the response told us how much bytes we're supposed to expect,
+    //include that information in the header.
+    if (r->getExpectedLength())
+        header << "Content-Length: " << r->getExpectedLength() << "\r\n";
+    header << "\r\n";
+    write(fd, header.str().c_str(), header.str().size());
+    
+    //Mark the header as sent.
+    headerSent = true;
+}
+
 void ConnectionInterfaceHTTP::Handler::onResponseData(Response * r, const char * data, unsigned long length)
 {
-	if(!headerSent)
-	{
-		std::stringstream header;
-		header << "HTTP/1.1 ";
-		if(r->isSuccessful()) header << "200 OK\r\n"; else header << "500 internal server error\r\n";
-		if(length) header << "Content-Length: " << length << "\r\n";
-		header << "\r\n";
-		write(fd, header.str().c_str(), header.str().size());
-		headerSent = true;
-	}
-
+    sendResponseHeaderIfRequired(r);
 	write(fd, data, length);
 }
 
@@ -218,13 +234,13 @@ void * ConnectionInterfaceHTTP::Handler::threadMain(void * handler)
     
     //Inject the command.
     h->interface->connection->onReceivedCommand(c);
-
-	while (!c->response.isFinished())
-	{
-		usleep(100000);
-	}
     
-    //We're through, close the connection.
+    //Wait until the response is marked as finished.
+	while (!c->response.isFinished())
+		usleep(100000);
+    
+    //We're through, send the header if required and close the connection.
+    h->sendResponseHeaderIfRequired(&c->response);
     close(h->fd);
     h->fd = 0;
     
