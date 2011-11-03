@@ -9,6 +9,9 @@ std::string md5(Blob * data)
 
 std::string md5(const char * data, unsigned int length)
 {
-    char * hash = (char *)MD5((const unsigned char *)data, length, NULL);
-    return std::string(hash, length);
+    unsigned char * hash = MD5((const unsigned char *)data, length, NULL);
+    char sum[MD5_DIGEST_LENGTH*2 + 1];
+    for (int i = 0; i < MD5_DIGEST_LENGTH; i++)
+        sprintf(sum + i*2, "%02x", hash[i]);
+    return sum;
 }

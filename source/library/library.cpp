@@ -1,8 +1,6 @@
 #include "library.h"
 #define logn "Library"
 #include "../log.h"
-#include <cerrno>
-#include <cstring>
 #include <sstream>
 #include "../uuid.h"
 #include "../filesystem.h"
@@ -44,8 +42,7 @@ void Library::ensureDirectoryExists()
     
     log << "creating library directory at " << (std::string)directory << std::endl;
     if (!FS::makeDirectory(directory))
-        err << "unable to create library directory at " << (std::string)directory << ", "
-        << strerror(errno) << std::endl;
+        err << "unable to create library directory" << std::endl;
 }
 
 /** Returns the path to this library's configuration file. */

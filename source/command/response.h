@@ -41,4 +41,5 @@ public:
     
     Response & operator << (Blob * data);
     Response & operator << (const std::string & s);
+    Response & operator << (const char * s);
 };

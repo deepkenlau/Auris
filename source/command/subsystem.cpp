@@ -28,6 +28,7 @@ void CommandSubsystem::processRawCommand(RawCommand * c)
     	 i != server->libraries.end(); i++) {
     	if ((*i)->getUUID() == c->arguments[0]) {
     		library = *i;
+            log << "- directed at library " << library->getName() << std::endl;
     		break;
     	}
     }

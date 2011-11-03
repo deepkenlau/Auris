@@ -79,6 +79,12 @@ Path::operator std::string () const
     return getString();
 }
 
+/** Automatic cast to a C string. */
+/*Path::operator const char * () const
+{
+    return getString();
+}*/
+
 
 
 /** Appends the given path to this path. */
@@ -92,6 +98,7 @@ void Path::append(const Path & path)
 {
     for (int i = 0; i < path.components.size(); i++)
         components.push_back(path.components[i]);
+    invalidateCache();
 }
 
 
@@ -118,10 +125,12 @@ Path Path::operator + (const Path & path) const
 Path & Path::operator += (const std::string & path)
 {
     append(path);
+    return *this;
 }
 
 /** Convenience wrapper around the append function. */
 Path & Path::operator += (const Path & path)
 {
     append(path);
+    return *this;
 }

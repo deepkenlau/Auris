@@ -1,5 +1,8 @@
 #include "filesystem.h"
 
+#include <iostream>
+#include <cerrno>
+#include <cstring>
 #include <sys/types.h>
 #include <sys/stat.h>
 
@@ -15,5 +18,8 @@ bool FS::fileExists(const std::string & path)
 bool FS::makeDirectory(const std::string & path)
 {
     int result = mkdir(path.c_str(), 0777);
+    if (result != 0)
+        std::cerr << "unable to make directory at " << (std::string)path << ", "
+        << strerror(errno) << std::endl;
     return (result == 0);
 }

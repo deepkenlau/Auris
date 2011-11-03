@@ -100,3 +100,10 @@ Response & Response::operator << (const std::string & s)
     write(s.c_str(), s.length());
     return *this;
 }
+
+/** Convenience wrapper for write(). */
+Response & Response::operator << (const char * s)
+{
+    write(s, strlen(s));
+    return *this;
+}
