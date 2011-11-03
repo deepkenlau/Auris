@@ -10,6 +10,9 @@ add_executable(aurisd ${sources})
 find_package(Threads)
 target_link_libraries(aurisd ${CMAKE_THREAD_LIBS_INIT})
 
+find_package(OpenSSL)
+target_link_libraries(aurisd ${OPENSSL_LIBRARIES})
+
 pkg_check_modules(UUID uuid)
 if (UUID_FOUND)
 	target_link_libraries(aurisd ${UUID_LIBRARIES})

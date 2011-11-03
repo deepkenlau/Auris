@@ -15,7 +15,6 @@ class Library {
 private:
     std::string uuid;
     std::string name;
-    const Path directory;
     
     void initialize();
     void ensureDirectoryExists();
@@ -32,6 +31,7 @@ protected:
     
 public:
     Server * const server;
+    const Path directory;
     
     Library(Server * s, const Path & directory);
     ~Library();

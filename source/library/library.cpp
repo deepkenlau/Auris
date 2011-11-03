@@ -119,14 +119,13 @@ const std::string & Library::getName() const
 
 void Library::start()
 {
-	log << "starting subsystems..." << std::endl;
-	
 	//Do basic library initialization. This involves creating the basic
 	//library directory structure if required and initializing the
 	//configuration files.
 	initialize();
 	
 	//Start the subsystems.
+	log << "starting subsystems..." << std::endl;
 	storage.start();
 	metadata.start();
 }

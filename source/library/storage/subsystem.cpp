@@ -2,6 +2,14 @@
 #define logn "Storage subsystem"
 #include "../../log.h"
 #include "../../command/rawcommand.h"
+#include "../library.h"
+
+
+/** Returns the path to the directory containing the original audio files. */
+Path StorageSubsystem::getOriginalsDir() const
+{
+    return (library->directory + "originals");
+}
 
 
 StorageSubsystem::StorageSubsystem(Library * l) : LibrarySubsystem(l)
@@ -11,15 +19,6 @@ StorageSubsystem::StorageSubsystem(Library * l) : LibrarySubsystem(l)
 void StorageSubsystem::start()
 {
     log << "starting…" << std::endl;
-    
-    //DEBUG: Initialize a music library under ~/Music/Auris since the main part
-    //of the program is developped under Mac OS X.
-    /*struct passwd * pw = getpwuid(getuid());
-    const char * homedir = pw->pw_dir;
-    std::string path(homedir);
-    path += "/Music/Auris";
-    StorageLibrary * l = new StorageLibrary(path);
-    libraries.insert(l);*/
 }
 
 bool StorageSubsystem::onRawCommand(RawCommand * c)
@@ -47,4 +46,11 @@ bool StorageSubsystem::onRawCommand(RawCommand * c)
     	c->response << "world!";
     	c->response.finish();
     }
+}
+
+/** Creates a new file in the music library with the given file content, if it
+ * doesn't already exist. */
+void StorageSubsystem::addFile(Blob * content)
+{
+    
 }
