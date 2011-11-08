@@ -20,8 +20,8 @@ private:
     int fd;
     pthread_t thread;
     static void * threadMain(void * handler);
-
 	bool headerSent;
+    pthread_mutex_t mutex;
 
 protected:
     void sendResponseHeaderIfRequired(Response * r);
@@ -38,7 +38,11 @@ public:
 
 void ConnectionInterfaceHTTP::Handler::sendResponseHeaderIfRequired(Response * r)
 {
-	if (headerSent) return;
+    pthread_mutex_lock(&mutex);
+	if (headerSent) {
+        pthread_mutex_unlock(&mutex);
+        return;
+    }
 	
     std::stringstream header;
     header << "HTTP/1.1 ";
@@ -54,29 +58,44 @@ void ConnectionInterfaceHTTP::Handler::sendResponseHeaderIfRequired(Response * r
     if (r->getExpectedLength())
         header << "Content-Length: " << r->getExpectedLength() << "\r\n";
     header << "\r\n";
-    write(fd, header.str().c_str(), header.str().size());
+    
+    //Send the header.
+    std::string headerString = header.str();
+    log << "sending header: " << headerString << std::endl;
+    write(fd, headerString.c_str(), headerString.size());
     
     //Mark the header as sent.
     headerSent = true;
+    pthread_mutex_unlock(&mutex);
 }
 
 void ConnectionInterfaceHTTP::Handler::onResponseData(Response * r, const char * data, unsigned long length)
 {
     sendResponseHeaderIfRequired(r);
+    pthread_mutex_lock(&mutex);
 	write(fd, data, length);
+    pthread_mutex_unlock(&mutex);
 }
 
 
 ConnectionInterfaceHTTP::Handler::Handler(ConnectionInterfaceHTTP * interface, int socket) : interface(interface)
 {
+    pthread_mutex_init(&mutex, NULL);
     fd = socket;
+    headerSent = false;
 }
 
 ConnectionInterfaceHTTP::Handler::~Handler()
 {
     //Close the socket if it is still open.
-    if (fd)
+    pthread_mutex_lock(&mutex);
+    if (fd) {
         close(fd);
+        fd = 0;
+    }
+    pthread_mutex_unlock(&mutex);
+    
+    pthread_mutex_destroy(&mutex);
 }
 
 void ConnectionInterfaceHTTP::Handler::start()

@@ -4,6 +4,7 @@
 #include "../blob.h"
 #include "storage/subsystem.h"
 #include "metadata/subsystem.h"
+#include "aggregator/subsystem.h"
 
 class Server;
 
@@ -11,6 +12,7 @@ class Server;
 class Library {
 	friend class StorageSubsystem;
 	friend class MetadataSubsystem;
+    friend class AggregatorSubsystem;
 	
 private:
     std::string uuid;
@@ -28,6 +30,7 @@ protected:
     //Subsystems.
     StorageSubsystem storage;
     MetadataSubsystem metadata;
+    AggregatorSubsystem aggregator;
     
 public:
     Server * const server;

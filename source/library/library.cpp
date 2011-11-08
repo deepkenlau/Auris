@@ -96,7 +96,8 @@ void Library::storeConfig()
 }
 
 Library::Library(Server * s, const Path & directory)
-: server(s), directory(directory), storage(this), metadata(this)
+: server(s), directory(directory),
+storage(this), metadata(this), aggregator(this)
 {
 }
 
