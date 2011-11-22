@@ -4,7 +4,7 @@
 #include <sstream>
 #include "../uuid.h"
 #include "../filesystem.h"
-#include <libconfig.h++>
+//#include <libconfig.h++>
 
 
 void Library::initialize()
@@ -54,7 +54,7 @@ Path Library::getConfigPath() const
 void Library::loadConfig()
 {
     //Do nothing if the config file does not exist.
-    std::string p = getConfigPath();
+    /*std::string p = getConfigPath();
     if (!FS::fileExists(p))
         return;
     
@@ -73,12 +73,12 @@ void Library::loadConfig()
     
     //Load the basic library attributes.
     cfg.lookupValue("uuid", uuid);
-    cfg.lookupValue("name", name);
+    cfg.lookupValue("name", name);*/
 }
 
 void Library::storeConfig()
 {
-    libconfig::Config cfg;
+    /*libconfig::Config cfg;
     libconfig::Setting & root = cfg.getRoot();
     
     //Store the basic library attributes.
@@ -92,7 +92,7 @@ void Library::storeConfig()
     } catch (const libconfig::FileIOException & e) {
         err << "unable to write config to " << p << std::endl;
         return;
-    }
+    }*/
 }
 
 Library::Library(Server * s, const Path & directory)

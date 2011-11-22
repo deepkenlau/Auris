@@ -9,7 +9,6 @@
 #include "../../md5.h"
 #include "../../uuid.h"
 #include "../../filesystem.h"
-#include <libconfig.h++>
 
 
 /** Loads the index of the originals from disk. */

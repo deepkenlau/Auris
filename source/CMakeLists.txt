@@ -31,3 +31,6 @@ if (DOXYGEN_FOUND)
 	)
 endif (DOXYGEN_FOUND)
 
+# Add the third party headers.
+include_directories(${CMAKE_SOURCE_DIR}/../include)
+

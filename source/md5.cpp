@@ -1,5 +1,6 @@
 #include "md5.h"
 #include <openssl/md5.h>
+#include <cstdio>
 
 
 std::string md5(Blob * data)
