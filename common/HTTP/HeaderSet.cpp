@@ -27,7 +27,15 @@ std::string HeaderSet::get(const std::string &field) const
 
 HeaderSet* HeaderSet::fromString(const std::string &str, unsigned int *consumed)
 {
-
+	size_t pos = str.find("\r\n\r\n");
+	if(pos == str::string::npos) return NULL;
+	std::string substr = str.substr(0, pos+4);
+	int oldpos = 0;
+	pos == substr.find("\r\n");
+	do
+	{
+		pos = substr.find
+	} while(pos != std::string::npos)
 }
 
 std::string HeaderSet::toString() const
@@ -40,6 +48,7 @@ std::string HeaderSet::toString() const
 		str << it->second;
 		str << "\r\n";
 	}
+	str << "\r\n";
 	return str.str();
 }
 
