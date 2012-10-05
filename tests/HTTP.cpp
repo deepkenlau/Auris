@@ -15,7 +15,7 @@ int main(int argc, char *argv[])
 	assert(!hs.has("Rubbish"));
 
 	std::string hso = hs.toString();
-	assert_equal(hso, "Content-Type: text/plain\r\nContent-Length: 50823\r\n");
+	assert_equal(hso, "Content-Length: 50823\r\nContent-Type: text/plain\r\n\r\n");
 
 	return 0;
 }
