@@ -1,11 +1,14 @@
 /* Copyright © 2012 Fabian Schuiki, Sandro Sgier */
 #pragma once
+#include <map>
+#include <string>
 
 namespace HTTP
 {
 	class HeaderSet
 	{
-		std::map<std::string, std::string> fields;
+		typedef std::map<std::string, std::string> Fields;
+		Fields fields;
 	public:
 		void add(const std::string &field, const std::string &value);
 		void remove(const std::string &field);

@@ -1,5 +1,7 @@
 /* Copyright © 2012 Fabian Schuiki, Sandro Sgier */
 #include "HeaderSet.h"
+#include <sstream>
+using namespace HTTP;
 
 void HeaderSet::add(const std::string &field, const std::string &value)
 {
@@ -13,15 +15,17 @@ void HeaderSet::remove(const std::string &field)
 
 bool HeaderSet::has(const std::string &field) const
 {
-	return fields.count[field];
+	return fields.count(field);
 }
 
-std::string get(const std::string &field) const
+std::string HeaderSet::get(const std::string &field) const
 {
-	return fields[field];
+	Fields::const_iterator f = fields.find(field);
+	if (f == fields.end()) return "";
+	return f->second;
 }
 
-static HeaderSet* HeaderSet::fromString(const std::string &str, unsigned int *consumed = NULL);
+HeaderSet* HeaderSet::fromString(const std::string &str, unsigned int *consumed)
 {
 
 }
@@ -29,7 +33,7 @@ static HeaderSet* HeaderSet::fromString(const std::string &str, unsigned int *co
 std::string HeaderSet::toString() const
 {
 	std::stringstream str;
-	for(Fields::const_iterator it = fields.cbegin(); it!=fields.cend(); it++)
+	for(Fields::const_iterator it = fields.begin(); it!=fields.end(); it++)
 	{
 		str << it->first;
 		str << ": ";
