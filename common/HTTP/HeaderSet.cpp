@@ -26,11 +26,15 @@ static HeaderSet* HeaderSet::fromString(const std::string &str, unsigned int *co
 	size_t pos = str.find("\r\n\r\n");
 	if(pos == str::string::npos) return NULL;
 	std::string substr = str.substr(0, pos+4);
-	int oldpos = 0;
-	pos == substr.find("\r\n");
+	size_t oldpos = 0;
+	size_t colonpos = 0;
 	do
 	{
-		pos = substr.find
+		pos = substr.find("\r\n", oldpos);
+		colonpos = substr.find(": ",oldpos);
+		if(colonpos != std::sting::npos)
+			fields[substr.substr(oldpos,colonpos)] = substr.substr(colonpos+2,pos);
+		oldpos = pos+2;
 	} while(pos != std::string::npos)
 }
 
