@@ -33,18 +33,19 @@ HeaderSet* HeaderSet::fromString(const std::string &str, unsigned int *consumed)
 	std::string substr = str.substr(0, pos+4);
 	size_t oldpos = 0;
 	size_t colonpos = 0;
-	do
+	while(true)
 	{
 		pos = substr.find("\r\n", oldpos);
+		if(pos == std::string::npos) break;
 		colonpos = substr.find(": ",oldpos);
 		if (colonpos != std::string::npos) {
-			std::string field = substr.substr(oldpos,colonpos);
-			std::string value = substr.substr(colonpos+2,pos);
+			std::string field = substr.substr(oldpos,colonpos-oldpos);
+			std::string value = substr.substr(colonpos+2,pos-colonpos-2);
 			std::cout << "parsing " << field << ": \"" << value << "\"\n";
 			//fields[substr.substr(oldpos,colonpos)] = substr.substr(colonpos+2,pos);
 		}
 		oldpos = pos+2;
-	} while(pos != std::string::npos);
+	}
 }
 
 std::string HeaderSet::toString() const
