@@ -1,5 +1,6 @@
 /* Copyright © 2012 Fabian Schuiki, Sandro Sgier */
 #include "HeaderSet.h"
+#include <iostream>
 #include <sstream>
 using namespace HTTP;
 
@@ -27,15 +28,23 @@ std::string HeaderSet::get(const std::string &field) const
 
 HeaderSet* HeaderSet::fromString(const std::string &str, unsigned int *consumed)
 {
-	/*size_t pos = str.find("\r\n\r\n");
-	if(pos == str::string::npos) return NULL;
+	size_t pos = str.find("\r\n\r\n");
+	if(pos == std::string::npos) return NULL;
 	std::string substr = str.substr(0, pos+4);
-	int oldpos = 0;
-	pos == substr.find("\r\n");
+	size_t oldpos = 0;
+	size_t colonpos = 0;
 	do
 	{
-		pos = substr.find
-	} while(pos != std::string::npos)*/
+		pos = substr.find("\r\n", oldpos);
+		colonpos = substr.find(": ",oldpos);
+		if (colonpos != std::string::npos) {
+			std::string field = substr.substr(oldpos,colonpos);
+			std::string value = substr.substr(colonpos+2,pos);
+			std::cout << "parsing " << field << ": \"" << value << "\"\n";
+			//fields[substr.substr(oldpos,colonpos)] = substr.substr(colonpos+2,pos);
+		}
+		oldpos = pos+2;
+	} while(pos != std::string::npos);
 }
 
 std::string HeaderSet::toString() const

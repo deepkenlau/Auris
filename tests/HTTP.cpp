@@ -2,7 +2,7 @@
 #include <iostream>
 #include "../common/HTTP/HeaderSet.h"
 
-#define assert_equal(a,b) if (a != b) std::cerr << #a << ": expected " << b << ", got " << a << std::endl; return 1;
+#define assert_equal(a,b) if (a != b) { std::cerr << #a << ": expected " << b << ", got " << a << std::endl; return 1; }
 
 int main(int argc, char *argv[])
 {
@@ -16,6 +16,9 @@ int main(int argc, char *argv[])
 
 	std::string hso = hs.toString();
 	assert_equal(hso, "Content-Length: 50823\r\nContent-Type: text/plain\r\n\r\n");
+
+	HTTP::HeaderSet *hsp = HTTP::HeaderSet::fromString(hso);
+	assert(hsp && "parsed header must be valid");
 
 	return 0;
 }
