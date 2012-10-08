@@ -19,6 +19,8 @@ int main(int argc, char *argv[])
 
 	HTTP::HeaderSet *hsp = HTTP::HeaderSet::fromString(hso);
 	assert(hsp && "parsed header must be valid");
+	std::string hspo = hsp->toString();
+	assert_equal(hspo, hso);
 
 	return 0;
 }
