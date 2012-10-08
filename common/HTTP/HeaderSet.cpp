@@ -31,6 +31,7 @@ HeaderSet* HeaderSet::fromString(const std::string &str, unsigned int *consumed)
 	size_t pos = str.find("\r\n\r\n");
 	if(pos == std::string::npos) return NULL;
 	std::string substr = str.substr(0, pos+4);
+	if(consumed) *consumed = pos+4;
 	size_t oldpos = 0;
 	size_t colonpos = 0;
 	HeaderSet *headerSet = new HeaderSet();
