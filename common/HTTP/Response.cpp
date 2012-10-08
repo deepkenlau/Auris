@@ -1,5 +1,4 @@
 /* Copyright © 2012 Fabian Schuiki, Sandro Sgier */
-#pragma once
 #include "Response.h"
 #include <string>
 
