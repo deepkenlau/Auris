@@ -28,16 +28,19 @@ int main(int argc, char *argv[])
 	req.type = HTTP::Request::kPOST;
 	req.path = "/meta.json";
 	req.headers.add("Content-Type", "application/json");
+	req.headers.add("Content-Length", "11");
 	req.headers.add("User-Agent", "auris-db");
 	req.content = "Hello World";
 
 	std::string reqo = req.toString();
-	assert_equal(reqo, "POST /meta.json HTTP/1.1\r\nContent-Type: application/json\r\nUser-Agent: auris-db\r\n\r\nHello World\r\n");
+	assert_equal(reqo, "POST /meta.json HTTP/1.1\r\nContent-Length: 11\r\nContent-Type: application/json\r\nUser-Agent: auris-db\r\n\r\nHello World\r\n");
 
 	HTTP::Request *reqp = HTTP::Request::fromString(reqo);
 	assert(reqp && "parsed request must be valid");
 	std::string reqpo = reqp->toString();
 	assert_equal(reqpo, reqo);
+
+	std::cout << reqo;
 
 	return 0;
 }
