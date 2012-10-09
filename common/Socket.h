@@ -1,9 +1,11 @@
 /* Copyright © 2012 Fabian Schuiki, Sandro Sgier */
 #pragma once
+#include <sys/types.h>
 
 class Socket
 {
-	
+	int fd;
+	struct sockaddr_in addr;	
 public:
 	static Socket* makeListening(int port);
 	static Socket* makeConnected(std::string hostname, int port);
