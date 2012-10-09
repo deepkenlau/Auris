@@ -2,6 +2,7 @@
 #pragma once
 #include <pthread.h>
 
+/** Lightweight wrapper around pthreads. */
 class Thread
 {
 	const pthread_t thread;
