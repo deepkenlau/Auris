@@ -8,7 +8,7 @@ class Mutex
 	pthread_mutex_t mutex;
 
 public:
-	Mutex()  { pthread_mutex_init(&mutex, NULL); }
+	Mutex()  { mutex = PTHREAD_MUTEX_INITIALIZER; pthread_mutex_init(&mutex, NULL); }
 	~Mutex() { pthread_mutex_destroy(&mutex); }
 
 	void lock()   { pthread_mutex_lock(&mutex); }
