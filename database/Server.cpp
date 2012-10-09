@@ -1,5 +1,7 @@
 /* Copyright © 2012 Fabian Schuiki, Sandro Sgier */
+#include "Connection.h"
 #include "Server.h"
+#include "../common/Socket.h"
 #include <iostream>
 
 using namespace Database;
@@ -20,6 +22,7 @@ void Server::run(int argc, char *argv[])
 	while (Socket* newSocket = listener->accept()) {
 		Connection* c = Connection::make(newSocket, this);
 		addConnection(c);
+		c->fork();
 	}
 
 	//Clean up.
