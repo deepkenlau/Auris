@@ -7,6 +7,7 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <netdb.h>
+#include <sys/time>
 
 using std::runtime_error;
 using std::string;
@@ -76,9 +77,16 @@ Socket* UnixSocket::accept()
 	return NULL;
 }
 
-bool UnixSocket::poll(unsigned int timeout)
+bool UnixSocket::poll(unsigned int timeout_ms)
 {
-	return false;
+	fd_set set;
+	FD_ZERO(&set);
+	FD_SET(sock->fd, &set);
+	struct timeval zeit = {0, timeout_ms*1000};
+	int s = select(1, &set, NULL, NULL, &zeit);
+	if(s == -1)
+		throw new std::exception("Error on poll.");
+	return s;
 }
 
 int UnixSocket::read(char *buffer, unsigned int length)
