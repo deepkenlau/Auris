@@ -5,6 +5,7 @@
 
 class Socket : public gc
 {
+protected:
 	int port;
 	std::string remoteAddress;
 

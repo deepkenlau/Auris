@@ -76,9 +76,10 @@ Socket* Socket::makeConnected(string hostname, int port)
 Socket* UnixSocket::accept()
 {
 	UnixSocket *newsock = new UnixSocket();
-	newsock->fd = accept(fd, (struct sockaddr *) &newsock->addr, sizeof(newsock->addr));
+	socklen_t len = sizeof(newsock->addr);
+	newsock->fd = ::accept(fd, (struct sockaddr *) &newsock->addr, &len);
 	if (newsock->fd < 0)
-		return runtime_error("Error on accepting.");
+		throw new runtime_error("Error on accepting.");
 	newsock->port = ntohs(newsock->addr.sin_port);
 	return newsock;
 }
