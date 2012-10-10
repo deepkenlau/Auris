@@ -3,6 +3,7 @@
 #include <stdexcept>
 #include "Socket.h"
 
+#include <unistd.h>
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
@@ -96,25 +97,25 @@ bool UnixSocket::poll(unsigned int timeout_ms)
 
 int UnixSocket::read(char *buffer, unsigned int length)
 {
-	read(fd, buffer, length);
+	::read(fd, buffer, length);
 	return 0;
 }
 
 int UnixSocket::write(const char *buffer, unsigned int length)
 {
-	write(fd, buffer, length);
+	::write(fd, buffer, length);
 	return 0;
 }
 
 void UnixSocket::close()
 {
-	close(fd);
+	::close(fd);
 }
 
 bool UnixSocket::isOpen()
 {
 	int val;
-	val = write(fd, &val, 0);
+	val = ::write(fd, &val, 0);
 	if (val < 0) return false;
 	return true;
 }
