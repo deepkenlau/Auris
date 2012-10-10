@@ -1,10 +1,10 @@
 /* Copyright © 2012 Fabian Schuiki, Sandro Sgier */
 #pragma once
 
+class Socket;
 
 namespace Database
 {
-	class Socket;
 	class Server;
 
 	class Connection

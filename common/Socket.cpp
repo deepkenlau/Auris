@@ -1,44 +1,87 @@
 /* Copyright © 2012 Fabian Schuiki, Sandro Sgier */
 #include <string>
+#include <stdexcept>
 #include "Socket.h"
+
+#include <sys/types.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <netdb.h>
 
-static Socket* Socket::makeListening(int port)
+using std::runtime_error;
+using std::string;
+
+
+/** Unix implementation of a socket. */
+class UnixSocket : public Socket
 {
-	Socket *socket = new Socket;
-	socket->fd = socket(AF_INET, SOCK_STREAM, 0);
-	if (socket->fd < 0)
-		throw new std::exception("Error on creating socket.");
-	socket->addr.sin_family = AF_INET;
-	socket->addr.sin_port = htons(port);
-	socket->addr.sin_addr.s_addr = INADDR_ANY;
-	if(bind(socket->fd,(struct sockaddr*)&socket->addr,sizeof(socket->addr)) < 0)
-		throw new std::exception("Error on binding.");
-	listen(socket->fd, 5);
-	return socket;
+	friend class Socket;
+protected:
+	int fd;
+	struct sockaddr_in addr;
+
+public:
+	Socket* accept();
+	bool poll(unsigned int timeout);
+	int read(char *buffer, unsigned int length);
+	int write(const char *buffer, unsigned int length);
+};
+
+
+/** Creates a socket waiting for connections on the specified port. */
+Socket* Socket::makeListening(int port)
+{
+	UnixSocket *sock = new UnixSocket;
+	sock->fd = socket(AF_INET, SOCK_STREAM, 0);
+	if (sock->fd < 0)
+		throw new runtime_error("Error on creating socket.");
+	sock->addr.sin_family = AF_INET;
+	sock->addr.sin_port = htons(port);
+	sock->addr.sin_addr.s_addr = INADDR_ANY;
+	if(bind(sock->fd,(struct sockaddr*)&sock->addr,sizeof(sock->addr)) < 0)
+		throw new runtime_error("Error on binding.");
+	listen(sock->fd, 5);
+	return sock;
 }
 
-static Socket* Socket::makeConnected(std::sting hostname, int port)
+/** Returns a socket connected to the the given host on the specified port. */
+Socket* Socket::makeConnected(string hostname, int port)
 {
-	Socket *socket = new Socket;
+	UnixSocket *sock = new UnixSocket;
 	struct hostent *server;
-	socket->fd = socket(AF_INET, SOCK_STREAM, 0);
-	if(socket-fd < 0)
-		throw new std::exception("Error on creating socket.");
-	server = gethostbyname(hostname);
+	sock->fd = socket(AF_INET, SOCK_STREAM, 0);
+	if(sock->fd < 0)
+		throw new runtime_error("Error on creating socket.");
+	server = gethostbyname(hostname.c_str());
 	if(server == NULL)
-		throw new std::exception("Server not found");
-	bzero((char*)&socket->addr,sizeof(socket->addr));
-	socket->addr.sin_family = AF_INET;
+		throw new runtime_error("Server not found");
+	bzero((char*)&sock->addr,sizeof(sock->addr));
+	sock->addr.sin_family = AF_INET;
 	bcopy((char*)server->h_addr,
-		(char*)&socket->addr.sin_addr.s_addr,
+		(char*)&sock->addr.sin_addr.s_addr,
 		server->h_length);
-	socket->addr.sin_port = htons(port);
-	if(connect(socket->fd,
-		(struct sockaddr*)&socket->addr,
-		sizeof(socket->addr)) < 0)
-		throw new std::exception("Error on connecting");
-	return socket;
+	sock->addr.sin_port = htons(port);
+	if(connect(sock->fd, (struct sockaddr*)&sock->addr, sizeof(sock->addr)) < 0)
+		throw new runtime_error("Error on connecting");
+	return sock;
+}
+
+Socket* UnixSocket::accept()
+{
+	return NULL;
+}
+
+bool UnixSocket::poll(unsigned int timeout)
+{
+	return false;
+}
+
+int UnixSocket::read(char *buffer, unsigned int length)
+{
+	return 0;
+}
+
+int UnixSocket::write(const char *buffer, unsigned int length)
+{
+	return 0;
 }
