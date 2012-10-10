@@ -3,6 +3,7 @@
 #include <stdexcept>
 #include "Socket.h"
 
+#include <arpa/inet.h>
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/socket.h>
@@ -81,6 +82,8 @@ Socket* UnixSocket::accept()
 	if (newsock->fd < 0)
 		throw new runtime_error("Error on accepting.");
 	newsock->port = ntohs(newsock->addr.sin_port);
+	char ip[INET_ADDRSTRLEN];
+	newsock->remoteAddress = inet_ntop(AF_INET, &newsock->addr.sin_addr, ip, INET_ADDRSTRLEN);
 	return newsock;
 }
 
