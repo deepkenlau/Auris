@@ -91,25 +91,25 @@ bool UnixSocket::poll(unsigned int timeout_ms)
 
 int UnixSocket::read(char *buffer, unsigned int length)
 {
-	read(sock->fd, buffer, length);
+	read(fd, buffer, length);
 	return 0;
 }
 
 int UnixSocket::write(const char *buffer, unsigned int length)
 {
-	write(sock->fd, buffer, length);
+	write(fd, buffer, length);
 	return 0;
 }
 
 void UnixSocket::close()
 {
-	close(sock->fd);
+	close(fd);
 }
 
 bool UnixSocket::isOpen()
 {
 	int val;
-	val = write(sock->fd, &val, 0);
+	val = write(fd, &val, 0);
 	if (val < 0) return false;
 	return true;
 }
