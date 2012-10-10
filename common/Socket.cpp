@@ -25,6 +25,8 @@ public:
 	bool poll(unsigned int timeout);
 	int read(char *buffer, unsigned int length);
 	int write(const char *buffer, unsigned int length);
+	void close();
+	bool isOpen();
 };
 
 
@@ -32,6 +34,7 @@ public:
 Socket* Socket::makeListening(int port)
 {
 	UnixSocket *sock = new UnixSocket;
+	sock->port = port;
 	sock->fd = socket(AF_INET, SOCK_STREAM, 0);
 	if (sock->fd < 0)
 		throw new runtime_error("Error on creating socket.");
@@ -49,6 +52,8 @@ Socket* Socket::makeConnected(string hostname, int port)
 {
 	UnixSocket *sock = new UnixSocket;
 	struct hostent *server;
+	sock->port = port;
+	sock->remoteAddress = hostname;
 	sock->fd = socket(AF_INET, SOCK_STREAM, 0);
 	if(sock->fd < 0)
 		throw new runtime_error("Error on creating socket.");
@@ -84,4 +89,13 @@ int UnixSocket::read(char *buffer, unsigned int length)
 int UnixSocket::write(const char *buffer, unsigned int length)
 {
 	return 0;
+}
+
+void UnixSocket::close()
+{
+}
+
+bool UnixSocket::isOpen()
+{
+	return false;
 }

@@ -1,5 +1,6 @@
 /* Copyright © 2012 Fabian Schuiki, Sandro Sgier */
 #pragma once
+#include <gc_cpp.h>
 
 class Socket;
 
@@ -7,11 +8,14 @@ namespace Database
 {
 	class Server;
 
-	class Connection
+	class Connection : public gc
 	{
+		Socket *socket;
+		Server *server;
 	public:
-		static Connection* make(Socket *socket, Server *server);
+		Connection(Socket *socket, Server *server);
 
-		void fork();
+		void start();
+		void run();
 	};
 }
