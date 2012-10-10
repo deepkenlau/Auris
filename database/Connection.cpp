@@ -5,6 +5,8 @@
 #include "../common/Thread.h"
 using namespace Database;
 
+#define clog cout << "[connection " << socket->getRemoteAddress() << "] "
+
 
 /** Creates a new connection object that will handle communication on the given
  * socket for the given server object. */
@@ -30,9 +32,9 @@ void Connection::start()
 
 void Connection::run()
 {
-	cout << "connection accepted" << endl;
+	clog << "connected" << endl;
 
 	//Since we're done, remove the connection from the server.
-	cout << "connection closed" << endl;
+	clog << "closed" << endl;
 	server->removeConnection(this);
 }
