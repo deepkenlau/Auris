@@ -2,10 +2,13 @@
 #include <iostream>
 #include "Connection.h"
 #include "Server.h"
+#include "../common/Socket.h"
 #include "../common/Thread.h"
-using namespace Database;
 
-#define clog cout << "[connection " << socket->getRemoteAddress() << "] "
+using namespace Database;
+using std::endl;
+
+#define clog std::cout << "[connection " << socket->getRemoteAddress() << "] "
 
 
 /** Creates a new connection object that will handle communication on the given
@@ -22,6 +25,7 @@ static void* connectionThread(void *param)
 {
 	Connection *c = (Connection*)param;
 	c->run();
+	return NULL;
 }
 
 /** Starts the thread that handles this connection. */
@@ -35,6 +39,7 @@ void Connection::run()
 	clog << "connected" << endl;
 
 	//Since we're done, remove the connection from the server.
+	socket->close();
 	clog << "closed" << endl;
 	server->removeConnection(this);
 }

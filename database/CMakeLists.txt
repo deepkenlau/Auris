@@ -3,6 +3,7 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/modules")
 set(DATABASE_EXEC_NAME auris-db)
 add_executable(${DATABASE_EXEC_NAME}
 	main.cpp
+	Connection.cpp
 	Server.cpp
 	../common/Socket.cpp
 	../common/tinyxml2.cpp

@@ -12,6 +12,8 @@ namespace Database
 
 	class Server : public gc
 	{
+		friend class Connection;
+		
 	public:
 		void run(int argc, char *argv[]);
 
@@ -19,6 +21,8 @@ namespace Database
 		Mutex connections_mutex;
 		std::set<Connection*, std::less<Connection*>, gc_allocator<Connection*> > connections;
 		void addConnection(Connection* c);
+
+	protected:
 		void removeConnection(Connection* c);
 	};
 }
