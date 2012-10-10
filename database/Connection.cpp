@@ -38,6 +38,12 @@ void Connection::run()
 {
 	clog << "connected" << endl;
 
+	socket->write("Hello\n", 6);
+	sleep(3);
+	socket->write("Bitch... ", 9);
+	sleep(1);
+	socket->write("please!\n", 8);
+
 	//Since we're done, remove the connection from the server.
 	socket->close();
 	clog << "closed" << endl;
