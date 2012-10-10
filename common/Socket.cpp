@@ -74,7 +74,12 @@ Socket* Socket::makeConnected(string hostname, int port)
 
 Socket* UnixSocket::accept()
 {
-	return NULL;
+	UnixSocket *newsock = new UnixSocket();
+	newsock->fd = accept(fd, (struct sockaddr *) &newsock->addr, sizeof(newsock->addr));
+	if (newsock->fd < 0)
+		return runtime_error("Error on accepting.");
+	newsock->port = ntohs(newsock->addr.sin_port);
+	return newsock;
 }
 
 bool UnixSocket::poll(unsigned int timeout_ms)
