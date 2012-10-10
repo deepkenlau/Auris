@@ -7,7 +7,7 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <netdb.h>
-#include <sys/time>
+#include <sys/time.h>
 
 using std::runtime_error;
 using std::string;
@@ -81,11 +81,11 @@ bool UnixSocket::poll(unsigned int timeout_ms)
 {
 	fd_set set;
 	FD_ZERO(&set);
-	FD_SET(sock->fd, &set);
+	FD_SET(fd, &set);
 	struct timeval zeit = {0, timeout_ms*1000};
 	int s = select(1, &set, NULL, NULL, &zeit);
 	if(s == -1)
-		throw new std::exception("Error on poll.");
+		throw new runtime_error("Error on poll.");
 	return s;
 }
 
