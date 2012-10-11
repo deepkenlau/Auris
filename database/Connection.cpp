@@ -37,13 +37,36 @@ void Connection::start()
 void Connection::run()
 {
 	clog << "connected" << endl;
-
+/*
 	socket->write("Hello\n", 6);
 	sleep(3);
 	socket->write("Bitch... ", 9);
 	sleep(1);
 	socket->write("please!\n", 8);
-
+*/
+	const CHARS_PER_PERIOD = 1024;
+	char buffer[CHARS_PER_PERIOD];
+	int chars_read;
+	while(true)
+	{
+		if(socket->poll(10))
+		{
+			do
+			{
+				chars_read = read(buffer, CHARS_PER_PERIOD);
+				inputBuffer.sputn(buffer, CHARS_PER_PERIOD);
+			} while chars_read == CHARS_PER_PERIOD;
+			this->received();
+		}
+		if(outputBuffer.in_avail() > 0)
+		{
+			do
+			{
+				chars_read == outputBuffer.sgetn(buffer,CHARS_PER_PERIOD);
+				socket->write(buffer, CHARS_PER_PERIOD);
+			} while chars_read == CHARS_PER_PERIOD;
+		}
+	}
 	//Since we're done, remove the connection from the server.
 	socket->close();
 	clog << "closed" << endl;
