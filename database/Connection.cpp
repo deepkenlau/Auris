@@ -57,13 +57,13 @@ void Connection::run()
 			} while chars_read == CHARS_PER_PERIOD;
 			this->received();
 		}
-		if(outputBuffer.in_avail() > 0)
+		while(true)
 		{
-			do
-			{
-				chars_read == outputBuffer.sgetn(buffer,CHARS_PER_PERIOD);
-				socket->write(buffer, CHARS_PER_PERIOD);
-			} while chars_read == CHARS_PER_PERIOD;
+			outputBuffer_lock.lock();
+			chars_read == outputBuffer.sgetn(buffer,CHARS_PER_PERIOD);
+			outputBuffer_lock.unlock();
+			if (chars_read == 0) break;
+			socket->write(buffer, chars_read);
 		}
 	}
 	//Since we're done, remove the connection from the server.
