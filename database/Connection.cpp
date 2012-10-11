@@ -7,7 +7,7 @@
 using namespace Database;
 using std::endl;
 
-#define clog std::cout << "[connection " << socket->getRemoteAddress() << "] "
+#define clog std::cout << "[connection " << getClientName() << "] "
 
 
 /** Creates a new connection object that will handle communication on the given
