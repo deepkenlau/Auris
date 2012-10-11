@@ -1,6 +1,9 @@
 /* Copyright © 2012 Fabian Schuiki, Sandro Sgier */
 #pragma once
 #include <gc_cpp.h>
+#include <iostream>
+#include <sstream>
+#include "../common/Mutex.h"
 
 class Socket;
 
@@ -13,8 +16,9 @@ namespace Database
 		Socket *socket;
 		Server *server;
 
-		std::streambuf inputBuffer;
-		std::streambuf outputBuffer;
+		std::stringbuf inputBuffer;
+		std::stringbuf outputBuffer;
+		Mutex outputBuffer_lock;
 	public:
 		Connection(Socket *socket, Server *server);
 
@@ -23,5 +27,7 @@ namespace Database
 
 		void received();
 		void write(const char *data, unsigned int length);
+
+		const std::string& getClientName();
 	};
 }
