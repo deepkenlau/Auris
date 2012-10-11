@@ -53,14 +53,14 @@ void Connection::run()
 			do
 			{
 				chars_read = socket->read(buffer, CHARS_PER_PERIOD);
-				inputBuffer.sputn(buffer, CHARS_PER_PERIOD);
+				inputBuffer.sputn(buffer, chars_read);
 			} while (chars_read == CHARS_PER_PERIOD);
 			this->received();
 		}
 		while(true)
 		{
 			outputBuffer_lock.lock();
-			chars_read = outputBuffer.sgetn(buffer,CHARS_PER_PERIOD);
+			chars_read = outputBuffer.sgetn(buffer, CHARS_PER_PERIOD);
 			outputBuffer_lock.unlock();
 			if (chars_read == 0) break;
 			socket->write(buffer, chars_read);

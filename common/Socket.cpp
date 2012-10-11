@@ -41,6 +41,8 @@ Socket* Socket::makeListening(int port)
 	sock->fd = socket(AF_INET, SOCK_STREAM, 0);
 	if (sock->fd < 0)
 		throw new runtime_error("Error on creating socket.");
+	int one = 1;
+	setsockopt(sock->fd, SOL_SOCKET, SO_REUSEADDR, &one, sizeof(one));
 	sock->addr.sin_family = AF_INET;
 	sock->addr.sin_port = htons(port);
 	sock->addr.sin_addr.s_addr = INADDR_ANY;
@@ -93,7 +95,7 @@ bool UnixSocket::poll(unsigned int timeout_ms)
 	FD_ZERO(&set);
 	FD_SET(fd, &set);
 	struct timeval zeit = {0, timeout_ms*1000};
-	int s = select(1, &set, NULL, NULL, &zeit);
+	int s = select(fd + 1, &set, NULL, NULL, &zeit);
 	if(s == -1)
 		throw new runtime_error("Error on poll.");
 	return s;
@@ -101,14 +103,18 @@ bool UnixSocket::poll(unsigned int timeout_ms)
 
 int UnixSocket::read(char *buffer, unsigned int length)
 {
-	::read(fd, buffer, length);
-	return 0;
+	int bytes_read = ::read(fd, buffer, length);
+	if (bytes_read < 0)
+		throw new runtime_error("Unable to read bytes from socket.");
+	return bytes_read;
 }
 
 int UnixSocket::write(const char *buffer, unsigned int length)
 {
-	::write(fd, buffer, length);
-	return 0;
+	int bytes_written = ::write(fd, buffer, length);
+	if (bytes_written < 0)
+		throw new runtime_error("Unable to write bytes from socket.");
+	return bytes_written;
 }
 
 void UnixSocket::close()
