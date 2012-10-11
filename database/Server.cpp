@@ -42,3 +42,20 @@ void Server::removeConnection(Connection* c)
 	connections.erase(c);
 	connections_mutex.unlock();
 }
+
+void Server::debugChat(Connection *connection, std::stringbuf &buf)
+{
+	connections_mutex.lock();
+	Connections cs = connections;
+	connections_mutex.unlock();
+
+	char buffer[1024];
+	int length = buf.sgetn(buffer, 1024);
+
+	for (Connections::iterator ic = cs.begin(); ic != cs.end(); ic++) {
+		Connection *c = *ic;
+		if (c == connection) continue;
+		std::cout << "dispatching message from " << connection->getClientName() << std::endl;
+		c->write(buffer, length);
+	}
+}

@@ -1,5 +1,4 @@
 /* Copyright © 2012 Fabian Schuiki, Sandro Sgier */
-#include <iostream>
 #include "Connection.h"
 #include "Server.h"
 #include "../common/Socket.h"
@@ -8,7 +7,7 @@
 using namespace Database;
 using std::endl;
 
-#define clog std::cout << "[connection " << socket->getRemoteAddress() << "] "
+#define clog std::cout << "[connection " << getClientName() << "] "
 
 
 /** Creates a new connection object that will handle communication on the given
@@ -71,4 +70,28 @@ void Connection::run()
 	socket->close();
 	clog << "closed" << endl;
 	server->removeConnection(this);
+}
+
+/** Called whenever new data arrives in the input buffer. Called on the Connection's
+ * thread, which makes it unnecessary to have a lock for the input buffer. */
+void Connection::received()
+{
+	clog << inputBuffer.in_avail() << " bytes in the input buffer" << endl;
+	server->debugChat(this, inputBuffer);
+}
+
+/** Stores the given data in the output buffer to be sent. Thread-safe. */
+void Connection::write(const char *data, unsigned int length)
+{
+	outputBuffer_lock.lock();
+	outputBuffer.sputn(data, length);
+	outputBuffer_lock.unlock();
+}
+
+/** Returns a string to identify the connected client. This might be the client's
+ * IP address, the client's name if logged in, or the like. */
+const std::string& Connection::getClientName()
+{
+	return socket->getRemoteAddress();
+
 }
