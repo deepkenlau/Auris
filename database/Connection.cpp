@@ -43,7 +43,7 @@ void Connection::run()
 	sleep(1);
 	socket->write("please!\n", 8);
 */
-	const CHARS_PER_PERIOD = 1024;
+	const int CHARS_PER_PERIOD = 1024;
 	char buffer[CHARS_PER_PERIOD];
 	int chars_read;
 	while(true)
@@ -52,15 +52,15 @@ void Connection::run()
 		{
 			do
 			{
-				chars_read = read(buffer, CHARS_PER_PERIOD);
+				chars_read = socket->read(buffer, CHARS_PER_PERIOD);
 				inputBuffer.sputn(buffer, CHARS_PER_PERIOD);
-			} while chars_read == CHARS_PER_PERIOD;
+			} while (chars_read == CHARS_PER_PERIOD);
 			this->received();
 		}
 		while(true)
 		{
 			outputBuffer_lock.lock();
-			chars_read == outputBuffer.sgetn(buffer,CHARS_PER_PERIOD);
+			chars_read = outputBuffer.sgetn(buffer,CHARS_PER_PERIOD);
 			outputBuffer_lock.unlock();
 			if (chars_read == 0) break;
 			socket->write(buffer, chars_read);
