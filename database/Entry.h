@@ -15,6 +15,7 @@ namespace Database
 		typedef std::string ID;
 
 		ID getID() const;
+		void setID(ID id);
 
 	private:
 		typedef std::map<std::string, Field*, gc_allocator<Field*> > Fields;

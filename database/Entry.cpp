@@ -7,3 +7,8 @@ Entry::ID Entry::getID() const
 {
 	return id;
 }
+
+void Entry::setID(ID id)
+{
+	this->id = id;
+}
