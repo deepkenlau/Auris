@@ -7,17 +7,17 @@ namespace Database
 	class Field
 	{
 	public:
-		virtual void serialize(tinyxml2::XMLPrinter &xml) const = 0;
+		//virtual void serialize(tinyxml2::XMLPrinter &xml) const = 0;
 		enum Type{kString, kInteger, kFloat, kCounter, kReference};
 		virtual enum Type getType() const = 0;
 		virtual operator std::string() const;
 		virtual operator int() const;
 		virtual operator double() const;
 		virtual operator Entry *() const;
-		virtual operator =(std::string v);
-		virtual operator =(int v);
-		virtual operator =(double v);
-		virtual operator =(Entry * v);
+		virtual std::string operator =(std::string v);
+		virtual int operator =(int v);
+		virtual double operator =(double v);
+		virtual Entry* operator =(Entry *v);
 		virtual std::string describe() const;
 	};
 
@@ -26,8 +26,8 @@ namespace Database
 	protected:
 		T value;
 	public:
-		virtual operator T() const {return value;}
-		virtual operator =(T v) {value = v;}
+		virtual operator T() const { return value; }
+		virtual T operator =(T v) { value = v; return v; }
 	};
 
 	class StringField : public ConcreteField<std::string>

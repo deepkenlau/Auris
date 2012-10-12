@@ -25,22 +25,22 @@ Field::operator Entry *() const
 	throw new runtime_error("Cannot access field as Reference.");
 }
 
-Field::operator =(std::string v)
+std::string Field::operator =(std::string v)
 {
 	throw new runtime_error("Cannot access field as String.");
 }
 
-Field::operator =(int v)
+int Field::operator =(int v)
 {
 	throw new runtime_error("Cannot access field as Integer.");
 }
 
-Field::operator =(double v)
+double Field::operator =(double v)
 {
 	throw new runtime_error("Cannot access field as Double.");
 }
 
-Field::operator =(Entry * v)
+Entry* Field::operator =(Entry *v)
 {
 	throw new runtime_error("Cannot access field as Reference.");
 }
