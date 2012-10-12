@@ -1,11 +1,25 @@
 /* Copyright © 2012 Fabian Schuiki, Sandro Sgier */
 #pragma once
+#include <string>
+#include <map>
+#include <gc_cpp.h>
+#include <gc_allocator.h>
+
 
 namespace Database
 {
-	class Entry
+	class Field;
+	class Entry : public gc
 	{
-		std::map<std::string, Field *> fields;
-		std::string id;
+	public:
+		typedef std::string ID;
+
+		ID getID() const;
+
+	private:
+		typedef std::map<std::string, Field*, gc_allocator<Field*> > Fields;
+
+		ID id;
+		Fields fields;
 	};
 }
