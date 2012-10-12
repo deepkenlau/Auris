@@ -18,6 +18,7 @@ namespace Database
 		virtual operator =(int v);
 		virtual operator =(double v);
 		virtual operator =(Entry * v);
+		virtual std::string describe() const;
 	};
 
 	template <typename T> class ConcreteField : public Field
@@ -33,25 +34,30 @@ namespace Database
 	{
 	public:
 		enum Type getType() {return kString;}
+		std::string describe() const;
 	};
 	class IntegerField : public ConcreteField<int>
 	{
 	public:
 		enum Type getType() {return kInteger;}
+		std::string describe() const;
 	};
 	class FloatField : public ConcreteField<double>
 	{
 	public:
 		enum Type getType() {return kFloat;}
+		std::string describe() const;
 	};
 	class CounterField : public ConcreteField<int>
 	{
 	public:
 		enum Type getType() {return kCounter;}
+		std::string describe() const;
 	};
 	class ReferenceField : public ConcreteField<Entry *>
 	{
 	public:
 		enum Type getType() {return kReference;}
+		std::string describe() const;
 	};
 }
