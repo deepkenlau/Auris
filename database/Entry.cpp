@@ -12,3 +12,11 @@ void Entry::setID(ID id)
 {
 	this->id = id;
 }
+
+std::string Entry::describe() const
+{
+	std::stringstream s;
+	for(Fields::iterator it = fields.begin(); it != fields.end(); it++)
+		s << it->first << ": " << it->second->describe() << endl;
+	return s.str();
+}
