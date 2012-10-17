@@ -38,3 +38,11 @@ void Table::encode(tinyxml2::XMLPrinter &xml) const
 		xml.CloseElement();
 	}
 }
+
+void Table::decode(tinyxml2::XMLElement &xml)
+{
+	//Iterate through the entries in the table.
+	for (tinyxml2::XMLElement *e = xml->FirstChildElement("entry"); e; e = e->NextSiblingElement("entry")) {
+		
+	}
+}
