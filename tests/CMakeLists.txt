@@ -6,12 +6,14 @@ add_executable(test-http
 
 add_executable(test-database
 	Database.cpp
-	../database/Table.cpp
-	../database/Entry/Entry.cpp
-	../database/Entry/Field.cpp
-	../database/Database.cpp
+	../database/Database/Database.cpp
+	../database/Database/Table.cpp
+	../database/Database/Entity.cpp
 	../common/tinyxml2.cpp
+	../common/sha1.cpp
 )
+
+include_directories(../)
 
 find_package(BoehmGC REQUIRED)
 include_directories(${BOEHMGC_INCLUDE_DIRS})

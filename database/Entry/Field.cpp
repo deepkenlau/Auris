@@ -10,42 +10,42 @@ using std::runtime_error;
 
 Field::operator std::string() const
 {
-	throw new runtime_error("Cannot access field as String.");
+	throw runtime_error("Cannot access field as String.");
 }
 
 Field::operator int() const
 {
-	throw new runtime_error("Cannot access field as Integer.");
+	throw runtime_error("Cannot access field as Integer.");
 }
 
 Field::operator double() const
 {
-	throw new runtime_error("Cannot access field as Double.");
+	throw runtime_error("Cannot access field as Double.");
 }
 
 Field::operator Entry *() const
 {
-	throw new runtime_error("Cannot access field as Reference.");
+	throw runtime_error("Cannot access field as Reference.");
 }
 
 std::string Field::operator =(std::string v)
 {
-	throw new runtime_error("Cannot access field as String.");
+	throw runtime_error("Cannot access field as String.");
 }
 
 int Field::operator =(int v)
 {
-	throw new runtime_error("Cannot access field as Integer.");
+	throw runtime_error("Cannot access field as Integer.");
 }
 
 double Field::operator =(double v)
 {
-	throw new runtime_error("Cannot access field as Double.");
+	throw runtime_error("Cannot access field as Double.");
 }
 
 Entry* Field::operator =(Entry *v)
 {
-	throw new runtime_error("Cannot access field as Reference.");
+	throw runtime_error("Cannot access field as Reference.");
 }
 
 std::string StringField::describe() const

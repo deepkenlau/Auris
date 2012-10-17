@@ -48,7 +48,7 @@ void Entry::decode(tinyxml2::XMLElement &xml)
 	{
 		Field *field = fields[e->Name()];
 		if (field == NULL) {
-			throw new runtime_error((string("Trying to decode field ") + e->Name()) + "which does not exist.");
+			throw runtime_error((string("Trying to decode field ") + e->Name()) + "which does not exist.");
 		}
 		field->decode(*e);
 	}

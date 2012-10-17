@@ -1,65 +1,36 @@
 #include <cassert>
 #include <iostream>
 #include <gc_cpp.h>
+#include <stdexcept>
 #include "../common/tinyxml2.h"
-#include "../database/Table.h"
-#include "../database/Entry/Song.h"
-#include "../database/Entry/Album.h"
-#include "../database/Database.h"
+#include "../database/Database/Database.h"
 
-#define assert_equal(a,b) if (a != b) { std::cerr << #a << ": expected " << b << ", got " << a << std::endl; return 1; }
+using std::runtime_error;
+using database::database::Database;
+using database::database::Table;
+using database::database::Entity;
+
 
 int main(int argc, char *argv[])
 {
 	GC_INIT();
+	try {
+		//Create a new database.
+		Database db("debug_database");
 
-	Database::Table table;
-	Database::Entry::Song *e = new Database::Entry::Song;
-	e->setID("3F2F1089-3E6C-4030-A8A7-FCD27294CD54");
-	e->title = "Fire Hive";
-	e->artist = "Knife Party";
-	table.addEntry(e);
-	//std::cout << "created table " << table.describe() << std::endl;
-	/*(*e)["title"]  = "Fire Hive";
-	(*e)["artist"] = "Knive Party";
-	(*e)["rating"] = 0.98;
-	(*e)["count"]  = 687;*/
+		//Create a new table.
+		Table table(&db);
 
-	//Serialize the table to disk.
-	FILE * f = fopen("table.xml", "w");
-	tinyxml2::XMLPrinter xml(f);
-	xml.OpenElement("table");
-	table.encode(xml);
-	xml.CloseElement();
-	fclose(f);
-
-	//Read the table from disk.
-	tinyxml2::XMLDocument xmlr;
-	assert_equal(xmlr.LoadFile("table.xml"), 0);
-	Database::Table rt;
-	tinyxml2::XMLElement *root = xmlr.RootElement();
-	if (!root) {
-		std::cerr << "no root element!" << std::endl;
-		return 1;
+		//Create a new entity.
+		Entity entity(&table);
+		entity.fields["title"]  = "Fire Hive";
+		entity.fields["artist"] = "Knife Party";
+		std::string sha = entity.persist();
+		std::cout << "stored entity " << sha << std::endl;
 	}
-	rt.decode(*root);
-	//std::cout << "read table " << rt.describe() << std::endl;
-
-	Database::Database db("metadata.xml");
-
-	Database::Entry::Song *s = new Database::Entry::Song;
-	s->setID("a");
-	s->title = "Internet Friends";
-	s->artist = "Knife Party";
-	db.songTable.addEntry(s);
-
-	Database::Entry::Album *a = new Database::Entry::Album;
-	a->setID("b");
-	a->title = "Rage Valley";
-	a->artist = "Knife Party";
-	db.albumTable.addEntry(a);
-
-	db.store();
+	catch (std::runtime_error &e) {
+		std::cerr << "runtime error: " << e.what() << std::endl;
+	}
 
 	return 0;
 }

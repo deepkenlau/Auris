@@ -51,7 +51,7 @@ void Table::decode(tinyxml2::XMLElement &xml)
 	for (tinyxml2::XMLElement *e = xml.FirstChildElement(); e; e = e->NextSiblingElement()) {
 		Entry::Entry *entry = Entry::Entry::make(e->Name());
 		if (!entry) {
-			throw new runtime_error(string("Unable to make database entry of type ") + e->Name());
+			throw runtime_error(string("Unable to make database entry of type ") + e->Name());
 		}
 		entry->decode(*e);
 		addEntry(entry);

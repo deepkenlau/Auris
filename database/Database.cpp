@@ -28,15 +28,15 @@ void Database::Database::store() const
 void Database::Database::load()
 {
 	tinyxml2::XMLDocument xml;
-	if(xml.LoadFile(path.c_str()) != 0) throw new runtime_error("Error XML-file");
+	if(xml.LoadFile(path.c_str()) != 0) throw runtime_error("Error XML-file");
 	tinyxml2::XMLElement *e = xml.RootElement();
 	if (e == NULL)
-		throw new runtime_error("Could not read root element");
+		throw runtime_error("Could not read root element");
 	tinyxml2::XMLElement * songs = e->FirstChildElement("songs");
-	if (songs == NULL) throw new runtime_error("Error on reading song table");
+	if (songs == NULL) throw runtime_error("Error on reading song table");
 	songTable.decode(*songs);
 
 	tinyxml2::XMLElement * albums = e->FirstChildElement("albums");
-	if (albums == NULL) throw new runtime_error("Error on reading album table");
+	if (albums == NULL) throw runtime_error("Error on reading album table");
 	albumTable.decode(*albums);
 }

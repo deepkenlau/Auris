@@ -16,7 +16,7 @@ void Server::run(int argc, char *argv[])
 	//Setup the listening socket for the control connections.
 	Socket* listener = Socket::makeListening(8080);
 	if (!listener)
-		throw new runtime_error("unable to create listening socket");
+		throw runtime_error("unable to create listening socket");
 
 	//Enter the main loop that waits for new connections.
 	while (true) {
