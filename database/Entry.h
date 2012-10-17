@@ -19,10 +19,12 @@ namespace Database
 		
 		std::string describe() const;
 
-	private:
+	protected:
 		typedef std::map<std::string, Field*, gc_allocator<Field*> > Fields;
 
 		ID id;
 		Fields fields;
 	};
 }
+
+#define DATABASE_ENTRY_FIELD(name) fields[#name] = &name
