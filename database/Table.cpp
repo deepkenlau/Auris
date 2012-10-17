@@ -38,7 +38,6 @@ Entry::Entry* Table::getEntryByID(Entry::Entry::ID id)
 
 void Table::encode(tinyxml2::XMLPrinter &xml) const
 {
-	xml.PushAttribute("someAttribute", "Hello!");
 	for (Entries::const_iterator ie = entries.begin(); ie != entries.end(); ie++) {
 		xml.OpenElement((*ie)->getType().c_str());
 		(*ie)->encode(xml);

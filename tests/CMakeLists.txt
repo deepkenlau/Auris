@@ -9,6 +9,7 @@ add_executable(test-database
 	../database/Table.cpp
 	../database/Entry/Entry.cpp
 	../database/Entry/Field.cpp
+	../database/Database.cpp
 	../common/tinyxml2.cpp
 )
 
