@@ -1,22 +1,24 @@
 /* Copyright © 2012 Fabian Schuiki, Sandro Sgier */
 #pragma once
-#include "../Field.h"
-#include "../Entry.h"
+#include "Field.h"
+#include "Entry.h"
 
 namespace Database
 {
 	namespace Entry
 	{
-		class Album : public Database::Entry
+		class Album : public Entry
 		{
 		public:
 			StringField title;
 			StringField artist;
-			Intfield length;
+			IntegerField length;
 			StringField releaseDate;
 			StringField dateAdded;
 			StringField publisher;
 			StringField comments;
+			StringField genre;
+
 			Album() : Entry()
 			{
 				fields["title"] = &title;

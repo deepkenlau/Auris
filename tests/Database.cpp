@@ -3,6 +3,7 @@
 #include <gc_cpp.h>
 #include "../database/Table.h"
 #include "../database/Entry/Song.h"
+#include "../database/Entry/Album.h"
 
 #define assert_equal(a,b) if (a != b) { std::cerr << #a << ": expected " << b << ", got " << a << std::endl; return 1; }
 
