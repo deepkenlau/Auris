@@ -20,7 +20,7 @@ namespace Database
 
 		Entry::Entry* getEntryByID(Entry::Entry::ID id);
 
-		void serialize(tinyxml2::XMLPrinter &xml) const;
+		void encode(tinyxml2::XMLPrinter &xml) const;
 
 	private:
 		typedef std::map<Entry::Entry::ID, Entry::Entry*> EntriesByID;

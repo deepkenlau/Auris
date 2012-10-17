@@ -15,7 +15,7 @@ namespace Database
 		class Field
 		{
 		public:
-			virtual void serialize(tinyxml2::XMLPrinter &xml) const = 0;
+			virtual void encode(tinyxml2::XMLPrinter &xml) const = 0;
 			enum Type{kString, kInteger, kFloat, kCounter, kReference};
 			virtual enum Type getType() const = 0;
 			virtual operator std::string() const;
@@ -43,7 +43,7 @@ namespace Database
 			virtual bool isEmpty() const {return value.empty();}
 			enum Type getType() const {return kString;}
 			virtual std::string describe() const;
-			virtual void serialize(tinyxml2::XMLPrinter &xml) const { xml.PushText(value.c_str()); }
+			virtual void encode(tinyxml2::XMLPrinter &xml) const { xml.PushText(value.c_str()); }
 		};
 		class IntegerField : public ConcreteField<int>
 		{
@@ -52,7 +52,7 @@ namespace Database
 			virtual bool isEmpty() const {return !value;}
 			enum Type getType() const {return kInteger;}
 			std::string describe() const;
-			virtual void serialize(tinyxml2::XMLPrinter &xml) const { xml.PushText(value); }
+			virtual void encode(tinyxml2::XMLPrinter &xml) const { xml.PushText(value); }
 		};
 		class FloatField : public ConcreteField<double>
 		{
@@ -61,7 +61,7 @@ namespace Database
 			virtual bool isEmpty() const {return !value;}
 			enum Type getType() const {return kFloat;}
 			std::string describe() const;
-			virtual void serialize(tinyxml2::XMLPrinter &xml) const { xml.PushText(value); }
+			virtual void encode(tinyxml2::XMLPrinter &xml) const { xml.PushText(value); }
 		};
 		class CounterField : public ConcreteField<int>
 		{
@@ -70,7 +70,7 @@ namespace Database
 			virtual bool isEmpty() const {return !value;}
 			enum Type getType() const {return kCounter;}
 			std::string describe() const;
-			virtual void serialize(tinyxml2::XMLPrinter &xml) const { xml.PushText(value); }
+			virtual void encode(tinyxml2::XMLPrinter &xml) const { xml.PushText(value); }
 		};
 		class ReferenceField : public ConcreteField<Entry*>
 		{
@@ -79,7 +79,7 @@ namespace Database
 			virtual bool isEmpty() const {return !value;}
 			enum Type getType() const {return kReference;}
 			std::string describe() const;
-			virtual void serialize(tinyxml2::XMLPrinter &xml) const;
+			virtual void encode(tinyxml2::XMLPrinter &xml) const;
 		};
 	}
 }

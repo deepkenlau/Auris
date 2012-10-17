@@ -29,12 +29,12 @@ Entry::Entry* Table::getEntryByID(Entry::Entry::ID id)
 	return e->second;
 }
 
-void Table::serialize(tinyxml2::XMLPrinter &xml) const
+void Table::encode(tinyxml2::XMLPrinter &xml) const
 {
 	xml.PushAttribute("someAttribute", "Hello!");
 	for (Entries::const_iterator ie = entries.begin(); ie != entries.end(); ie++) {
 		xml.OpenElement("entry");
-		(*ie)->serialize(xml);
+		(*ie)->encode(xml);
 		xml.CloseElement();
 	}
 }

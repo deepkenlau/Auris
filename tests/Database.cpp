@@ -27,7 +27,7 @@ int main(int argc, char *argv[])
 	FILE * f = fopen("table.xml", "w");
 	tinyxml2::XMLPrinter xml(f);
 	xml.OpenElement("table");
-	table.serialize(xml);
+	table.encode(xml);
 	xml.CloseElement();
 	fclose(f);
 

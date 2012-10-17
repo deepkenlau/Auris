@@ -74,7 +74,7 @@ std::string ReferenceField::describe() const
 }
 
 
-void ReferenceField::serialize(tinyxml2::XMLPrinter &xml) const
+void ReferenceField::encode(tinyxml2::XMLPrinter &xml) const
 {
 	xml.PushAttribute("id", value->getID().c_str());
 }
