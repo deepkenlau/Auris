@@ -33,7 +33,7 @@ void Table::encode(tinyxml2::XMLPrinter &xml) const
 {
 	xml.PushAttribute("someAttribute", "Hello!");
 	for (Entries::const_iterator ie = entries.begin(); ie != entries.end(); ie++) {
-		xml.OpenElement("entry");
+		xml.OpenElement((*ie)->getType());
 		(*ie)->encode(xml);
 		xml.CloseElement();
 	}
@@ -42,7 +42,12 @@ void Table::encode(tinyxml2::XMLPrinter &xml) const
 void Table::decode(tinyxml2::XMLElement &xml)
 {
 	//Iterate through the entries in the table.
-	for (tinyxml2::XMLElement *e = xml->FirstChildElement("entry"); e; e = e->NextSiblingElement("entry")) {
-		
+	for (tinyxml2::XMLElement *e = xml.FirstChildElement(); e; e = e->NextSiblingElement()) {
+		Entry *entry = Entry::make(e->GetName());
+		if (!entry) {
+			throw new runtime_error("Unable to make database entry of type " + e->GetName());
+		}
+		entry->decode(*e);
+		addEntry(entry);
 	}
 }

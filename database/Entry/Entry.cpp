@@ -34,3 +34,11 @@ void Entry::encode(tinyxml2::XMLPrinter &xml) const
 		xml.CloseElement();
 	}
 }
+
+
+Entry* Entry::make(const std::string &name)
+{
+	if (name == "song")  return new Song();
+	if (name == "album") return new Album();
+	return NULL;
+}

@@ -30,6 +30,8 @@ namespace Database
 				fields["comments"] = &comments;
 				fields["genre"] = &genre;
 			}
+
+			std::string getType() { return "album"; }
 		};
 	}
 }

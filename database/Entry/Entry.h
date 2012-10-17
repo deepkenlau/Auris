@@ -22,6 +22,9 @@ namespace Database
 			
 			std::string describe() const;
 			void encode(tinyxml2::XMLPrinter &xml) const;
+
+			static Entry* make(std::string name);
+			virtual std::string getType() = 0;
 		protected:
 			typedef std::map<std::string, Field*, std::less<std::string>, gc_allocator<Field*> > Fields;
 
