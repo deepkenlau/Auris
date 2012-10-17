@@ -1,8 +1,13 @@
 /* Copyright © 2012 Fabian Schuiki, Sandro Sgier */
 #include "Entry.h"
 #include "Field.h"
+#include "Song.h"
+#include "Album.h"
 #include <sstream>
+#include <stdexcept>
 using namespace Database::Entry;
+using std::runtime_error;
+using std::string;
 
 
 Entry::ID Entry::getID() const
@@ -39,15 +44,17 @@ void Entry::decode(tinyxml2::XMLElement &xml)
 {
 	for(tinyxml2::XMLElement *e = xml.FirstChildElement(); e; e = e->NextSiblingElement())
 	{
-		Field *field = fields[e->GetName()];
-		If(field == NULL) throw new std::runtime_error("Field does not exist.");
+		Field *field = fields[e->Name()];
+		if (field == NULL) {
+			throw new runtime_error((string("Trying to decode field ") + e->Name()) + "which does not exist.");
+		}
 		fields[*field]->decode(*e);
 	}
 }
 
-Entry* Entry::make(const std::string &name)
+Entry* Entry::make(const std::string &type)
 {
-	if (name == "song")  return new Song();
-	if (name == "album") return new Album();
+	if (type == "song")  return new Song();
+	if (type == "album") return new Album();
 	return NULL;
 }

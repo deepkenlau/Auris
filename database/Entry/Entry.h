@@ -24,7 +24,7 @@ namespace Database
 			void encode(tinyxml2::XMLPrinter &xml) const;
 			void decode(tinyxml2::XMLElement &xml);
 
-			static Entry* make(std::string name);
+			static Entry* make(const std::string &type);
 			virtual std::string getType() = 0;
 
 		protected:

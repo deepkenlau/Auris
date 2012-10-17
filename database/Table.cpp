@@ -1,6 +1,9 @@
 /* Copyright © 2012 Fabian Schuiki, Sandro Sgier */
 #include "Table.h"
+#include <stdexcept>
 using namespace Database;
+using std::runtime_error;
+using std::string;
 
 
 void Table::addEntry(Entry::Entry *e)
@@ -33,7 +36,7 @@ void Table::encode(tinyxml2::XMLPrinter &xml) const
 {
 	xml.PushAttribute("someAttribute", "Hello!");
 	for (Entries::const_iterator ie = entries.begin(); ie != entries.end(); ie++) {
-		xml.OpenElement((*ie)->getType());
+		xml.OpenElement((*ie)->getType().c_str());
 		(*ie)->encode(xml);
 		xml.CloseElement();
 	}
@@ -43,9 +46,9 @@ void Table::decode(tinyxml2::XMLElement &xml)
 {
 	//Iterate through the entries in the table.
 	for (tinyxml2::XMLElement *e = xml.FirstChildElement(); e; e = e->NextSiblingElement()) {
-		Entry *entry = Entry::make(e->GetName());
+		Entry::Entry *entry = Entry::Entry::make(e->Name());
 		if (!entry) {
-			throw new runtime_error("Unable to make database entry of type " + e->GetName());
+			throw new runtime_error(string("Unable to make database entry of type ") + e->Name());
 		}
 		entry->decode(*e);
 		addEntry(entry);
