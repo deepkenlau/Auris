@@ -35,6 +35,15 @@ void Entry::encode(tinyxml2::XMLPrinter &xml) const
 	}
 }
 
+void Entry::decode(tinyxml2::XMLElement &xml)
+{
+	for(tinyxml2::XMLElement *e = xml.FirstChildElement(); e; e = e->NextSiblingElement())
+	{
+		Field *field = fields[e->GetName()];
+		If(field == NULL) throw new std::runtime_error("Field does not exist.");
+		fields[*field]->decode(*e);
+	}
+}
 
 Entry* Entry::make(const std::string &name)
 {
