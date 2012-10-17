@@ -3,7 +3,7 @@
 using namespace Database;
 
 
-void Table::addEntry(Entry *e)
+void Table::addEntry(Entry::Entry *e)
 {
 	entries_lock.lock();
 	entries.insert(e);
@@ -11,7 +11,7 @@ void Table::addEntry(Entry *e)
 	entries_lock.unlock();
 }
 
-void Table::removeEntry(Entry *e)
+void Table::removeEntry(Entry::Entry *e)
 {
 	entries_lock.lock();
 	entries.erase(e);
@@ -20,7 +20,7 @@ void Table::removeEntry(Entry *e)
 }
 
 /** Returns the entry with the given ID, or null if none is found. */
-Entry* Table::getEntryByID(Entry::ID id)
+Entry::Entry* Table::getEntryByID(Entry::Entry::ID id)
 {
 	entries_lock.lock();
 	EntriesByID::iterator e = entriesByID.find(id);

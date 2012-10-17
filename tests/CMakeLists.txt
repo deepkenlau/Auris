@@ -7,7 +7,8 @@ add_executable(test-http
 add_executable(test-database
 	Database.cpp
 	../database/Table.cpp
-	../database/Entry.cpp
+	../database/Entry/Entry.cpp
+	../database/Entry/Field.cpp
 )
 
 find_package(BoehmGC REQUIRED)

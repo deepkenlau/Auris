@@ -2,7 +2,7 @@
 #include "Entry.h"
 #include "Field.h"
 #include <sstream>
-using namespace Database;
+using namespace Database::Entry;
 
 
 Entry::ID Entry::getID() const

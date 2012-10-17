@@ -6,7 +6,8 @@ add_executable(${DATABASE_EXEC_NAME}
 	../common/Socket.cpp
 	../common/tinyxml2.cpp
 	Table.cpp
-	Entry.cpp
+	Entry/Entry.cpp
+	Entry/Field.cpp
 )
 
 find_package(BoehmGC REQUIRED)

@@ -1,9 +1,12 @@
 /* Copyright © 2012 Fabian Schuiki, Sandro Sgier */
 #include "Field.h"
-#include <stdexcept.h>
+#include <stdexcept>
+#include <sstream>
+#include "Entry.h"
 
-using namespace Database;
+using namespace Database::Entry;
 using std::runtime_error;
+
 
 Field::operator std::string() const
 {
@@ -45,27 +48,27 @@ Entry* Field::operator =(Entry *v)
 	throw new runtime_error("Cannot access field as Reference.");
 }
 
-std::string ConcreteField<std::string>::describe() const
+std::string StringField::describe() const
 {
-	return v;
+	return value;
 }
 
-std::string ConcreteField<int>::describe() const
+std::string IntegerField::describe() const
 {
 	std::stringstream s;
-	s << v;
+	s << value;
 	return s.str();
 }
 
-std::string ConcreteField<double>::describe() const
+std::string FloatField::describe() const
 {
 	std::stringstream s;
-	s << v;
+	s << value;
 	return s.str();
 }
 
-std::string ConcreteField<Entry *>::describe() const
+std::string ReferenceField::describe() const
 {
-	if (v == NULL) return "NULL";
-	return v->getID();
+	if (value == NULL) return "NULL";
+	return value->getID();
 }

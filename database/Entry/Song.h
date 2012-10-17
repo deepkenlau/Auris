@@ -1,19 +1,19 @@
 /* Copyright © 2012 Fabian Schuiki, Sandro Sgier */
 #pragma once
-#include "../Entry.h"
-#include "../Field.h"
+#include "Entry.h"
+#include "Field.h"
 
 
 namespace Database
 {
 	namespace Entry
 	{
-		class Song : public Database::Entry
+		class Song : public Entry
 		{
 		public:
 			StringField title;
 			StringField artist;
-			IntField length;
+			IntegerField length;
 			StringField album;
 			StringField publisher;
 			StringField releaseDate;

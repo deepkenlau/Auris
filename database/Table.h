@@ -4,7 +4,7 @@
 #include <gc_allocator.h>
 #include <map>
 #include <set>
-#include "Entry.h"
+#include "Entry/Entry.h"
 #include "../common/Mutex.h"
 
 namespace Database
@@ -12,15 +12,15 @@ namespace Database
 	class Table : public gc
 	{
 	public:
-		typedef std::set<Entry*, std::less<Entry*>, gc_allocator<Entry*> > Entries;
+		typedef std::set<Entry::Entry*, std::less<Entry::Entry*>, gc_allocator<Entry::Entry*> > Entries;
 
-		void addEntry(Entry *e);
-		void removeEntry(Entry *e);
+		void addEntry(Entry::Entry *e);
+		void removeEntry(Entry::Entry *e);
 
-		Entry* getEntryByID(Entry::ID id);
+		Entry::Entry* getEntryByID(Entry::Entry::ID id);
 
 	private:
-		typedef std::map<Entry::ID, Entry*> EntriesByID;
+		typedef std::map<Entry::Entry::ID, Entry::Entry*> EntriesByID;
 
 		Mutex entries_lock;
 		Entries entries;
