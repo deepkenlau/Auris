@@ -72,3 +72,9 @@ std::string ReferenceField::describe() const
 	if (value == NULL) return "NULL";
 	return value->getID();
 }
+
+
+void ReferenceField::serialize(tinyxml2::XMLPrinter &xml) const
+{
+	xml.PushAttribute("id", value->getID().c_str());
+}

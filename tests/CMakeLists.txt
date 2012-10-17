@@ -9,6 +9,7 @@ add_executable(test-database
 	../database/Table.cpp
 	../database/Entry/Entry.cpp
 	../database/Entry/Field.cpp
+	../common/tinyxml2.cpp
 )
 
 find_package(BoehmGC REQUIRED)

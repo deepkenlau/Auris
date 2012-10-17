@@ -1,10 +1,11 @@
 /* Copyright © 2012 Fabian Schuiki, Sandro Sgier */
 #pragma once
 #include <string>
+#include "../../common/tinyxml2.h"
 
 #define FIELD_ASSIGNMENT_OPERATOR(T) \
 virtual operator T() const { return value; } \
-virtual T operator =(T v) { value = v; return v; }
+virtual T operator =(T v) { value = v; return v; } \
 
 namespace Database
 {
@@ -30,11 +31,6 @@ namespace Database
 
 		template <typename T> class ConcreteField : public Field
 		{
-		public:
-			void serialize(tinyxml2::XMLPrinter &xml) const
-			{
-				xml.PushText(value);
-			}
 		protected:
 			T value;
 		};
@@ -46,6 +42,7 @@ namespace Database
 
 			enum Type getType() const {return kString;}
 			virtual std::string describe() const;
+			virtual void serialize(tinyxml2::XMLPrinter &xml) const { xml.PushText(value.c_str()); }
 		};
 		class IntegerField : public ConcreteField<int>
 		{
@@ -54,6 +51,7 @@ namespace Database
 
 			enum Type getType() const {return kInteger;}
 			std::string describe() const;
+			virtual void serialize(tinyxml2::XMLPrinter &xml) const { xml.PushText(value); }
 		};
 		class FloatField : public ConcreteField<double>
 		{
@@ -62,6 +60,7 @@ namespace Database
 
 			enum Type getType() const {return kFloat;}
 			std::string describe() const;
+			virtual void serialize(tinyxml2::XMLPrinter &xml) const { xml.PushText(value); }
 		};
 		class CounterField : public ConcreteField<int>
 		{
@@ -70,6 +69,7 @@ namespace Database
 
 			enum Type getType() const {return kCounter;}
 			std::string describe() const;
+			virtual void serialize(tinyxml2::XMLPrinter &xml) const { xml.PushText(value); }
 		};
 		class ReferenceField : public ConcreteField<Entry*>
 		{
@@ -78,6 +78,7 @@ namespace Database
 
 			enum Type getType() const {return kReference;}
 			std::string describe() const;
+			virtual void serialize(tinyxml2::XMLPrinter &xml) const;
 		};
 	}
 }

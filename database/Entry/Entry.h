@@ -4,6 +4,7 @@
 #include <map>
 #include <gc_cpp.h>
 #include <gc_allocator.h>
+#include "../../common/tinyxml2.h"
 
 
 namespace Database

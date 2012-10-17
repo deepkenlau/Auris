@@ -4,6 +4,7 @@
 #include <gc_allocator.h>
 #include <map>
 #include <set>
+#include "../common/tinyxml2.h"
 #include "Entry/Entry.h"
 #include "../common/Mutex.h"
 
@@ -18,6 +19,8 @@ namespace Database
 		void removeEntry(Entry::Entry *e);
 
 		Entry::Entry* getEntryByID(Entry::Entry::ID id);
+
+		void serialize(tinyxml2::XMLPrinter &xml) const;
 
 	private:
 		typedef std::map<Entry::Entry::ID, Entry::Entry*> EntriesByID;

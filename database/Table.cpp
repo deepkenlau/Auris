@@ -28,3 +28,13 @@ Entry::Entry* Table::getEntryByID(Entry::Entry::ID id)
 	if (e == entriesByID.end()) return NULL;
 	return e->second;
 }
+
+void Table::serialize(tinyxml2::XMLPrinter &xml) const
+{
+	xml.PushAttribute("someAttribute", "Hello!");
+	for (Entries::const_iterator ie = entries.begin(); ie != entries.end(); ie++) {
+		xml.OpenElement("entry");
+		(*ie)->serialize(xml);
+		xml.CloseElement();
+	}
+}
