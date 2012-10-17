@@ -27,6 +27,7 @@ namespace Database
 			virtual double operator =(double v);
 			virtual Entry* operator =(Entry *v);
 			virtual std::string describe() const = 0;
+			virtual bool isEmpty() const = 0;
 		};
 
 		template <typename T> class ConcreteField : public Field
@@ -39,7 +40,7 @@ namespace Database
 		{
 		public:
 			FIELD_ASSIGNMENT_OPERATOR(std::string)
-
+			virtual bool isEmpty() const {return value.empty();}
 			enum Type getType() const {return kString;}
 			virtual std::string describe() const;
 			virtual void serialize(tinyxml2::XMLPrinter &xml) const { xml.PushText(value.c_str()); }
@@ -48,7 +49,7 @@ namespace Database
 		{
 		public:
 			FIELD_ASSIGNMENT_OPERATOR(int)
-
+			virtual bool isEmpty() const {return !value;}
 			enum Type getType() const {return kInteger;}
 			std::string describe() const;
 			virtual void serialize(tinyxml2::XMLPrinter &xml) const { xml.PushText(value); }
@@ -57,7 +58,7 @@ namespace Database
 		{
 		public:
 			FIELD_ASSIGNMENT_OPERATOR(double)
-
+			virtual bool isEmpty() const {return !value;}
 			enum Type getType() const {return kFloat;}
 			std::string describe() const;
 			virtual void serialize(tinyxml2::XMLPrinter &xml) const { xml.PushText(value); }
@@ -66,7 +67,7 @@ namespace Database
 		{
 		public:
 			FIELD_ASSIGNMENT_OPERATOR(int)
-
+			virtual bool isEmpty() const {return !value;}
 			enum Type getType() const {return kCounter;}
 			std::string describe() const;
 			virtual void serialize(tinyxml2::XMLPrinter &xml) const { xml.PushText(value); }
@@ -75,7 +76,7 @@ namespace Database
 		{
 		public:
 			FIELD_ASSIGNMENT_OPERATOR(Entry*)
-
+			virtual bool isEmpty() const {return !value;}
 			enum Type getType() const {return kReference;}
 			std::string describe() const;
 			virtual void serialize(tinyxml2::XMLPrinter &xml) const;

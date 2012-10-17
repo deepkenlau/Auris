@@ -28,6 +28,7 @@ void Entry::serialize(tinyxml2::XMLPrinter &xml) const
 	xml.PushAttribute("id", id.c_str());
 	for(Fields::const_iterator i = fields.begin(); i != fields.end(); i++)
 	{
+		if(i->second->isEmpty()) continue;
 		xml.OpenElement(i->first.c_str());
 		i->second->serialize(xml);
 		xml.CloseElement();
