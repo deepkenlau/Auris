@@ -67,7 +67,7 @@ std::string FloatField::describe() const
 	return s.str();
 }
 
-std::string ReferenceField::describe() const
+/*std::string ReferenceField::describe() const
 {
 	if (value == NULL) return "NULL";
 	return value->getID();
@@ -77,4 +77,4 @@ std::string ReferenceField::describe() const
 void ReferenceField::encode(tinyxml2::XMLPrinter &xml) const
 {
 	xml.PushAttribute("id", value->getID().c_str());
-}
+}*/

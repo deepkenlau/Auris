@@ -16,6 +16,8 @@ namespace Database
 		{
 		public:
 			virtual void encode(tinyxml2::XMLPrinter &xml) const = 0;
+			virtual void decode(tinyxml2::XMLElement &xml) = 0;
+
 			enum Type{kString, kInteger, kFloat, kCounter, kReference};
 			virtual enum Type getType() const = 0;
 			virtual operator std::string() const;
@@ -44,6 +46,8 @@ namespace Database
 			enum Type getType() const {return kString;}
 			virtual std::string describe() const;
 			virtual void encode(tinyxml2::XMLPrinter &xml) const { xml.PushText(value.c_str()); }
+			virtual void decode(tinyxml2::XMLElement &xml) {value = xml.GetText();}
+
 		};
 		class IntegerField : public ConcreteField<int>
 		{
@@ -53,6 +57,7 @@ namespace Database
 			enum Type getType() const {return kInteger;}
 			std::string describe() const;
 			virtual void encode(tinyxml2::XMLPrinter &xml) const { xml.PushText(value); }
+			virtual void decode(tinyxml2::XMLElement &xml) {value = atoi(xml.GetText());}
 		};
 		class FloatField : public ConcreteField<double>
 		{
@@ -62,6 +67,7 @@ namespace Database
 			enum Type getType() const {return kFloat;}
 			std::string describe() const;
 			virtual void encode(tinyxml2::XMLPrinter &xml) const { xml.PushText(value); }
+			virtual void decode(tinyxml2::XMLElement &xml) {value = atof(xml.GetText());}
 		};
 		class CounterField : public ConcreteField<int>
 		{
@@ -71,8 +77,10 @@ namespace Database
 			enum Type getType() const {return kCounter;}
 			std::string describe() const;
 			virtual void encode(tinyxml2::XMLPrinter &xml) const { xml.PushText(value); }
+			virtual void decode(tinyxml2::XMLElement &xml) {value = atoi(xml.GetText());}
+
 		};
-		class ReferenceField : public ConcreteField<Entry*>
+		/*class ReferenceField : public ConcreteField<Entry*>
 		{
 		public:
 			FIELD_ASSIGNMENT_OPERATOR(Entry*)
@@ -80,6 +88,8 @@ namespace Database
 			enum Type getType() const {return kReference;}
 			std::string describe() const;
 			virtual void encode(tinyxml2::XMLPrinter &xml) const;
-		};
+			virtual void decode(tinyxml2::XMLElement &xml) {value = atoi(xml.GetText());}
+
+		};*/
 	}
 }
