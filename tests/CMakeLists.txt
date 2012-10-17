@@ -11,6 +11,8 @@ add_executable(test-database
 	../database/Database/Entity.cpp
 	../common/tinyxml2.cpp
 	../common/sha1.cpp
+	../common/FileSystem.cpp
+	../common/Path.cpp
 )
 
 include_directories(../)

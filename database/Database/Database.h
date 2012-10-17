@@ -2,6 +2,7 @@
 #pragma once
 #include <gc_cpp.h>
 #include <string>
+#include <common/Path.h>
 
 #include "Table.h"
 
@@ -13,9 +14,9 @@ namespace database
 		class Database : public gc
 		{
 		public:
-			Database(const std::string &path);
+			Database(const Path &path);
 
-			const std::string& getPath() const { return path; }
+			const Path& getPath() const { return path; }
 
 			void load();
 			void commit();
@@ -27,7 +28,10 @@ namespace database
 			std::string persistObject(const std::string &object) const;
 
 		protected:
-			std::string path;
+			Path path;
+
+			Path getObjectsDirectory() const;
+			Path getObjectPath(const std::string &checksum) const;
 		};
 	}
 }
