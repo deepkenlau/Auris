@@ -20,7 +20,7 @@ namespace Database
 			void setID(ID id);
 			
 			std::string describe() const;
-
+			void serialize(tinyxml2::XMLPrinter &xml) const;
 		protected:
 			typedef std::map<std::string, Field*, std::less<std::string>, gc_allocator<Field*> > Fields;
 
