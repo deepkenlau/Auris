@@ -18,6 +18,7 @@ int main(int argc, char *argv[])
 	e->title = "Fire Hive";
 	e->artist = "Knife Party";
 	table.addEntry(e);
+	std::cout << "created table " << table.describe() << std::endl;
 	/*(*e)["title"]  = "Fire Hive";
 	(*e)["artist"] = "Knive Party";
 	(*e)["rating"] = 0.98;
@@ -30,6 +31,18 @@ int main(int argc, char *argv[])
 	table.encode(xml);
 	xml.CloseElement();
 	fclose(f);
+
+	//Read the table from disk.
+	tinyxml2::XMLDocument xmlr;
+	assert_equal(xmlr.LoadFile("table.xml"), 0);
+	Database::Table rt;
+	tinyxml2::XMLElement *root = xmlr.RootElement();
+	if (!root) {
+		std::cerr << "no root element!" << std::endl;
+		return 1;
+	}
+	rt.decode(*root);
+	std::cout << "read table " << rt.describe() << std::endl;
 
 	return 0;
 }

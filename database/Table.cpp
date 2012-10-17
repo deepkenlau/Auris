@@ -1,9 +1,13 @@
 /* Copyright © 2012 Fabian Schuiki, Sandro Sgier */
 #include "Table.h"
+#include "../common/strutil.h"
+#include <iostream>
+#include <sstream>
 #include <stdexcept>
 using namespace Database;
 using std::runtime_error;
 using std::string;
+using std::stringstream;
 
 
 void Table::addEntry(Entry::Entry *e)
@@ -53,4 +57,15 @@ void Table::decode(tinyxml2::XMLElement &xml)
 		entry->decode(*e);
 		addEntry(entry);
 	}
+}
+
+string Table::describe() const
+{
+	stringstream str;
+	str << "[";
+	for (Entries::const_iterator ie = entries.begin(); ie != entries.end(); ie++) {
+		str << "\n\t" << strutil::indent((*ie)->describe());
+	}
+	str << "\n]";
+	return str.str();
 }

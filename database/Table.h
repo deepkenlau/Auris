@@ -23,6 +23,8 @@ namespace Database
 		void encode(tinyxml2::XMLPrinter &xml) const;
 		void decode(tinyxml2::XMLElement &xml);
 
+		std::string describe() const;
+
 	private:
 		typedef std::map<Entry::Entry::ID, Entry::Entry*> EntriesByID;
 

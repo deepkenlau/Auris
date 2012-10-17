@@ -23,8 +23,10 @@ void Entry::setID(ID id)
 std::string Entry::describe() const
 {
 	std::stringstream s;
+	s << "{";
 	for(Fields::const_iterator it = fields.begin(); it != fields.end(); it++)
-		s << it->first << ": " << it->second->describe() << std::endl;
+		s << "\n\t" << it->first << ": " << it->second->describe();
+	s << "\n}";
 	return s.str();
 }
 
@@ -48,7 +50,7 @@ void Entry::decode(tinyxml2::XMLElement &xml)
 		if (field == NULL) {
 			throw new runtime_error((string("Trying to decode field ") + e->Name()) + "which does not exist.");
 		}
-		fields[*field]->decode(*e);
+		field->decode(*e);
 	}
 }
 
