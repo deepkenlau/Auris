@@ -10,6 +10,7 @@
 #include <netinet/in.h>
 #include <netdb.h>
 #include <sys/time.h>
+#include <cstring>
 
 using std::runtime_error;
 using std::string;

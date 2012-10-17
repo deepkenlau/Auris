@@ -22,3 +22,14 @@ std::string Entry::describe() const
 		s << it->first << ": " << it->second->describe() << std::endl;
 	return s.str();
 }
+
+void Entry::serialize(tinyxml2::XMLPrinter &xml) const
+{
+	xml.PushAttribute("id", id);
+	for(Fields::const_iterator i = fields.begin; i != fields.end; i++)
+	{
+		xml.OpenElement(i->first);
+		i->second->serialize(xml);
+		xml.CloseElement(i->first);
+	}
+}

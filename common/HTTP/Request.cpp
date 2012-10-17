@@ -3,6 +3,7 @@
 #include <string>
 #include <sstream>
 #include <iostream>
+#include <cstdlib>
 
 using namespace HTTP;
 using std::string;

@@ -14,7 +14,7 @@ namespace Database
 		class Field
 		{
 		public:
-			//virtual void serialize(tinyxml2::XMLPrinter &xml) const = 0;
+			virtual void serialize(tinyxml2::XMLPrinter &xml) const = 0;
 			enum Type{kString, kInteger, kFloat, kCounter, kReference};
 			virtual enum Type getType() const = 0;
 			virtual operator std::string() const;
@@ -30,6 +30,11 @@ namespace Database
 
 		template <typename T> class ConcreteField : public Field
 		{
+		public:
+			void serialize(tinyxml2::XMLPrinter &xml) const
+			{
+				xml.PushText(value);
+			}
 		protected:
 			T value;
 		};
