@@ -5,6 +5,7 @@
 #include "../database/Table.h"
 #include "../database/Entry/Song.h"
 #include "../database/Entry/Album.h"
+#include "../database/Database.h"
 
 #define assert_equal(a,b) if (a != b) { std::cerr << #a << ": expected " << b << ", got " << a << std::endl; return 1; }
 
@@ -18,7 +19,7 @@ int main(int argc, char *argv[])
 	e->title = "Fire Hive";
 	e->artist = "Knife Party";
 	table.addEntry(e);
-	std::cout << "created table " << table.describe() << std::endl;
+	//std::cout << "created table " << table.describe() << std::endl;
 	/*(*e)["title"]  = "Fire Hive";
 	(*e)["artist"] = "Knive Party";
 	(*e)["rating"] = 0.98;
@@ -42,7 +43,23 @@ int main(int argc, char *argv[])
 		return 1;
 	}
 	rt.decode(*root);
-	std::cout << "read table " << rt.describe() << std::endl;
+	//std::cout << "read table " << rt.describe() << std::endl;
+
+	Database::Database db("metadata.xml");
+
+	Database::Entry::Song *s = new Database::Entry::Song;
+	s->setID("a");
+	s->title = "Internet Friends";
+	s->artist = "Knife Party";
+	db.songTable.addEntry(s);
+
+	Database::Entry::Album *a = new Database::Entry::Album;
+	a->setID("b");
+	a->title = "Rage Valley";
+	a->artist = "Knife Party";
+	db.albumTable.addEntry(a);
+
+	db.store();
 
 	return 0;
 }

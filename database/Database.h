@@ -1,5 +1,7 @@
 /* Copyright © 2012 Fabian Schuiki, Sandro Sgier */
 #pragma once
+#include <string>
+#include "Table.h"
 
 namespace Database
 {
@@ -9,7 +11,7 @@ namespace Database
 	public:
 		Database(std::string path);
 		Table songTable;
-		Table artistTable;
+		Table albumTable;
 		void store() const;
 		void load();
 	};
