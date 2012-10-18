@@ -22,6 +22,7 @@ namespace database
 			void commit();
 
 			std::string persistObject(const std::string &object) const;
+			std::string loadObject(const std::string &hash) const;
 
 			ConcreteTable<Song>& getSongs() { return head.songs; }
 

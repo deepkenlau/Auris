@@ -21,7 +21,7 @@ namespace database
 			Commit* getBase() { return base; }
 
 			std::string persist();
-			void load(const std::string &data);
+			void load(const std::string &hash);
 
 			ConcreteTable<Song> songs;
 

@@ -19,8 +19,11 @@ int main(int argc, char *argv[])
 {
 	GC_INIT();
 	try {
-		//Create a new database.
+		//Create a new database and try to load it.
 		Database db("debug_database");
+		db.load();
+
+		//Fetch the songs table.
 		ConcreteTable<Song> &songs = db.getSongs();
 
 		//Create a new entity.

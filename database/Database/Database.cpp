@@ -7,6 +7,7 @@
 #include <iostream>
 
 using std::string;
+using std::ifstream;
 using std::ofstream;
 using std::runtime_error;
 using database::database::Database;
@@ -20,6 +21,19 @@ Database::Database(const Path &path) : head(this)
 void Database::load()
 {
 	//Try to read the metadata head.
+	Path p = getMetadataHeadPath();
+	ifstream fin(p);
+	if (!fin.good()) return; //don't throw an exception here!
+
+	//Interpret the contents of the file as commit checksum.
+	string sha;
+	fin >> sha;
+	fin.close();
+
+	//Replace the old commit with a new one with the given SHA.
+	if (head.getHash() == sha) return;
+	std::cout << "Database: loading " << sha << std::endl;
+	head.load(sha);
 }
 
 void Database::commit()
@@ -42,6 +56,8 @@ void Database::commit()
 }
 
 
+/** Stores the given data in the database's object directory and returns the
+ * name of the generated object. */
 string Database::persistObject(const string &object) const
 {
 	//Calculate the SHA1 checksum of the object.
@@ -61,6 +77,23 @@ string Database::persistObject(const string &object) const
 
 	//Return the checksum so the caller may refer to it.
 	return sum;
+}
+
+std::string Database::loadObject(const std::string &hash) const
+{
+	//Get the path to the object file.
+	Path p = getObjectPath(hash);
+
+	//Try to read the object file.
+	ifstream fin(p);
+	if (!fin.good()) {
+		throw runtime_error(string("Unable to load object ") + hash + ".");
+	}
+	std::string data;
+	fin >> data;
+	fin.close();
+
+	return data;
 }
 
 Path Database::getObjectsDirectory() const

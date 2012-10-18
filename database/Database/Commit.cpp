@@ -3,6 +3,7 @@
 #include "Database.h"
 #include <string>
 #include <sstream>
+#include <common/strutil.h>
 
 using database::database::Commit;
 using std::string;
@@ -34,7 +35,12 @@ string Commit::persist()
 	return hash;
 }
 
-void Commit::load(const string &data)
+void Commit::load(const string &hash)
 {
+	this->hash = hash;
+	std::string data = getDatabase()->loadObject(hash);
 
+	strutil::Dictionary dict = strutil::parseDictionary(data);
+	if (dict.count("base"))  base  = new Commit(database, dict["base"]);
+	if (dict.count("songs")) songs.load(dict["songs"]);
 }
