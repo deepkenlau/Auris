@@ -10,6 +10,7 @@ using std::runtime_error;
 using database::database::Database;
 using database::database::Commit;
 using database::database::Table;
+using database::database::ConcreteTable;
 using database::database::Entity;
 using database::database::Song;
 
@@ -20,21 +21,18 @@ int main(int argc, char *argv[])
 	try {
 		//Create a new database.
 		Database db("debug_database");
-
-		//Create a new commit.
-		Commit commit(&db);
+		ConcreteTable<Song> &songs = db.getSongs();
 
 		//Create a new entity.
-		Song song(&commit.songs);
+		Song song(&songs);
 		song.setID("abcdefg");
 		song.title = "Fire Hive";
 		song.artist = "Knife Party";
-		commit.songs.addEntity(&song);
+		songs.addEntity(&song);
 
-		std::cout << "initial commit: " << commit.persist() << std::endl;
-
+		db.commit();
 		song.album = "Rage Valley";
-		std::cout << "first change: " << commit.persist() << std::endl;
+		db.commit();
 	}
 	catch (std::runtime_error &e) {
 		std::cerr << "runtime error: " << e.what() << std::endl;

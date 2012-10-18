@@ -4,7 +4,7 @@
 #include <string>
 #include <common/Path.h>
 
-#include "Table.h"
+#include "Commit.h"
 
 
 namespace database
@@ -21,17 +21,18 @@ namespace database
 			void load();
 			void commit();
 
-			/*Table<Song> songs;
-			Table<Album> albums;
-			Table<Artist> artists;*/
-
 			std::string persistObject(const std::string &object) const;
+
+			ConcreteTable<Song>& getSongs() { return head.songs; }
 
 		protected:
 			Path path;
+			Commit head;
 
 			Path getObjectsDirectory() const;
 			Path getObjectPath(const std::string &checksum) const;
+
+			Path getMetadataHeadPath() const;
 		};
 	}
 }
