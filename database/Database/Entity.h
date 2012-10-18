@@ -26,6 +26,7 @@ namespace database
 			std::string getID() const;
 
 			virtual std::string persist() const;
+			void load(const std::string &hash);
 
 			std::string describe() const;
 

@@ -26,7 +26,7 @@ int main(int argc, char *argv[])
 		//Fetch the songs table.
 		ConcreteTable<Song> &songs = db.getSongs();
 
-		//Create a new entity.
+		/*//Create a new entity.
 		Song song(&songs);
 		song.setID("abcdefg");
 		song.title = "Fire Hive";
@@ -35,7 +35,7 @@ int main(int argc, char *argv[])
 
 		db.commit();
 		song.album = "Rage Valley";
-		db.commit();
+		db.commit();*/
 	}
 	catch (std::runtime_error &e) {
 		std::cerr << "runtime error: " << e.what() << std::endl;

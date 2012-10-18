@@ -2,6 +2,7 @@
 #pragma once
 #include <map>
 #include <string>
+#include <iostream>
 
 class strutil
 {
@@ -24,7 +25,7 @@ public:
 
 			size_t colon = s.find(": ", lineStart);
 			if (colon > lineEnd) continue;
-
+			std::cout << "reading dict\n";
 			dict[s.substr(lineStart, colon-lineStart)] = s.substr(colon+2, lineEnd-colon-2);
 		} while (lineEnd < s.length());
 		return dict;

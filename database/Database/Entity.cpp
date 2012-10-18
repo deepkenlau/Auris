@@ -1,6 +1,7 @@
 #include "Database.h"
 #include "Field.h"
 #include <sstream>
+#include <iostream>
 
 using std::string;
 using std::stringstream;
@@ -42,6 +43,11 @@ string Entity::persist() const
 		output << "\n";
 	}
 	return getDatabase()->persistObject(output.str());
+}
+
+void Entity::load(const string &hash)
+{
+	std::cout << "should load entity " << hash << std::endl;
 }
 
 /** Returns a human readable string describing the entity. */

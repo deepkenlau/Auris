@@ -39,6 +39,7 @@ void Commit::load(const string &hash)
 {
 	this->hash = hash;
 	std::string data = getDatabase()->loadObject(hash);
+	std::cout << "loading commit " << hash << std::endl << data;
 
 	strutil::Dictionary dict = strutil::parseDictionary(data);
 	if (dict.count("base"))  base  = new Commit(database, dict["base"]);

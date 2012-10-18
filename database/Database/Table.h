@@ -2,7 +2,6 @@
 #pragma once
 #include <gc_cpp.h>
 #include <gc_allocator.h>
-#include <common/Mutex.h>
 #include <set>
 #include <string>
 
@@ -28,7 +27,7 @@ namespace database
 			void removeEntity(Entity *e);
 
 			std::string persist() const;
-			virtual void load(const std::string &data) = 0;
+			void load(const std::string &hash);
 
 			std::string describe() const;
 
@@ -36,8 +35,8 @@ namespace database
 			Commit* const commit;
 
 			typedef std::set<Entity*, std::less<Entity*>, gc_allocator<Entity*> > Entities;
-			Mutex entities_lock;
 			Entities entities;
+			virtual Entity* makeEntity() = 0;
 		};
 
 		template <typename T>
@@ -45,11 +44,7 @@ namespace database
 		{
 		public:
 			ConcreteTable(Commit* c) : Table(c) {}
-
-			void load(const std::string &data)
-			{
-
-			}
+			Entity* makeEntity() { return new T(this); }
 		};
 	}
 }

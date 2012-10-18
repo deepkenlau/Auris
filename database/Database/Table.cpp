@@ -22,16 +22,12 @@ Database* Table::getDatabase() const
 
 void Table::addEntity(Entity *e)
 {
-	entities_lock.lock();
 	entities.insert(e);
-	entities_lock.unlock();
 }
 
 void Table::removeEntity(Entity *e)
 {
-	entities_lock.lock();
 	entities.erase(e);
-	entities_lock.unlock();
 }
 
 /** Persists all of the table's entities as well as the table itself. Returns
@@ -46,6 +42,29 @@ string Table::persist() const
 
 	//Persist the table itself.
 	return getDatabase()->persistObject(str.str());
+}
+
+void Table::load(const string &hash)
+{
+	string data = getDatabase()->loadObject(hash);
+
+	//Clear our entities.
+	entities.clear();
+
+	//Parse the data line by line.
+	size_t lineStart = 0, lineEnd = 0;
+	do {
+		lineStart = lineEnd+1;
+		lineEnd = data.find('\n', lineStart);
+		if (lineEnd == string::npos)
+			lineEnd = data.length();
+
+		if (lineEnd - lineStart > 0) {
+			Entity* e = makeEntity();
+			e->load(data.substr(lineStart, lineEnd-lineStart));
+			addEntity(e);
+		}
+	} while (lineEnd < data.length());
 }
 
 string Table::describe() const
