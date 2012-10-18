@@ -6,7 +6,7 @@ class Blob : public gc
 {
 public:
 	int length;
-	void *buffer;
+	const void *buffer;
 	Blob(const void * buffer, int length)
 	{
 		this->length = length;
