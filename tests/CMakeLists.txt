@@ -17,6 +17,14 @@ add_executable(test-database
 	../common/Path.cpp
 )
 
+add_executable(test-mediastore
+	Mediastore.cpp
+	../database/media/Store.cpp
+	../common/sha1.cpp
+	../common/FileSystem.cpp
+	../common/Path.cpp
+)
+
 include_directories(../)
 
 find_package(BoehmGC REQUIRED)
