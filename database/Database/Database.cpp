@@ -10,6 +10,7 @@ using std::string;
 using std::ifstream;
 using std::ofstream;
 using std::runtime_error;
+using std::ios;
 using database::database::Database;
 
 
@@ -89,8 +90,11 @@ std::string Database::loadObject(const std::string &hash) const
 	if (!fin.good()) {
 		throw runtime_error(string("Unable to load object ") + hash + ".");
 	}
-	std::string data;
-	fin >> data;
+	string data;
+	fin.seekg(0, ios::end);
+	data.resize(fin.tellg());
+	fin.seekg(0, ios::beg);
+	fin.read(&data[0], data.size());
 	fin.close();
 
 	return data;

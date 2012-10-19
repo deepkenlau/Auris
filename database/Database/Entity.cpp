@@ -2,6 +2,7 @@
 #include "Field.h"
 #include <sstream>
 #include <iostream>
+#include <common/strutil.h>
 
 using std::string;
 using std::stringstream;
@@ -47,7 +48,16 @@ string Entity::persist() const
 
 void Entity::load(const string &hash)
 {
-	std::cout << "should load entity " << hash << std::endl;
+	std::string data = getDatabase()->loadObject(hash);
+	strutil::Dictionary dict = strutil::parseDictionary(data);
+
+	for (Fields::const_iterator it = fields.begin(); it != fields.end(); it++) {
+		if (dict.count(it->first)) {
+			*it->second = dict[it->first];
+		} else {
+			it->second->clear();
+		}
+	}
 }
 
 /** Returns a human readable string describing the entity. */
@@ -55,7 +65,7 @@ string Entity::describe() const
 {
 	stringstream s;
 	s << "{";
-	for(Fields::const_iterator it = fields.begin(); it != fields.end(); it++)
+	for (Fields::const_iterator it = fields.begin(); it != fields.end(); it++)
 		s << "\n\t" << it->first << ": " << it->second->describe();
 	s << "\n}";
 	return s.str();
