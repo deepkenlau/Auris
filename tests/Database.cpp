@@ -27,6 +27,8 @@ int main(int argc, char *argv[])
 		//Fetch the songs table.
 		ConcreteTable<Song> &songs = db.getSongs();
 
+		std::cout << "Songs: " << songs.describe() << std::endl;
+
 		/*//Create a new entity.
 		Song song(&songs);
 		song.setID("abcdefg");

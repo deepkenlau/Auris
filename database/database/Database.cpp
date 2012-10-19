@@ -53,7 +53,7 @@ void Database::commit()
 	//Store the head.
 	ofstream fout(p);
 	if (!fout.good()) {
-		throw runtime_error("Unable to store metadata head.");
+		throw Error("Unable to store metadata head.", new IOError(p));
 	}
 	fout << sha;
 	fout.close();
@@ -74,7 +74,7 @@ string Database::persistObject(const string &object) const
 	//Write the object to disk.
 	ofstream fout(p);
 	if (!fout.good()) {
-		throw runtime_error(string("Unable to persist object ") + sum + ".");
+		throw new Error(string("Unable to persist object ") + sum + ".", new IOError(p));
 	}
 	fout << object;
 	fout.close();

@@ -54,7 +54,6 @@ void Table::load(const string &hash)
 	//Parse the data line by line.
 	size_t lineStart = 0, lineEnd = 0;
 	do {
-		lineStart = lineEnd+1;
 		lineEnd = data.find('\n', lineStart);
 		if (lineEnd == string::npos)
 			lineEnd = data.length();
@@ -64,6 +63,7 @@ void Table::load(const string &hash)
 			e->load(data.substr(lineStart, lineEnd-lineStart));
 			addEntity(e);
 		}
+		lineStart = lineEnd+1;
 	} while (lineEnd < data.length());
 }
 
