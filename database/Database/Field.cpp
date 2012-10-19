@@ -2,6 +2,7 @@
 #include "Field.h"
 #include <stdexcept>
 #include <sstream>
+#include <cstdlib>
 #include "Entity.h"
 
 using namespace database::database;

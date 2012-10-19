@@ -4,6 +4,10 @@
 #include <stdexcept>
 #include <fstream>
 #include <common/FileSystem.h>
+#include <dirent.h>
+
+//debug
+#include <iostream.h>
 
 using database::media::Store;
 using std::runtime_error;
@@ -115,4 +119,23 @@ std::string Store::getMainFormat(std::string name)
 	if(f.fail())
 		throw runtime_error("Error on closing main format file.");
 	return str;
+}
+
+std::set<std::string> Store::getFormats()
+{
+	std::set<std::string> filenames;
+	Path tmp = path.down("formats");
+	DIR dp;
+	struct dirent *dirp;
+    if((dp  = opendir(tmp)) == NULL)
+    	throw runtime_error("Error on opening formats directory");
+	while ((dirp = readdir(dp)) != NULL) {
+		filenames.insert(std::string(dirp->d_name));
+ 	}
+ 	for(std::set<std::string>::iterator it = filenames; it != filenames.end; it++)
+ 	{
+//debug
+std::cout << it << endl;
+ 	}
+ 	return NULL;
 }
