@@ -5,6 +5,7 @@
 #include <database/Database/Database.h>
 #include <database/Database/Commit.h>
 #include <database/Database/Song.h>
+#include <common/Error.h>
 
 using std::runtime_error;
 using database::database::Database;
@@ -39,6 +40,9 @@ int main(int argc, char *argv[])
 	}
 	catch (std::runtime_error &e) {
 		std::cerr << "runtime error: " << e.what() << std::endl;
+	}
+	catch (Error *e) {
+		std::cerr << "*** " << e->what() << std::endl;
 	}
 
 	return 0;

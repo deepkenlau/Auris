@@ -1,6 +1,9 @@
+/* Copyright © 2012 Fabian Schuiki, Sandro Sgier */
 #include "Database.h"
+#include "Error.h"
 #include <common/sha1_utils.h>
 #include <common/FileSystem.h>
+#include <common/Error.h>
 #include <fstream>
 #include <string>
 #include <stdexcept>
@@ -88,7 +91,7 @@ std::string Database::loadObject(const std::string &hash) const
 	//Try to read the object file.
 	ifstream fin(p);
 	if (!fin.good()) {
-		throw runtime_error(string("Unable to load object ") + hash + ".");
+		throw new Error(string("Unable to load object ") + hash + ".", new IOError(p));
 	}
 	string data;
 	fin.seekg(0, ios::end);

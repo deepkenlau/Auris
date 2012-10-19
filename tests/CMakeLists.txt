@@ -15,6 +15,7 @@ add_executable(test-database
 	../common/sha1.cpp
 	../common/FileSystem.cpp
 	../common/Path.cpp
+	../common/Error.cpp
 )
 
 add_executable(test-mediastore
