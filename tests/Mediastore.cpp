@@ -16,11 +16,9 @@ int main(void)
 	store.persist(blob, "gusta.txt", "wave, u jelly?");
 
 	cout << (char*)store.load("bubber.txt", "mp3 bitches!").buffer << endl;
+	store.setMainFormat("gusta.txt", "wave, u jelly?");
 
-cout << "arrived here" << endl;
-
-
-	set<string> formats = store.getFormats();
+	set<string> formats = store.getHeads();
 	for(set<string>::iterator it = formats.begin(); it != formats.end(); it++)
 	{
 		cout << *it << endl;
