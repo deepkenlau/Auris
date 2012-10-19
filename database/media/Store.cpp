@@ -7,7 +7,7 @@
 #include <dirent.h>
 
 //debug
-#include <iostream.h>
+#include <iostream>
 
 using database::media::Store;
 using std::runtime_error;
@@ -125,17 +125,60 @@ std::set<std::string> Store::getFormats()
 {
 	std::set<std::string> filenames;
 	Path tmp = path.down("formats");
-	DIR dp;
+	DIR *dp;
 	struct dirent *dirp;
     if((dp  = opendir(tmp)) == NULL)
     	throw runtime_error("Error on opening formats directory");
 	while ((dirp = readdir(dp)) != NULL) {
 		filenames.insert(std::string(dirp->d_name));
  	}
- 	for(std::set<std::string>::iterator it = filenames; it != filenames.end; it++)
+
+ 	Path formatsdir = tmp;
+ 	std::set<std::string> formats;
+ 	for(std::set<std::string>::iterator it = filenames.begin(); it != filenames.end(); it++)
  	{
-//debug
-std::cout << it << endl;
+		if(*it != "." && *it != "..")
+		{
+			tmp = formatsdir.down(*it);
+			std::ifstream f(tmp, std::fstream::in);
+			if (f.fail())
+				throw runtime_error("Error on opening format file.");
+
+			f.seekg(0, std::ios_base::end);
+			if (f.fail() || f.bad())
+				throw runtime_error("Error on seeking format file");
+			int size = f.tellg();
+
+			f.seekg(0, std::ios_base::beg);
+			if (f.fail() || f.bad())
+				throw runtime_error("Error on seeking format file");
+
+			char * str = new char[size+1];
+			f.read(str, size);
+			str[size] = 0;
+			formats.insert(str);
+			if (f.bad())
+				throw runtime_error("Error on reading format file.");
+			f.close();
+			if(f.fail())
+				throw runtime_error("Error on closing format file.");
+		}
  	}
- 	return NULL;
+ 	return formats;
+}
+
+std::set<std::string> Store::getHeads()
+{
+	std::set<std::string> filenames;
+	Path tmp = path.down("heads");
+	DIR *dp;
+	struct dirent *dirp;
+    if((dp  = opendir(tmp)) == NULL)
+    	throw runtime_error("Error on opening formats directory");
+	while ((dirp = readdir(dp)) != NULL) {
+		filenames.insert(std::string(dirp->d_name));
+ 	}
+ 	filenames.erase(".");
+ 	filenames.erase("..");
+	return filenames;
 }

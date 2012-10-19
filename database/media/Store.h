@@ -3,6 +3,7 @@
 #include <common/Blob.h>
 #include <common/Path.h>
 #include <gc_cpp.h>
+#include <set>
 
 namespace database
 {
@@ -18,6 +19,8 @@ namespace database
 			Blob load(std::string name, std::string format);
 			void setMainFormat(std::string name, std::string format);
 			std::string getMainFormat(std::string name);
+			std::set<std::string> getFormats();
+			std::set<std::string> getHeads();
 		};
 	}
 }
