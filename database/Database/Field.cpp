@@ -47,6 +47,7 @@ namespace database
 		template<> enum Field::Type StringField::getType() const { return kString; }
 		template<> void StringField::decode(const std::string &str)	{ value = str; }
 		template<> bool StringField::isEmpty() const { return value.empty(); }
+		template<> void StringField::clear() { value.clear(); }
 
 		template<> enum Field::Type IntegerField::getType() const { return kString; }
 		template<> void IntegerField::decode(const std::string &str) { value = atoi(str.c_str()); }
