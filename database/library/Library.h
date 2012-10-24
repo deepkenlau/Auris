@@ -13,12 +13,14 @@ namespace database
 	{
 		class Library : public gc
 		{
-		protected:
+			database::Database database;
+			database::media::Store store;
 			typedef std::set<Song *, std::less<Song*>, gc_allocator<Song *> > Songs;
 			Songs songs;
 		public:
 			Song * getSong(std::string id);
 			Song * addMedia(Blob blob);
+			void loadSongs();
 		};
 	}
 }
