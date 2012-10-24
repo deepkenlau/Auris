@@ -18,6 +18,8 @@ namespace database
 			typedef std::set<Song *, std::less<Song*>, gc_allocator<Song *> > Songs;
 			Songs songs;
 		public:
+			database::Database * getMetadata();
+			database::media::Store * getMediaStore();
 			Song * getSong(std::string id);
 			Song * addMedia(Blob blob);
 			void loadSongs();
