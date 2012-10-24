@@ -1,5 +1,6 @@
 /* Copyright © 2012 Fabian Schuiki, Sandro Sgier */
 #pragma once
+#include <set>
 #include <string>
 #include <gc_cpp.h>
 
@@ -10,12 +11,18 @@ namespace database
 		class Library;
 		class Song : public gc
 		{
-		protected:
+		public:
+			Library * getLibrary() const { return library; }
+			std::string getID() const { return id; }
+
+			Song(Library *library, std::string id);
+
+			database::database::Song* getMetadata() const;
+			std::set<std::string> getFormats() const;
+
+		private:
 			Library * const library;
 			std::string id;
-		public:
-			Library * getLibrary() const {return library;}
-			std::string getId() const {return id;}
 		};
 	}
 }
