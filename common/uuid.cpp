@@ -1,3 +1,4 @@
+/* Copyright © 2012 Fabian Schuiki, Sandro Sgier */
 extern "C"
 {
 #ifdef WIN32
