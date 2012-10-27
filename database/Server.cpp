@@ -5,14 +5,25 @@
 #include <iostream>
 #include <stdexcept>
 
-using namespace Database;
+using database::Server;
 using std::cerr;
 using std::endl;
 using std::runtime_error;
 
 
+Server::Server()
+{
+	Path p("~/Music/Auris");
+	database = new database::Database(p);
+	media = new media::Store(p);
+}
+
 void Server::run(int argc, char *argv[])
 {
+	//Load the database.
+	database->load();
+	std::cout << "songs: " << database->getSongs().describe() << endl;
+
 	//Setup the listening socket for the control connections.
 	Socket* listener = Socket::makeListening(8080);
 	if (!listener)
@@ -41,21 +52,4 @@ void Server::removeConnection(Connection* c)
 	connections_mutex.lock();
 	connections.erase(c);
 	connections_mutex.unlock();
-}
-
-void Server::debugChat(Connection *connection, std::stringbuf &buf)
-{
-	connections_mutex.lock();
-	Connections cs = connections;
-	connections_mutex.unlock();
-
-	char buffer[1024];
-	int length = buf.sgetn(buffer, 1024);
-
-	for (Connections::iterator ic = cs.begin(); ic != cs.end(); ic++) {
-		Connection *c = *ic;
-		if (c == connection) continue;
-		std::cout << "dispatching message from " << connection->getClientName() << std::endl;
-		c->write(buffer, length);
-	}
 }

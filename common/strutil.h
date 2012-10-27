@@ -7,8 +7,13 @@
 class strutil
 {
 public:
-	static std::string indent(const std::string &s)
+	static std::string indent(std::string s)
 	{
+		size_t offset = 0;
+		while ((offset = s.find('\n', offset)) != std::string::npos) {
+			s.insert(offset+1, "\t");
+			offset++;
+		}
 		return s;
 	}
 

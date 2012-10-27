@@ -7,7 +7,7 @@
 #include <common/HTTP/Response.h>
 #include <common/Error.h>
 
-using namespace Database;
+using database::Connection;
 using std::string;
 using std::endl;
 using std::stringstream;
@@ -132,8 +132,14 @@ void Connection::received()
 
 	//Process the request.
 	if (path == "/songs") {
+		stringstream s;
+		const database::Table::Entities &e = server->database->getSongs().getEntities();
+		for (database::Table::Entities::const_iterator it = e.begin(); it != e.end(); it++) {
+			s << (*it)->getID() << "\n";
+		}
+
 		HTTP::Response r;
-		r.content = "Hello World";
+		r.content = s.str();
 		r.finalize();
 		write(r);
 		close();

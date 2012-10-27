@@ -9,9 +9,18 @@ add_executable(${DATABASE_EXEC_NAME}
 	../common/HTTP/Request.cpp
 	../common/HTTP/Response.cpp
 	../common/HTTP/HeaderSet.cpp
-	Table.cpp
-	Entry/Entry.cpp
-	Entry/Field.cpp
+	../common/Path.cpp
+	../common/FileSystem.cpp
+	../common/sha1.cpp
+	../common/sha1_utils.cpp
+
+	database/Database.cpp
+	database/Table.cpp
+	database/Commit.cpp
+	database/Entity.cpp
+	database/Field.cpp
+
+	media/Store.cpp
 )
 include_directories(../)
 

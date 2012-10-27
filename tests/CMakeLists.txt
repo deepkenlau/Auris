@@ -14,6 +14,7 @@ add_executable(test-database
 	../database/Database/Field.cpp
 	../common/tinyxml2.cpp
 	../common/sha1.cpp
+	../common/sha1_utils.cpp
 	../common/FileSystem.cpp
 	../common/Path.cpp
 	../common/Error.cpp
@@ -23,6 +24,7 @@ add_executable(test-mediastore
 	Mediastore.cpp
 	../database/media/Store.cpp
 	../common/sha1.cpp
+	../common/sha1_utils.cpp
 	../common/FileSystem.cpp
 	../common/Path.cpp
 )

@@ -1,5 +1,6 @@
 #include "Database.h"
 #include "Field.h"
+#include "Error.h"
 #include <sstream>
 #include <iostream>
 #include <common/strutil.h>
@@ -49,8 +50,16 @@ string Entity::persist() const
 void Entity::load(const string &hash)
 {
 	std::string data = getDatabase()->loadObject(hash);
-	strutil::Dictionary dict = strutil::parseDictionary(data);
 
+	//Parse the entity id.
+	size_t nl = data.find('\n');
+	if (nl == string::npos) {
+		throw new Error("Entity has no ID: " + data);
+	}
+	id = data.substr(0, nl);
+
+	//Parse the fields.
+	strutil::Dictionary dict = strutil::parseDictionary(data.substr(nl+1));
 	for (Fields::const_iterator it = fields.begin(); it != fields.end(); it++) {
 		if (dict.count(it->first)) {
 			*it->second = dict[it->first];
@@ -64,7 +73,7 @@ void Entity::load(const string &hash)
 string Entity::describe() const
 {
 	stringstream s;
-	s << "{";
+	s << id << " {";
 	for (Fields::const_iterator it = fields.begin(); it != fields.end(); it++)
 		s << "\n\t" << it->first << ": " << it->second->describe();
 	s << "\n}";

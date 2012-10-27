@@ -30,6 +30,11 @@ void Table::removeEntity(Entity *e)
 	entities.erase(e);
 }
 
+const Table::Entities& Table::getEntities() const
+{
+	return entities;
+}
+
 /** Persists all of the table's entities as well as the table itself. Returns
  * the name of the created object. */
 string Table::persist() const

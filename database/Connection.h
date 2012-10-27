@@ -9,7 +9,7 @@
 
 class Socket;
 
-namespace Database
+namespace database
 {
 	class Server;
 

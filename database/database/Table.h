@@ -26,6 +26,9 @@ namespace database
 			void addEntity(Entity *e);
 			void removeEntity(Entity *e);
 
+			typedef std::set<Entity*, std::less<Entity*>, gc_allocator<Entity*> > Entities;
+			const Entities& getEntities() const;
+
 			std::string persist() const;
 			void load(const std::string &hash);
 
@@ -34,7 +37,6 @@ namespace database
 		protected:
 			Commit* const commit;
 
-			typedef std::set<Entity*, std::less<Entity*>, gc_allocator<Entity*> > Entities;
 			Entities entities;
 			virtual Entity* makeEntity() = 0;
 		};

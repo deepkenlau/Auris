@@ -5,9 +5,11 @@
 #include <gc_allocator.h>
 #include <sstream>
 #include "../common/Mutex.h"
+#include "database/Database.h"
+#include "media/Store.h"
 
 
-namespace Database
+namespace database
 {
 	class Connection;
 
@@ -18,7 +20,10 @@ namespace Database
 	public:
 		void run(int argc, char *argv[]);
 
-		void debugChat(Connection *connection, std::stringbuf &buf);
+		Server();
+
+		database::Database *database;
+		media::Store *media;
 
 	private:
 		Mutex connections_mutex;

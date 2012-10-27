@@ -8,7 +8,7 @@
 int main(int argc, char *argv[])
 {
 	GC_INIT();
-	Database::Server s;
+	database::Server s;
 	try {
 		s.run(argc, argv);
 	} catch (Error *e) {
