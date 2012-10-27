@@ -3,9 +3,14 @@
 #include "Server.h"
 #include "../common/Socket.h"
 #include "../common/Thread.h"
+#include <common/HTTP/Request.h>
+#include <common/HTTP/Response.h>
+#include <common/Error.h>
 
 using namespace Database;
+using std::string;
 using std::endl;
+using std::stringstream;
 
 #define clog std::cout << "[connection " << getClientName() << "] "
 
@@ -23,7 +28,13 @@ Connection::Connection(Socket *socket, Server *server)
 static void* connectionThread(void *param)
 {
 	Connection *c = (Connection*)param;
-	c->run();
+	try {
+		c->run();
+	} catch (Error *e) {
+		std::cerr << "*** uncaught connection exception: " << e->what() << std::endl;
+	} catch (std::exception &e) {
+		std::cerr << "*** uncaught connection exception: " << e.what() << std::endl;
+	}
 	return NULL;
 }
 
@@ -36,37 +47,58 @@ void Connection::start()
 void Connection::run()
 {
 	clog << "connected" << endl;
-/*
-	socket->write("Hello\n", 6);
-	sleep(3);
-	socket->write("Bitch... ", 9);
-	sleep(1);
-	socket->write("please!\n", 8);
-*/
-	const int CHARS_PER_PERIOD = 1024;
-	char buffer[CHARS_PER_PERIOD];
-	int chars_read;
-	while(true)
-	{
-		if(socket->poll(10))
-		{
-			do
-			{
-				chars_read = socket->read(buffer, CHARS_PER_PERIOD);
-				inputBuffer.sputn(buffer, chars_read);
-			} while (chars_read == CHARS_PER_PERIOD);
-			this->received();
+	try {
+		//Enter the main loop which runs as long as the socket is connected.
+		const int BUFFER_SIZE = 1024;
+		char buffer[BUFFER_SIZE];
+		while (socket->isOpen()) {
+			int num_read;
+
+			//Wait for incoming data for 10ms.
+			if (socket->poll(10)) {
+				int bytesRead = 0;
+				do {
+					num_read = socket->read(buffer, BUFFER_SIZE);
+					inputBuffer.append(buffer, num_read);
+					bytesRead += num_read;
+				} while (num_read == BUFFER_SIZE);
+
+				//Call the reception handler if we've read any data.
+				if (bytesRead) {
+					this->received();
+				}
+			}
+
+			//Write data to the socket as long as there's data left in the output buffer.
+			int write_offset = 0;
+			do {
+				outputBuffer_lock.lock();
+				num_read = std::min<int>(BUFFER_SIZE, outputBuffer.length() - write_offset);
+				outputBuffer.copy(buffer, num_read, write_offset);
+				outputBuffer_lock.unlock();
+
+				if (num_read > 0) {
+					socket->write(buffer, num_read);
+					write_offset += num_read;
+				}
+			} while (num_read > 0);
+
+			if (write_offset > 0) {
+				outputBuffer_lock.lock();
+				outputBuffer.assign(outputBuffer, write_offset, outputBuffer.length() - write_offset);
+				int length = outputBuffer.length();
+				outputBuffer_lock.unlock();
+				if (length == 0 && closeAfterWrite) {
+					socket->close();
+				}
+			}
 		}
-		while(true)
-		{
-			outputBuffer_lock.lock();
-			chars_read = outputBuffer.sgetn(buffer, CHARS_PER_PERIOD);
-			outputBuffer_lock.unlock();
-			if (chars_read == 0) break;
-			socket->write(buffer, chars_read);
-		}
+	} catch (Error *e) {
+		clog << "*** " << e->what() << endl;
+		socket->write("500 Internal Server Error\r\n", 27);
 	}
-	//Since we're done, remove the connection from the server.
+
+	//We're done, close the connection and remove it from the server.
 	socket->close();
 	clog << "closed" << endl;
 	server->removeConnection(this);
@@ -76,16 +108,73 @@ void Connection::run()
  * thread, which makes it unnecessary to have a lock for the input buffer. */
 void Connection::received()
 {
-	clog << inputBuffer.in_avail() << " bytes in the input buffer" << endl;
-	server->debugChat(this, inputBuffer);
+	//Try to parse the HTTP request that was received.
+	unsigned int consumed = 0;
+	HTTP::Request *request = HTTP::Request::fromString(inputBuffer, &consumed);
+	if (consumed > 0) {
+		inputBuffer.assign(inputBuffer, consumed, inputBuffer.length() - consumed);
+	}
+	if (!request) return;
+	clog << "processing request" << endl;
+
+	//Disassemble the request path to find out what is being requested and in what format.
+	size_t lastSlash = request->path.find_last_of('/');
+	size_t lastDot   = request->path.find_last_of('.');
+	string path, suffix;
+	if (lastDot != string::npos && (lastSlash == string::npos || lastSlash < lastDot)) {
+		path   = request->path.substr(0, lastDot);
+		suffix = request->path.substr(lastDot+1);
+	} else {
+		path = request->path;
+		suffix = "";
+	}
+	clog << "requested " << path << " (as " << suffix << ")" << endl;
+
+	//Process the request.
+	if (path == "/songs") {
+		HTTP::Response r;
+		r.content = "Hello World";
+		r.finalize();
+		write(r);
+		close();
+	}
+	else {
+		clog << "unable to server requested object " << path << endl;
+		HTTP::Response r;
+		r.statusCode = 404;
+		r.statusText = string("Requested object ") + path + "not found.";
+		r.finalize();
+		write(r);
+		close();
+	}
 }
 
 /** Stores the given data in the output buffer to be sent. Thread-safe. */
 void Connection::write(const char *data, unsigned int length)
 {
 	outputBuffer_lock.lock();
-	outputBuffer.sputn(data, length);
+	outputBuffer.append(data, length);
 	outputBuffer_lock.unlock();
+}
+
+void Connection::write(HTTP::Response &r)
+{
+	write(r.toString());
+}
+void Connection::write(HTTP::Request &r)
+{
+	write(r.toString());
+}
+void Connection::write(const std::string &s)
+{
+	write(s.c_str(), s.length());
+}
+
+/** Marks the connection as to be closed as soon as the last byte of the output
+ * buffer is sent. */
+void Connection::close()
+{
+	closeAfterWrite = true;
 }
 
 /** Returns a string to identify the connected client. This might be the client's

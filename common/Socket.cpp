@@ -2,6 +2,7 @@
 #include <string>
 #include <stdexcept>
 #include "Socket.h"
+#include "Error.h"
 
 #include <arpa/inet.h>
 #include <unistd.h>
@@ -11,6 +12,7 @@
 #include <netdb.h>
 #include <sys/time.h>
 #include <cstring>
+#include <cerrno>
 
 using std::runtime_error;
 using std::string;
@@ -23,6 +25,7 @@ class UnixSocket : public Socket
 protected:
 	int fd;
 	struct sockaddr_in addr;
+	bool open;
 
 public:
 	Socket* accept();
@@ -30,7 +33,7 @@ public:
 	int read(char *buffer, unsigned int length);
 	int write(const char *buffer, unsigned int length);
 	void close();
-	bool isOpen();
+	bool isOpen() { return open; }
 };
 
 
@@ -41,15 +44,16 @@ Socket* Socket::makeListening(int port)
 	sock->port = port;
 	sock->fd = socket(AF_INET, SOCK_STREAM, 0);
 	if (sock->fd < 0)
-		throw runtime_error("Error on creating socket.");
+		throw new GenericError("Unable to create socket.", new IOError());
 	int one = 1;
 	setsockopt(sock->fd, SOL_SOCKET, SO_REUSEADDR, &one, sizeof(one));
 	sock->addr.sin_family = AF_INET;
 	sock->addr.sin_port = htons(port);
 	sock->addr.sin_addr.s_addr = INADDR_ANY;
-	if(bind(sock->fd,(struct sockaddr*)&sock->addr,sizeof(sock->addr)) < 0)
-		throw runtime_error("Error on binding.");
+	if (bind(sock->fd, (struct sockaddr*)&sock->addr, sizeof(sock->addr)) < 0)
+		throw new GenericError("Unable to bind socket.", new IOError());
 	listen(sock->fd, 5);
+	sock->open = true;
 	return sock;
 }
 
@@ -62,10 +66,10 @@ Socket* Socket::makeConnected(string hostname, int port)
 	sock->remoteAddress = hostname;
 	sock->fd = socket(AF_INET, SOCK_STREAM, 0);
 	if(sock->fd < 0)
-		throw runtime_error("Error on creating socket.");
+		throw new GenericError("Unable to create socket.", new IOError());
 	server = gethostbyname(hostname.c_str());
 	if(server == NULL)
-		throw runtime_error("Server not found");
+		throw new GenericError("Host " + hostname + " not found.");
 	bzero((char*)&sock->addr,sizeof(sock->addr));
 	sock->addr.sin_family = AF_INET;
 	bcopy((char*)server->h_addr,
@@ -73,7 +77,8 @@ Socket* Socket::makeConnected(string hostname, int port)
 		server->h_length);
 	sock->addr.sin_port = htons(port);
 	if(connect(sock->fd, (struct sockaddr*)&sock->addr, sizeof(sock->addr)) < 0)
-		throw runtime_error("Error on connecting");
+		throw new GenericError("Unable to connect to " + hostname + ".", new IOError());
+	sock->open = true;
 	return sock;
 }
 
@@ -83,10 +88,11 @@ Socket* UnixSocket::accept()
 	socklen_t len = sizeof(newsock->addr);
 	newsock->fd = ::accept(fd, (struct sockaddr *) &newsock->addr, &len);
 	if (newsock->fd < 0)
-		throw runtime_error("Error on accepting.");
+		throw new GenericError("Unable to accept new connection.", new IOError());
 	newsock->port = ntohs(newsock->addr.sin_port);
 	char ip[INET_ADDRSTRLEN];
 	newsock->remoteAddress = inet_ntop(AF_INET, &newsock->addr.sin_addr, ip, INET_ADDRSTRLEN);
+	newsock->open = true;
 	return newsock;
 }
 
@@ -98,35 +104,33 @@ bool UnixSocket::poll(unsigned int timeout_ms)
 	struct timeval zeit = {0, timeout_ms*1000};
 	int s = select(fd + 1, &set, NULL, NULL, &zeit);
 	if(s == -1)
-		throw runtime_error("Error on poll.");
+		throw new GenericError("Unable to poll socket.", new IOError());
 	return s;
 }
 
 int UnixSocket::read(char *buffer, unsigned int length)
 {
-	int bytes_read = ::read(fd, buffer, length);
-	if (bytes_read < 0)
-		throw runtime_error("Unable to read bytes from socket.");
-	return bytes_read;
+	ssize_t result = recv(fd, buffer, length, MSG_DONTWAIT);
+	if (result == EAGAIN || result == EWOULDBLOCK || result == 0) {
+		open = false;
+		return 0;
+	} else if (result < 0) {
+		throw new GenericError("Unable to read data from socket.", new IOError());
+	}
+	return result;
 }
 
 int UnixSocket::write(const char *buffer, unsigned int length)
 {
-	int bytes_written = ::write(fd, buffer, length);
-	if (bytes_written < 0)
-		throw runtime_error("Unable to write bytes from socket.");
-	return bytes_written;
+	int result = ::write(fd, buffer, length);
+	if (result < 0) {
+		throw new GenericError("Unable to write data to socket.", new IOError());
+	}
+	return result;
 }
 
 void UnixSocket::close()
 {
 	::close(fd);
-}
-
-bool UnixSocket::isOpen()
-{
-	int val;
-	val = ::write(fd, &val, 0);
-	if (val < 0) return false;
-	return true;
+	open = false;
 }

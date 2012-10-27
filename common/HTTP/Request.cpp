@@ -4,6 +4,7 @@
 #include <sstream>
 #include <iostream>
 #include <cstdlib>
+#include "../Error.h"
 
 using namespace HTTP;
 using std::string;
@@ -41,8 +42,7 @@ Request* Request::fromString(const string &str, unsigned int *consumed)
 	else if (method == "DELETE") type = kDELETE;
 	else if (method == "PUT") type = kPUT;
 	else {
-		std::cerr << "*** Received HTTP request with unknown method '" << method << "'. Throw an exception here!" << std::endl;
-		return NULL; //TODO: throw exception here
+		throw new GenericError(string("Received HTTP request with unknown method '") + method + "'.");
 	}
 
 	size_t pathPos = firstLine.find(" ", methodPos + 1);
@@ -57,10 +57,12 @@ Request* Request::fromString(const string &str, unsigned int *consumed)
 	if (!hs) return NULL;
 
 	//Read the content.
-	int expectedLength = atoi(hs->get("Content-Length").c_str());
-	if (expectedLength+2 > str.size() - cons) {
-		delete hs;
-		return NULL;
+	int expectedLength = 0;
+	if (hs->has("Content-Length")) {
+		expectedLength = atoi(hs->get("Content-Length").c_str());
+		if (expectedLength > str.size() - cons) {
+			delete hs;
+		}
 	}
 
 	//Create the request object.
@@ -70,7 +72,7 @@ Request* Request::fromString(const string &str, unsigned int *consumed)
 	req->headers = *hs; delete hs;
 	req->content = str.substr(cons, expectedLength);
 
-	cons += expectedLength+2;
+	cons += expectedLength;
 	if (consumed) *consumed = cons;
 
 	return req;

@@ -2,6 +2,7 @@ add_executable(test-http
 	HTTP.cpp
 	../common/HTTP/HeaderSet.cpp
 	../common/HTTP/Request.cpp
+	../common/Error.cpp
 )
 
 add_executable(test-database
@@ -32,3 +33,4 @@ find_package(BoehmGC REQUIRED)
 include_directories(${BOEHMGC_INCLUDE_DIRS})
 
 target_link_libraries(test-database ${BOEHMGC_LIBRARIES})
+target_link_libraries(test-http ${BOEHMGC_LIBRARIES})

@@ -3,7 +3,9 @@
 #include <gc_cpp.h>
 #include <iostream>
 #include <sstream>
-#include "../common/Mutex.h"
+#include <common/Mutex.h>
+#include <common/HTTP/Response.h>
+#include <common/HTTP/Request.h>
 
 class Socket;
 
@@ -16,9 +18,11 @@ namespace Database
 		Socket *socket;
 		Server *server;
 
-		std::stringbuf inputBuffer;
-		std::stringbuf outputBuffer;
+		std::string inputBuffer;
+		std::string outputBuffer;
 		Mutex outputBuffer_lock;
+		bool closeAfterWrite;
+
 	public:
 		Connection(Socket *socket, Server *server);
 
@@ -27,6 +31,11 @@ namespace Database
 
 		void received();
 		void write(const char *data, unsigned int length);
+		void close();
+
+		void write(HTTP::Response &r);
+		void write(HTTP::Request &r);
+		void write(const std::string &s);
 
 		const std::string& getClientName();
 	};
