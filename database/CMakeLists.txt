@@ -13,6 +13,7 @@ add_executable(${DATABASE_EXEC_NAME}
 	../common/FileSystem.cpp
 	../common/sha1.cpp
 	../common/sha1_utils.cpp
+	../common/uuid.cpp
 
 	database/Database.cpp
 	database/Table.cpp

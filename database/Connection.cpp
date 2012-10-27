@@ -6,6 +6,7 @@
 #include <common/HTTP/Request.h>
 #include <common/HTTP/Response.h>
 #include <common/Error.h>
+#include <common/uuid.h>
 
 using database::Connection;
 using std::string;
@@ -144,11 +145,11 @@ void Connection::received()
 		close();
 	}
 	else if (path == "/add") {
-		stringstream s;
-		s << "Thanks for the file. Received " << request->content.length() << " Bytes of yummi music data!";
+		string uuid = uuid::generate();
+		server->media->persist(Blob(request->content.c_str(), request->content.length()), uuid, "unknown");
 
 		HTTP::Response r;
-		r.content = s.str();
+		r.content = uuid;
 		r.finalize();
 		write(r);
 		close();

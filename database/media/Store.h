@@ -14,8 +14,7 @@ namespace database
 			Path path;
 		public:
 			Store(const Path &path);
-			void persist(const Blob &data,
-				std::string name, std::string format);
+			void persist(const Blob &data, std::string name, std::string format);
 			Blob load(std::string name, std::string format);
 			void setMainFormat(std::string name, std::string format);
 			std::string getMainFormat(std::string name);
