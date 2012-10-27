@@ -31,7 +31,6 @@ Request* Request::fromString(const string &str, unsigned int *consumed)
 	if (firstCRLF == string::npos) return NULL;
 	string firstLine = str.substr(0, firstCRLF);
 	cons = firstCRLF + 2;
-	if (consumed) *consumed = cons;
 
 	size_t methodPos = firstLine.find(" ");
 	if (methodPos == string::npos) return NULL;
@@ -53,7 +52,6 @@ Request* Request::fromString(const string &str, unsigned int *consumed)
 	unsigned int hsConsumed = 0;
 	HeaderSet *hs = HeaderSet::fromString(str.substr(firstCRLF + 2), &hsConsumed);
 	cons += hsConsumed;
-	if (consumed) *consumed = cons;
 	if (!hs) return NULL;
 
 	//Read the content.
@@ -61,7 +59,7 @@ Request* Request::fromString(const string &str, unsigned int *consumed)
 	if (hs->has("Content-Length")) {
 		expectedLength = atoi(hs->get("Content-Length").c_str());
 		if (expectedLength > str.size() - cons) {
-			delete hs;
+			return NULL;
 		}
 	}
 
@@ -69,7 +67,7 @@ Request* Request::fromString(const string &str, unsigned int *consumed)
 	Request *req = new Request;
 	req->type = type;
 	req->path = path;
-	req->headers = *hs; delete hs;
+	req->headers = *hs;
 	req->content = str.substr(cons, expectedLength);
 
 	cons += expectedLength;

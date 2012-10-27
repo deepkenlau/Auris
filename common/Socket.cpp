@@ -110,8 +110,8 @@ bool UnixSocket::poll(unsigned int timeout_ms)
 
 int UnixSocket::read(char *buffer, unsigned int length)
 {
-	ssize_t result = recv(fd, buffer, length, MSG_DONTWAIT);
-	if (result == EAGAIN || result == EWOULDBLOCK || result == 0) {
+	ssize_t result = recv(fd, buffer, length, 0);
+	if (result == 0) {
 		open = false;
 		return 0;
 	} else if (result < 0) {

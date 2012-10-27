@@ -33,7 +33,7 @@ static void* connectionThread(void *param)
 	} catch (Error *e) {
 		std::cerr << "*** uncaught connection exception: " << e->what() << std::endl;
 	} catch (std::exception &e) {
-		std::cerr << "*** uncaught connection exception: " << e.what() << std::endl;
+		std::cerr << "*** uncaught connection exception " << typeid(e).name() << ": " << e.what() << std::endl;
 	}
 	return NULL;
 }
@@ -55,19 +55,18 @@ void Connection::run()
 			int num_read;
 
 			//Wait for incoming data for 10ms.
-			if (socket->poll(10)) {
-				int bytesRead = 0;
-				do {
-					num_read = socket->read(buffer, BUFFER_SIZE);
-					inputBuffer.append(buffer, num_read);
-					bytesRead += num_read;
-				} while (num_read == BUFFER_SIZE);
-
-				//Call the reception handler if we've read any data.
-				if (bytesRead) {
-					this->received();
-				}
+			int bytesRead = 0;
+			while (socket->poll(10) && socket->isOpen()) {
+				num_read = socket->read(buffer, BUFFER_SIZE);
+				inputBuffer.append(buffer, num_read);
+				bytesRead += num_read;
 			}
+
+			//Call the reception handler if we've read any data.
+			if (bytesRead) {
+				this->received();
+			}
+
 
 			//Write data to the socket as long as there's data left in the output buffer.
 			int write_offset = 0;
@@ -144,11 +143,21 @@ void Connection::received()
 		write(r);
 		close();
 	}
+	else if (path == "/add") {
+		stringstream s;
+		s << "Thanks for the file. Received " << request->content.length() << " Bytes of yummi music data!";
+
+		HTTP::Response r;
+		r.content = s.str();
+		r.finalize();
+		write(r);
+		close();
+	}
 	else {
-		clog << "unable to server requested object " << path << endl;
+		clog << "unable to serve requested object " << path << endl;
 		HTTP::Response r;
 		r.statusCode = 404;
-		r.statusText = string("Requested object ") + path + "not found.";
+		r.statusText = string("Requested object ") + path + " not found.";
 		r.finalize();
 		write(r);
 		close();
