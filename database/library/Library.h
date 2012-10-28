@@ -3,8 +3,13 @@
 #include <set>
 #include <string>
 #include <common/Blob.h>
+#include <common/Path.h>
+#include <common/Mutex.h>
 #include <gc_cpp.h>
 #include <gc_allocator.h>
+#include "Song.h"
+#include "../database/Database.h"
+#include "../media/Store.h"
 
 
 namespace database
@@ -13,16 +18,27 @@ namespace database
 	{
 		class Library : public gc
 		{
-			database::Database database;
-			database::media::Store store;
-			typedef std::set<Song *, std::less<Song*>, gc_allocator<Song *> > Songs;
-			Songs songs;
 		public:
-			database::Database * getMetadata();
-			database::media::Store * getMediaStore();
-			Song * getSong(std::string id);
-			Song * addMedia(Blob blob);
-			void loadSongs();
+			typedef std::set<Song*, std::less<Song*>, gc_allocator<Song*> > Songs;
+
+			Library(Path p);
+			void load();
+
+			database::Database& getDatabase() { return database; }
+			media::Store& getStore() { return store; }
+
+			Song* addMedia(const Blob &blob);
+
+			Song* getSong(std::string id);
+			Songs getSongs();
+
+		private:
+			database::Database database;
+			media::Store store;
+			const Path path;
+
+			Songs songs;
+			Mutex songs_lock;
 		};
 	}
 }

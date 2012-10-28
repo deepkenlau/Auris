@@ -7,6 +7,7 @@
 
 using database::database::Database;
 using database::database::Table;
+using database::database::Entity;
 using std::string;
 using std::stringstream;
 
@@ -33,6 +34,16 @@ void Table::removeEntity(Entity *e)
 const Table::Entities& Table::getEntities() const
 {
 	return entities;
+}
+
+/** Returns the entity with the given ID, or NULL if it doesn't exist. */
+Entity* Table::getEntity(string id) const
+{
+	for (Entities::const_iterator ie = entities.begin(); ie != entities.end(); ie++) {
+		if ((*ie)->getID() == id)
+			return *ie;
+	}
+	return NULL;
 }
 
 /** Persists all of the table's entities as well as the table itself. Returns

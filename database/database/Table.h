@@ -23,11 +23,11 @@ namespace database
 			Commit* getCommit() const { return commit; }
 			Database* getDatabase() const;
 
-			void addEntity(Entity *e);
-			void removeEntity(Entity *e);
+			virtual Entity* newEntity() = 0;
 
 			typedef std::set<Entity*, std::less<Entity*>, gc_allocator<Entity*> > Entities;
 			const Entities& getEntities() const;
+			Entity* getEntity(std::string id) const;
 
 			std::string persist() const;
 			void load(const std::string &hash);
@@ -37,8 +37,12 @@ namespace database
 		protected:
 			Commit* const commit;
 
-			Entities entities;
 			virtual Entity* makeEntity() = 0;
+
+			void addEntity(Entity *e);
+			void removeEntity(Entity *e);
+
+			Entities entities;
 		};
 
 		template <typename T>
@@ -46,6 +50,9 @@ namespace database
 		{
 		public:
 			ConcreteTable(Commit* c) : Table(c) {}
+			T* newEntity() { T* e = new T(this); addEntity(e); return e; }
+
+		protected:
 			Entity* makeEntity() { return new T(this); }
 		};
 	}

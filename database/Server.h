@@ -7,6 +7,7 @@
 #include "../common/Mutex.h"
 #include "database/Database.h"
 #include "media/Store.h"
+#include "library/Library.h"
 
 
 namespace database
@@ -22,8 +23,7 @@ namespace database
 
 		Server();
 
-		database::Database *database;
-		media::Store *media;
+		library::Library *library;
 
 	private:
 		Mutex connections_mutex;

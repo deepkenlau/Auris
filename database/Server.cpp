@@ -4,6 +4,9 @@
 #include "../common/Socket.h"
 #include <iostream>
 #include <stdexcept>
+extern "C" {
+	#include <libavformat/avformat.h>
+}
 
 using database::Server;
 using std::cerr;
@@ -14,15 +17,15 @@ using std::runtime_error;
 Server::Server()
 {
 	Path p("~/Music/Auris");
-	database = new database::Database(p);
-	media = new media::Store(p);
+	library = new library::Library(p);
 }
 
 void Server::run(int argc, char *argv[])
 {
+	av_register_all();
+
 	//Load the database.
-	database->load();
-	std::cout << "songs: " << database->getSongs().describe() << endl;
+	library->load();
 
 	//Setup the listening socket for the control connections.
 	Socket* listener = Socket::makeListening(8080);

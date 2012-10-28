@@ -21,7 +21,7 @@ int main(int argc, char *argv[])
 	GC_INIT();
 	try {
 		//Create a new database and try to load it.
-		Database db(Path("~/Music/Auris"));
+		Database db(Path("debug_database"));
 		db.load();
 
 		//Fetch the songs table.
@@ -30,12 +30,11 @@ int main(int argc, char *argv[])
 		std::cout << "Songs: " << songs.describe() << std::endl;
 
 		//Create a new entity.
-		Song song(&songs);
-		song.setID("abcdefg");
-		song.title = "Fire Hive";
-		song.artist = "Knife Party";
-		songs.addEntity(&song);
-		song.album = "Rage Valley";
+		Song *song = songs.newEntity();
+		song->setID("abcdefg");
+		song->title = "Fire Hive";
+		song->artist = "Knife Party";
+		song->album = "Rage Valley";
 		db.commit();
 	}
 	catch (std::runtime_error &e) {

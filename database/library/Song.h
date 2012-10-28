@@ -6,6 +6,11 @@
 
 namespace database
 {
+	namespace database
+	{
+		class Song;
+	}
+	
 	namespace library
 	{
 		class Library;
@@ -17,7 +22,7 @@ namespace database
 
 			Song(Library *library, std::string id);
 
-			database::database::Song* getMetadata() const;
+			database::Song* getMetadata() const;
 			std::set<std::string> getFormats() const;
 
 		private:

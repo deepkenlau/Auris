@@ -133,9 +133,9 @@ void Connection::received()
 	//Process the request.
 	if (path == "/songs") {
 		stringstream s;
-		const database::Table::Entities &e = server->database->getSongs().getEntities();
-		for (database::Table::Entities::const_iterator it = e.begin(); it != e.end(); it++) {
-			s << (*it)->getID() << "\n";
+		const library::Library::Songs &e = server->library->getSongs();
+		for (library::Library::Songs::const_iterator it = e.begin(); it != e.end(); it++) {
+			s << (*it)->getID() << " " << (*it)->getMetadata()->describe() << "\n";
 		}
 
 		HTTP::Response r;
@@ -145,11 +145,13 @@ void Connection::received()
 		close();
 	}
 	else if (path == "/add") {
-		string uuid = uuid::generate();
-		server->media->persist(Blob(request->content.c_str(), request->content.length()), uuid, "unknown");
+		library::Song *song = server->library->addMedia(Blob(request->content.c_str(), request->content.length()));
+		if (!song) {
+			throw new GenericError("Library didn't return a song upon addMedia().");
+		}
 
 		HTTP::Response r;
-		r.content = uuid;
+		r.content = song->getID();
 		r.finalize();
 		write(r);
 		close();
