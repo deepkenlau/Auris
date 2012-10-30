@@ -60,40 +60,65 @@ Socket* Socket::makeListening(int port)
 /** Returns a socket connected to the the given host on the specified port. */
 Socket* Socket::makeConnected(string hostname, int port)
 {
+	int one = 1;
+
+	//Resolve the hostname.
+	struct hostent *server = gethostbyname(hostname.c_str());
+	if(server == NULL)
+		throw new GenericError("Host " + hostname + " not found.");
+
+	//Create the socket.
 	UnixSocket *sock = new UnixSocket;
-	struct hostent *server;
 	sock->port = port;
 	sock->remoteAddress = hostname;
 	sock->fd = socket(AF_INET, SOCK_STREAM, 0);
-	if(sock->fd < 0)
+	if(sock->fd < 0) {
 		throw new GenericError("Unable to create socket.", new IOError());
-	server = gethostbyname(hostname.c_str());
-	if(server == NULL)
-		throw new GenericError("Host " + hostname + " not found.");
+	}
 	bzero((char*)&sock->addr,sizeof(sock->addr));
 	sock->addr.sin_family = AF_INET;
 	bcopy((char*)server->h_addr,
 		(char*)&sock->addr.sin_addr.s_addr,
 		server->h_length);
 	sock->addr.sin_port = htons(port);
-	if(connect(sock->fd, (struct sockaddr*)&sock->addr, sizeof(sock->addr)) < 0)
+
+	//Prevent the socket from generating a SIGPIPE.
+	setsockopt(sock->fd, SOL_SOCKET, SO_NOSIGPIPE, (void *)&one, sizeof(int));
+
+	//Connect to the host.
+	if(connect(sock->fd, (struct sockaddr*)&sock->addr, sizeof(sock->addr)) < 0) {
+		::close(sock->fd);
 		throw new GenericError("Unable to connect to " + hostname + ".", new IOError());
+	}
 	sock->open = true;
+
 	return sock;
 }
 
 Socket* UnixSocket::accept()
 {
-	UnixSocket *newsock = new UnixSocket();
-	socklen_t len = sizeof(newsock->addr);
-	newsock->fd = ::accept(fd, (struct sockaddr *) &newsock->addr, &len);
-	if (newsock->fd < 0)
+	int one = 1;
+
+	//Accept new connection
+	struct sockaddr_in addr;
+	socklen_t len = sizeof(addr);
+	int newfd = ::accept(fd, (struct sockaddr *) &addr, &len);
+	if (newfd < 0) {
 		throw new GenericError("Unable to accept new connection.", new IOError());
-	newsock->port = ntohs(newsock->addr.sin_port);
+	}
+
+	//Prevent the socket from generating a SIGPIPE.
+	setsockopt(newfd, SOL_SOCKET, SO_NOSIGPIPE, (void *)&one, sizeof(int));
+
+	//Create the new socket object.
 	char ip[INET_ADDRSTRLEN];
-	newsock->remoteAddress = inet_ntop(AF_INET, &newsock->addr.sin_addr, ip, INET_ADDRSTRLEN);
-	newsock->open = true;
-	return newsock;
+	UnixSocket *s = new UnixSocket();
+	s->fd = newfd;
+	s->addr = addr;
+	s->port = ntohs(addr.sin_port);
+	s->remoteAddress = inet_ntop(AF_INET, &addr.sin_addr, ip, INET_ADDRSTRLEN);
+	s->open = true;
+	return s;
 }
 
 bool UnixSocket::poll(unsigned int timeout_ms)

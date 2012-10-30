@@ -156,6 +156,17 @@ void Connection::received()
 		write(r);
 		close();
 	}
+	else if (path.find("/download/") == 0) {
+		string id = path.substr(10); //skip the /download/ part
+		library::Song *song = server->library->getSong(id);
+		Blob blob = song->loadMainFormat();
+
+		HTTP::Response r;
+		r.content.assign((const char*)blob.buffer, blob.length);
+		r.finalize();
+		write(r);
+		close();
+	}
 	else {
 		clog << "unable to serve requested object " << path << endl;
 		HTTP::Response r;
