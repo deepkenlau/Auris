@@ -1,6 +1,7 @@
 /* Copyright © 2012 Fabian Schuiki, Sandro Sgier */
 #include <string>
 #include <stdexcept>
+#include <iostream>
 #include "Socket.h"
 #include "Error.h"
 
@@ -16,6 +17,9 @@
 
 using std::runtime_error;
 using std::string;
+using std::endl;
+
+#define clog std::cout << "[socket " << getRemoteAddress() << "] "
 
 
 /** Unix implementation of a socket. */
@@ -140,7 +144,13 @@ int UnixSocket::read(char *buffer, unsigned int length)
 		open = false;
 		return 0;
 	} else if (result < 0) {
-		throw new GenericError("Unable to read data from socket.", new IOError());
+		if (errno == EPIPE) {
+			open = false;
+			return 0;
+		} else {
+			clog << "*** socket recv returned " << result << endl;
+			throw new GenericError("Unable to read data from socket.", new IOError());
+		}
 	}
 	return result;
 }
@@ -149,7 +159,13 @@ int UnixSocket::write(const char *buffer, unsigned int length)
 {
 	int result = ::write(fd, buffer, length);
 	if (result < 0) {
-		throw new GenericError("Unable to write data to socket.", new IOError());
+		if (errno == EPIPE) {
+			open = false;
+			return 0;
+		} else {
+			clog << "*** socket write returned " << result << endl;
+			throw new GenericError("Unable to write data to socket.", new IOError());
+		}
 	}
 	return result;
 }
