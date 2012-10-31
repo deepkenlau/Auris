@@ -50,7 +50,7 @@ Socket* Socket::makeListening(int port)
 	if (sock->fd < 0)
 		throw new GenericError("Unable to create socket.", new IOError());
 	int one = 1;
-	setsockopt(sock->fd, SOL_SOCKET, SO_REUSEADDR, &one, sizeof(one));
+	//setsockopt(sock->fd, SOL_SOCKET, SO_REUSEADDR, &one, sizeof(one));
 	sock->addr.sin_family = AF_INET;
 	sock->addr.sin_port = htons(port);
 	sock->addr.sin_addr.s_addr = INADDR_ANY;
@@ -87,7 +87,7 @@ Socket* Socket::makeConnected(string hostname, int port)
 	sock->addr.sin_port = htons(port);
 
 	//Prevent the socket from generating a SIGPIPE.
-	setsockopt(sock->fd, SOL_SOCKET, SO_NOSIGPIPE, (void *)&one, sizeof(int));
+	//setsockopt(sock->fd, SOL_SOCKET, SO_NOSIGPIPE, (void *)&one, sizeof(int));
 
 	//Connect to the host.
 	if(connect(sock->fd, (struct sockaddr*)&sock->addr, sizeof(sock->addr)) < 0) {
@@ -112,7 +112,7 @@ Socket* UnixSocket::accept()
 	}
 
 	//Prevent the socket from generating a SIGPIPE.
-	setsockopt(newfd, SOL_SOCKET, SO_NOSIGPIPE, (void *)&one, sizeof(int));
+	//setsockopt(newfd, SOL_SOCKET, SO_NOSIGPIPE, (void *)&one, sizeof(int));
 
 	//Create the new socket object.
 	char ip[INET_ADDRSTRLEN];
