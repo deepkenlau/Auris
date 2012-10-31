@@ -26,9 +26,4 @@ add_executable(${DATABASE_EXEC_NAME}
 	library/Song.cpp
 )
 
-target_link_libraries(${DATABASE_EXEC_NAME} ${BOEHMGC_LIBRARIES})
-include_directories(${BOEHMGC_INCLUDE_DIRS})
-
-find_package(LibAV REQUIRED)
-target_link_libraries(${DATABASE_EXEC_NAME} ${LIBAV_LIBRARIES})
-include_directories(${LIBAV_INCLUDE_DIRS})
+target_link_libraries(${DATABASE_EXEC_NAME} ${BOEHMGC_LIBRARIES} ${LIBAV_LIBRARIES} ${LIBUUID_LIBRARIES})
