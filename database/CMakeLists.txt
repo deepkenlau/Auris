@@ -9,6 +9,7 @@ add_executable(${DATABASE_EXEC_NAME}
 	../common/HTTP/Request.cpp
 	../common/HTTP/Response.cpp
 	../common/HTTP/HeaderSet.cpp
+	../common/HTTP/Error.cpp
 	../common/Path.cpp
 	../common/FileSystem.cpp
 	../common/sha1.cpp
