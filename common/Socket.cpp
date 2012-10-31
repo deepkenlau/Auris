@@ -21,6 +21,12 @@ using std::endl;
 
 #define clog std::cout << "[socket " << getRemoteAddress() << "] "
 
+#ifdef __APPLE__
+	#define SEND_RECV_OPTIONS 0
+#else
+	#define SEND_RECV_OPTIONS MSG_NOSIGNAL
+#endif
+
 
 /** Unix implementation of a socket. */
 class UnixSocket : public Socket
@@ -49,8 +55,12 @@ Socket* Socket::makeListening(int port)
 	sock->fd = socket(AF_INET, SOCK_STREAM, 0);
 	if (sock->fd < 0)
 		throw new GenericError("Unable to create socket.", new IOError());
+
+#ifdef __APPLE__
 	int one = 1;
-	//setsockopt(sock->fd, SOL_SOCKET, SO_REUSEADDR, &one, sizeof(one));
+	setsockopt(sock->fd, SOL_SOCKET, SO_REUSEADDR, &one, sizeof(one));
+#endif
+
 	sock->addr.sin_family = AF_INET;
 	sock->addr.sin_port = htons(port);
 	sock->addr.sin_addr.s_addr = INADDR_ANY;
@@ -64,8 +74,6 @@ Socket* Socket::makeListening(int port)
 /** Returns a socket connected to the the given host on the specified port. */
 Socket* Socket::makeConnected(string hostname, int port)
 {
-	int one = 1;
-
 	//Resolve the hostname.
 	struct hostent *server = gethostbyname(hostname.c_str());
 	if(server == NULL)
@@ -87,7 +95,10 @@ Socket* Socket::makeConnected(string hostname, int port)
 	sock->addr.sin_port = htons(port);
 
 	//Prevent the socket from generating a SIGPIPE.
-	//setsockopt(sock->fd, SOL_SOCKET, SO_NOSIGPIPE, (void *)&one, sizeof(int));
+#ifdef __APPLE__
+	int one = 1;
+	setsockopt(sock->fd, SOL_SOCKET, SO_NOSIGPIPE, (void *)&one, sizeof(int));
+#endif
 
 	//Connect to the host.
 	if(connect(sock->fd, (struct sockaddr*)&sock->addr, sizeof(sock->addr)) < 0) {
@@ -101,8 +112,6 @@ Socket* Socket::makeConnected(string hostname, int port)
 
 Socket* UnixSocket::accept()
 {
-	int one = 1;
-
 	//Accept new connection
 	struct sockaddr_in addr;
 	socklen_t len = sizeof(addr);
@@ -112,7 +121,10 @@ Socket* UnixSocket::accept()
 	}
 
 	//Prevent the socket from generating a SIGPIPE.
-	//setsockopt(newfd, SOL_SOCKET, SO_NOSIGPIPE, (void *)&one, sizeof(int));
+#ifdef __APPLE__
+	int one = 1;
+	setsockopt(newfd, SOL_SOCKET, SO_NOSIGPIPE, (void *)&one, sizeof(int));
+#endif
 
 	//Create the new socket object.
 	char ip[INET_ADDRSTRLEN];
@@ -139,7 +151,7 @@ bool UnixSocket::poll(unsigned int timeout_ms)
 
 int UnixSocket::read(char *buffer, unsigned int length)
 {
-	ssize_t result = recv(fd, buffer, length, 0);
+	ssize_t result = recv(fd, buffer, length, SEND_RECV_OPTIONS);
 	if (result == 0) {
 		open = false;
 		return 0;
@@ -157,7 +169,7 @@ int UnixSocket::read(char *buffer, unsigned int length)
 
 int UnixSocket::write(const char *buffer, unsigned int length)
 {
-	int result = ::write(fd, buffer, length);
+	int result = ::send(fd, buffer, length, SEND_RECV_OPTIONS);
 	if (result < 0) {
 		if (errno == EPIPE) {
 			open = false;
