@@ -16,7 +16,10 @@ add_executable(${DATABASE_EXEC_NAME}
 	../common/sha1.cpp
 	../common/sha1_utils.cpp
 	../common/uuid.cpp
-	
+	../common/coding/Encoder.cpp
+	../common/coding/YAMLEncoder.cpp
+	../common/coding/JSONEncoder.cpp
+
 	Connection.cpp
 	Server.cpp
 

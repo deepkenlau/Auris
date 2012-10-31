@@ -20,8 +20,7 @@ string HTTP::Error::describe()
 	stringstream s;
 	s << status << " " << message;
 	if (request) {
-		s << ", upon request \"" << request->toString() << "\"";
+		s << " Underlying request:\n" << request->toString() << ".";
 	}
-	s << ".";
 	return s.str();
 }

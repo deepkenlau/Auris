@@ -142,7 +142,7 @@ std::ostream& Connection::log() const
 /** Returns an std::ostream intended for error logging, prefixed with the connection info. */
 std::ostream& Connection::err() const
 {
-	return (std::cerr << "*** [ " << describe() << "] ");
+	return (std::cerr << "*** [" << describe() << "] ");
 }
 
 /** Returns a string describing the connection. Used during logging to mark

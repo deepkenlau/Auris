@@ -1,123 +1,33 @@
 /* Copyright © 2012 Fabian Schuiki, Sandro Sgier */
 #include "Connection.h"
 #include "Server.h"
-#include "../common/Socket.h"
-#include "../common/Thread.h"
-#include <common/HTTP/Request.h>
-#include <common/HTTP/Response.h>
 #include <common/Error.h>
 #include <common/uuid.h>
 #include <common/strutil.h>
-#include <typeinfo>
+#include <common/HTTP/Error.h>
+#include <common/coding/Encoder.h>
 
-using database::Connection;
 using std::string;
 using std::endl;
 using std::stringstream;
 
-#define clog std::cout << "[connection " << getClientName() << "] "
-
 
 /** Creates a new connection object that will handle communication on the given
  * socket for the given server object. */
-Connection::Connection(Socket *socket, Server *server)
+database::Connection::Connection(Socket *socket, Server *server) : HTTP::Connection(socket), server(server)
 {
-	this->socket = socket;
-	this->server = server;
 }
 
-/** Main function of the connection thread. Simply calls the connection's run
- * function. */
-static void* connectionThread(void *param)
+/** @inheritDoc */
+void database::Connection::run()
 {
-	Connection *c = (Connection*)param;
-	try {
-		c->run();
-	} catch (Error *e) {
-		std::cerr << "*** uncaught connection exception: " << e->what() << std::endl;
-	} catch (std::exception &e) {
-		std::cerr << "*** uncaught connection exception " << typeid(e).name() << ": " << e.what() << std::endl;
-	}
-	return NULL;
-}
-
-/** Starts the thread that handles this connection. */
-void Connection::start()
-{
-	Thread::make(connectionThread, this);
-}
-
-void Connection::run()
-{
-	clog << "connected" << endl;
-	try {
-		//Enter the main loop which runs as long as the socket is connected.
-		const int BUFFER_SIZE = 1024;
-		char buffer[BUFFER_SIZE];
-		while (socket->isOpen()) {
-			int num_read;
-
-			//Wait for incoming data for 10ms.
-			int bytesRead = 0;
-			while (socket->poll(10) && socket->isOpen()) {
-				num_read = socket->read(buffer, BUFFER_SIZE);
-				inputBuffer.append(buffer, num_read);
-				bytesRead += num_read;
-			}
-
-			//Call the reception handler if we've read any data.
-			if (bytesRead) {
-				this->received();
-			}
-
-
-			//Write data to the socket as long as there's data left in the output buffer.
-			int write_offset = 0;
-			do {
-				outputBuffer_lock.lock();
-				num_read = std::min<int>(BUFFER_SIZE, outputBuffer.length() - write_offset);
-				outputBuffer.copy(buffer, num_read, write_offset);
-				outputBuffer_lock.unlock();
-
-				if (num_read > 0) {
-					socket->write(buffer, num_read);
-					write_offset += num_read;
-				}
-			} while (num_read > 0);
-
-			if (write_offset > 0) {
-				outputBuffer_lock.lock();
-				outputBuffer.assign(outputBuffer, write_offset, outputBuffer.length() - write_offset);
-				int length = outputBuffer.length();
-				outputBuffer_lock.unlock();
-				if (length == 0 && closeAfterWrite) {
-					socket->close();
-				}
-			}
-		}
-	} catch (Error *e) {
-		clog << "*** " << e->what() << endl;
-		socket->write("500 Internal Server Error\r\n", 27);
-	}
-
-	//We're done, close the connection and remove it from the server.
-	socket->close();
-	clog << "closed" << endl;
+	HTTP::Connection::run();
 	server->removeConnection(this);
 }
 
-/** Called whenever new data arrives in the input buffer. Called on the Connection's
- * thread, which makes it unnecessary to have a lock for the input buffer. */
-void Connection::received()
+/** Handles requests sent by the connected client. */
+void database::Connection::received(HTTP::Request *request)
 {
-	//Try to parse the HTTP request that was received.
-	unsigned int consumed = 0;
-	HTTP::Request *request = HTTP::Request::fromString(inputBuffer, &consumed);
-	if (consumed > 0) {
-		inputBuffer.assign(inputBuffer, consumed, inputBuffer.length() - consumed);
-	}
-	if (!request) return;
-
 	//Disassemble the request path to find out what is being requested and in what format.
 	size_t lastSlash = request->path.find_last_of('/');
 	size_t lastDot   = request->path.find_last_of('.');
@@ -129,7 +39,7 @@ void Connection::received()
 		path = request->path;
 		suffix = "";
 	}
-	clog << "serving " << path;
+	log() << "serving " << path;
 	if (!suffix.empty()) std::cout << " (as " << suffix << ")";
 	std::cout << ", headers:" << endl << request->headers.toString();
 
@@ -162,6 +72,9 @@ void Connection::received()
 	else if (path.find("/download/") == 0) {
 		string id = path.substr(10); //skip the /download/ part
 		library::Song *song = server->library->getSong(id);
+		if (!song) {
+			throw new HTTP::NotFoundError(string("Song ") + id + " does not exist.", request);
+		}
 		Blob blob = song->loadMainFormat();
 
 		HTTP::Response r;
@@ -170,49 +83,30 @@ void Connection::received()
 		write(r);
 		close();
 	}
-	else {
-		clog << "unable to serve requested object " << path << endl;
+	else if (path == "/info") {
+		coding::Encoder *encoder = coding::Encoder::makeForSuffix(suffix);
+		encoder->add("1.0.0 beta", "version");
+		encoder->pushArray("names");
+		encoder->add("hello");
+		encoder->add("world");
+		encoder->add("whadup?");
+		encoder->popArray();
+		encoder->add(235, "age");
+		encoder->pushObject("structure");
+		encoder->add("fred", "name");
+		encoder->add("debug", "test");
+		encoder->add(true, "someBool");
+		encoder->add((float)34.2, "aFloat");
+		encoder->popObject();
+		encoder->finalize();
+
 		HTTP::Response r;
-		r.statusCode = 404;
-		r.statusText = string("Requested object ") + path + " not found.";
+		r.content = encoder->getOutputString();
 		r.finalize();
 		write(r);
 		close();
 	}
-}
-
-/** Stores the given data in the output buffer to be sent. Thread-safe. */
-void Connection::write(const char *data, unsigned int length)
-{
-	outputBuffer_lock.lock();
-	outputBuffer.append(data, length);
-	outputBuffer_lock.unlock();
-}
-
-void Connection::write(HTTP::Response &r)
-{
-	write(r.toString());
-}
-void Connection::write(HTTP::Request &r)
-{
-	write(r.toString());
-}
-void Connection::write(const std::string &s)
-{
-	write(s.c_str(), s.length());
-}
-
-/** Marks the connection as to be closed as soon as the last byte of the output
- * buffer is sent. */
-void Connection::close()
-{
-	closeAfterWrite = true;
-}
-
-/** Returns a string to identify the connected client. This might be the client's
- * IP address, the client's name if logged in, or the like. */
-const std::string& Connection::getClientName()
-{
-	return socket->getRemoteAddress();
-
+	else {
+		throw new HTTP::NotFoundError(string("Requested object ") + path + " not found.", request);
+	}
 }

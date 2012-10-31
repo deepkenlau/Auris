@@ -28,7 +28,7 @@ void HTTP::Connection::received(std::string &input)
 		received(request);
 	}
 	catch (Error *e) {
-		err() << e->what();
+		err() << e->what() << endl;
 
 		//Return an appropriate representation error.
 		Response r;
@@ -45,7 +45,7 @@ void HTTP::Connection::received(std::string &input)
 		Response r;
 		r.statusCode = 500;
 		r.statusText = string("Internal Server Error");
-		r.content = e->what();
+		r.content = e->what() + "\n";
 		r.finalize();
 		write(r);
 		close();
