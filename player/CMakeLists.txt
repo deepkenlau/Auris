@@ -16,14 +16,7 @@ add_executable(${PLAYER_EXEC_NAME}
 	../common/uuid.cpp
 
 )
-include_directories(../)
+find_package(LibAO REQUIRED)
+include_directories(${LIBAO_INCLUDE_DIR})
+target_link_libraries(${PLAYER_EXEC_NAME} ${BOEHMGC_LIBRARIES} ${LIBAV_LIBRARIES} ${LIBUUID_LIBRARIES} ${LIBAO_LIBRARY})
 
-#find_package(BoehmGC REQUIRED)
-target_link_libraries(${PLAYER_EXEC_NAME} ${BOEHMGC_LIBRARIES})
-#include_directories(${BOEHMGC_INCLUDE_DIRS})
-
-#find_package(LibAV REQUIRED)
-target_link_libraries(${PLAYER_EXEC_NAME} ${LIBAV_LIBRARIES})
-#include_directories(${LIBAV_INCLUDE_DIRS})
-#message(dirs ${LIBAV_INCLUDE_DIRS})
-target_link_libraries(${PLAYER_EXEC_NAME} ${LIBUUID_LIBRARIES})
