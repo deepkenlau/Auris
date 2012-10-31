@@ -25,9 +25,7 @@ add_executable(${DATABASE_EXEC_NAME}
 	library/Library.cpp
 	library/Song.cpp
 )
-include_directories(../)
 
-find_package(BoehmGC REQUIRED)
 target_link_libraries(${DATABASE_EXEC_NAME} ${BOEHMGC_LIBRARIES})
 include_directories(${BOEHMGC_INCLUDE_DIRS})
 

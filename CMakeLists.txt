@@ -9,6 +9,10 @@ endif()
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/modules")
 
 
+# Make the root directory of the project available.
+include_directories(.)
+
+
 # Find the required libraries
 find_package(LibUUID REQUIRED)
 find_package(BoehmGC REQUIRED)
