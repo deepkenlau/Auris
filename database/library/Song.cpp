@@ -26,3 +26,9 @@ set<string> Song::getFormats() const
 {
 	return library->getStore().getFormats();
 }
+
+Blob Song::loadMainFormat() const
+{
+	media::Store &store = library->getStore();
+	return store.load(id, store.getMainFormat(id));
+}

@@ -72,7 +72,7 @@ Response* Response::fromString(const string &str, unsigned int *consumed)
 std::string Response::toString() const
 {
 	stringstream s;
-	s << "HTTP/1.1 " << statusCode << " " << statusText;
+	s << "HTTP/1.1 " << statusCode << " " << statusText << "\r\n";
 	s << headers.toString();
 	s << content;
 	return s.str();

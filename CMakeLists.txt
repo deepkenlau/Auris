@@ -8,6 +8,17 @@ endif()
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/modules")
 
+
+# Find the required libraries
+find_package(LibUUID REQUIRED)
+find_package(BoehmGC REQUIRED)
+find_package(LibAV REQUIRED)
+
+include_directories(${BOEHMGC_INCLUDE_DIRS})
+include_directories(${LIBUUID_INCLUDE_DIRS})
+include_directories(${LIBAV_INCLUDE_DIRS})
+
+
 # Add the three components
 #add_subdirectory(controller)
 add_subdirectory(player)

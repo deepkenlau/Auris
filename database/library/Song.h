@@ -3,6 +3,8 @@
 #include <set>
 #include <string>
 #include <gc_cpp.h>
+#include <common/Blob.h>
+
 
 namespace database
 {
@@ -24,6 +26,8 @@ namespace database
 
 			database::Song* getMetadata() const;
 			std::set<std::string> getFormats() const;
+
+			Blob loadMainFormat() const;
 
 		private:
 			Library * const library;

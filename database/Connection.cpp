@@ -7,6 +7,7 @@
 #include <common/HTTP/Response.h>
 #include <common/Error.h>
 #include <common/uuid.h>
+#include <common/strutil.h>
 
 using database::Connection;
 using std::string;
@@ -115,7 +116,6 @@ void Connection::received()
 		inputBuffer.assign(inputBuffer, consumed, inputBuffer.length() - consumed);
 	}
 	if (!request) return;
-	clog << "processing request" << endl;
 
 	//Disassemble the request path to find out what is being requested and in what format.
 	size_t lastSlash = request->path.find_last_of('/');
@@ -128,7 +128,9 @@ void Connection::received()
 		path = request->path;
 		suffix = "";
 	}
-	clog << "requested " << path << " (as " << suffix << ")" << endl;
+	clog << "serving " << path;
+	if (!suffix.empty()) std::cout << " (as " << suffix << ")";
+	std::cout << ", headers:" << endl << request->headers.toString();
 
 	//Process the request.
 	if (path == "/songs") {
@@ -152,6 +154,17 @@ void Connection::received()
 
 		HTTP::Response r;
 		r.content = song->getID();
+		r.finalize();
+		write(r);
+		close();
+	}
+	else if (path.find("/download/") == 0) {
+		string id = path.substr(10); //skip the /download/ part
+		library::Song *song = server->library->getSong(id);
+		Blob blob = song->loadMainFormat();
+
+		HTTP::Response r;
+		r.content.assign((const char*)blob.buffer, blob.length);
 		r.finalize();
 		write(r);
 		close();
