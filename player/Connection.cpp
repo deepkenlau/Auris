@@ -118,7 +118,67 @@ void Connection::received()
 	if (!request) return;
 	clog << "processing request" << endl;
 
-	
+	clog << request->path << endl;
+	if(request->path.at(0) != '/')
+	{
+		clog << "invalid request" << endl;
+		HTTP::Response r;
+		r.statusCode = 404;
+		r.statusText = string("Requested object ") + request->path + " not found.";
+		r.finalize();
+		write(r);
+		close();
+		return;
+	}
+	int i,j;
+	for(i = 1; i < request->path.length() &&
+		request->path.at(i) != '/'; i++)
+	{}
+	if (i == request->path.length())
+	{
+		clog << "invalid request" << endl;
+		HTTP::Response r;
+		r.statusCode = 400;
+		r.statusText = string("Requested object ") + request->path + " not found.";
+		r.finalize();
+		write(r);
+		close();
+		return;		
+	}
+	std::string command = request->path.substr(0,i);
+	clog << command << endl;
+	if (command == "/play")
+	{
+		for(j = i+1; j < request->path.length() &&
+			request->path.at(j) != '/'; j++)
+		{}
+		clog << "j= " << j << endl << "length= " <<
+			request->path.length() << endl;
+		if (j == request->path.length())
+		{
+			clog << "invalid request" << endl;
+			HTTP::Response r;
+			r.statusCode = 400;
+			r.statusText = string("Requested object ") + request->path + " not found.";
+			r.finalize();
+			write(r);
+			close();
+			return;		
+		}
+		std::string host = request->path.substr(i+1,j-(i+1));
+		std::string uuid = request->path.substr(j+1);
+		clog << "Playing: " << uuid << endl << "from: " << host << endl;
+		//play
+	}
+	else {
+		clog << "unable to serve requested object " << request->path << endl;
+		HTTP::Response r;
+		r.statusCode = 404;
+		r.statusText = string("Requested object ") + request->path + " not found.";
+		r.finalize();
+		write(r);
+		close();
+	}
 }
 
 /** Stores the given data in the output buffer to be sent. Thread-safe. */

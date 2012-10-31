@@ -2,9 +2,9 @@
 #include <iostream>
 #include <gc_cpp.h>
 #include <stdexcept>
-#include <database/Database/Database.h>
-#include <database/Database/Commit.h>
-#include <database/Database/Song.h>
+#include <database/database/Database.h>
+#include <database/database/Commit.h>
+#include <database/database/Song.h>
 #include <common/Error.h>
 
 using std::runtime_error;

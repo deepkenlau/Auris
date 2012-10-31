@@ -11,7 +11,7 @@ int main(int argc, char *argv[])
 	player::Player s;
 
 	std::cout << "el player\n";
-	/*
+	
 	try {
 		s.run(argc, argv);
 	} catch (Error *e) {
@@ -21,6 +21,5 @@ int main(int argc, char *argv[])
 	} catch (std::exception *e) {
 		std::cerr << "*** exception: " << e->what() << std::endl;
 	}
-	*/
 	return 0;
 }
