@@ -56,10 +56,8 @@ Socket* Socket::makeListening(int port)
 	if (sock->fd < 0)
 		throw new GenericError("Unable to create socket.", new IOError());
 
-#ifdef __APPLE__
 	int one = 1;
 	setsockopt(sock->fd, SOL_SOCKET, SO_REUSEADDR, &one, sizeof(one));
-#endif
 
 	sock->addr.sin_family = AF_INET;
 	sock->addr.sin_port = htons(port);
