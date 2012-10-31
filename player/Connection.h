@@ -25,7 +25,8 @@ namespace player
 
 	public:
 		Connection(Socket *socket, Player *player);
-
+		static std::string ** parseRequest(std::string request);
+		
 		void start();
 		void run();
 

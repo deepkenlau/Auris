@@ -16,6 +16,14 @@ using std::runtime_error;
 
 Player::Player()
 {
+	nextSessionId = 0;
+}
+
+Session * Player::makeSession()
+{
+	sessions_mutex.lock();
+	Session * session = new Session(nextSessionId++);
+	sessions_mutex.unlock();
 }
 
 void Player::run(int argc, char *argv[])
