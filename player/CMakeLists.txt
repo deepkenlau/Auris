@@ -18,11 +18,12 @@ add_executable(${PLAYER_EXEC_NAME}
 )
 include_directories(../)
 
-find_package(BoehmGC REQUIRED)
+#find_package(BoehmGC REQUIRED)
 target_link_libraries(${PLAYER_EXEC_NAME} ${BOEHMGC_LIBRARIES})
-include_directories(${BOEHMGC_INCLUDE_DIRS})
+#include_directories(${BOEHMGC_INCLUDE_DIRS})
 
-find_package(LibAV REQUIRED)
+#find_package(LibAV REQUIRED)
 target_link_libraries(${PLAYER_EXEC_NAME} ${LIBAV_LIBRARIES})
-include_directories(${LIBAV_INCLUDE_DIRS})
-message(dirs ${LIBAV_INCLUDE_DIRS})
+#include_directories(${LIBAV_INCLUDE_DIRS})
+#message(dirs ${LIBAV_INCLUDE_DIRS})
+target_link_libraries(${PLAYER_EXEC_NAME} ${LIBUUID_LIBRARIES})

@@ -5,6 +5,7 @@
 #include <iostream>
 #include <stdexcept>
 extern "C" {
+	#define __STDC_CONSTANT_MACROS
 	#include <libavformat/avformat.h>
 }
 

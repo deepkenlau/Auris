@@ -8,6 +8,7 @@
 #include <common/Error.h>
 #include <common/uuid.h>
 #include <common/strutil.h>
+#include <typeinfo>
 
 using database::Connection;
 using std::string;
