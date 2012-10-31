@@ -12,6 +12,10 @@ namespace HTTP
 		Error(int status, const std::string message, Request *request = NULL, ::Error *underlying = NULL);
 		virtual std::string describe();
 		virtual std::string prefix() { return "HTTP Error: "; }
+
+		int getStatus() const { return status; }
+		const std::string& getMessage() const { return message; }
+		Request* getRequest() const { return request; }
 	protected:
 		int status;
 		std::string message;
@@ -25,10 +29,10 @@ namespace HTTP
 		_name(const std::string message, Request *request, ::Error *underlying = NULL) \
 		: Error(_status, message, request, underlying) {} \
 		virtual std::string prefix() { return "HTTP " #_status " " _prefix ": "; } \
-	}
+	};
 
-	HTTP_ERROR_CLASS(BadRequestError, 400, "Bad Request");
-	HTTP_ERROR_CLASS(NotFoundError, 404, "Not Found");
+	HTTP_ERROR_CLASS(BadRequestError, 400, "Bad Request")
+	HTTP_ERROR_CLASS(NotFoundError, 404, "Not Found")
 
 	/*class BadRequestError : public Error
 	{
