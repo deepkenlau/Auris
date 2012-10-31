@@ -1,6 +1,7 @@
 /* Copyright © 2012 Fabian Schuiki, Sandro Sgier */
 #include "Response.h"
 #include <sstream>
+#include <cstdlib>
 
 using HTTP::Response;
 using std::string;

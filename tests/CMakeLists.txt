@@ -7,11 +7,11 @@ add_executable(test-http
 
 add_executable(test-database
 	Database.cpp
-	../database/Database/Database.cpp
-	../database/Database/Commit.cpp
-	../database/Database/Table.cpp
-	../database/Database/Entity.cpp
-	../database/Database/Field.cpp
+	../database/database/Database.cpp
+	../database/database/Commit.cpp
+	../database/database/Table.cpp
+	../database/database/Entity.cpp
+	../database/database/Field.cpp
 	../common/tinyxml2.cpp
 	../common/sha1.cpp
 	../common/sha1_utils.cpp

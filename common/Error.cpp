@@ -1,6 +1,7 @@
 /* Copyright © 2012 Fabian Schuiki, Sandro Sgier */
 #include "Error.h"
 #include <cerrno>
+#include <cstring>
 
 using std::string;
 
