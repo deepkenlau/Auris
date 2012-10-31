@@ -169,6 +169,29 @@ void Connection::received()
 		std::string uuid = request->path.substr(j+1);
 		clog << "Playing: " << uuid << endl << "from: " << host << endl;
 		//play
+		//create new socket
+		Socket * socket = Socket::makeConnected(host, 8080);
+		//send request
+		HTTP::Request request;
+		request.type = HTTP::Request::kGET;
+		stringstream str;
+		str << "/download/";
+		str << uuid;
+		request.path = str.str();
+		std::string data = request.toString();
+		socket->write(data.c_str(), data.length());
+		//Enter the main loop which runs as long as the socket is connected.
+		const int BUFFER_SIZE = 1024;
+		char buffer[BUFFER_SIZE];
+		std::string inputBuffer;
+		while (socket->isOpen())
+		{
+			int num_read = socket->read(buffer, BUFFER_SIZE);
+			inputBuffer.append(buffer, num_read);
+		}
+		HTTP::Response * response = HTTP::Response::fromString(inputBuffer);
+		clog << response->content.substr(0,20) << endl;
+		close();
 	}
 	else {
 		clog << "unable to serve requested object " << request->path << endl;
