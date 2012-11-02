@@ -19,6 +19,7 @@ add_executable(${DATABASE_EXEC_NAME}
 	../common/coding/Encoder.cpp
 	../common/coding/YAMLEncoder.cpp
 	../common/coding/JSONEncoder.cpp
+	../common/coding/XMLEncoder.cpp
 
 	Connection.cpp
 	Server.cpp

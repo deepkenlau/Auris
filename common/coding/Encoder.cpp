@@ -3,6 +3,7 @@
 #include "Error.h"
 #include "YAMLEncoder.h"
 #include "JSONEncoder.h"
+#include "XMLEncoder.h"
 
 using coding::Encoder;
 using std::string;
@@ -13,8 +14,9 @@ using std::ostream;
 Encoder* Encoder::makeForSuffix(const string &suffix, std::ostream *output)
 {
 	Encoder *e = NULL;
-	if (suffix == "yml") e = new YAMLEncoder();
+	if (suffix == "yml" || suffix == "yaml") e = new YAMLEncoder();
 	if (suffix == "json") e = new JSONEncoder();
+	if (suffix == "xml") e = new XMLEncoder();
 	if (e) {
 		e->setOutput(output);
 	} else {

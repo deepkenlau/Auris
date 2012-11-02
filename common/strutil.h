@@ -11,7 +11,9 @@ public:
 	{
 		size_t offset = 0;
 		while ((offset = s.find('\n', offset)) != std::string::npos) {
-			s.insert(offset+1, "\t");
+			if (offset < s.length()-1) {
+				s.insert(offset+1, "\t");
+			}
 			offset++;
 		}
 		return s;
