@@ -1,5 +1,6 @@
 /* Copyright © 2012 Fabian Schuiki, Sandro Sgier */
 #include "Connection.h"
+#include "Session.h"
 #include "Player.h"
 #include "../common/Socket.h"
 #include <iostream>
@@ -9,6 +10,7 @@ extern "C" {
 }
 
 using player::Player;
+using player::Session;
 using std::cerr;
 using std::endl;
 using std::runtime_error;
@@ -24,6 +26,7 @@ Session * Player::makeSession()
 	sessions_mutex.lock();
 	Session * session = new Session(nextSessionId++);
 	sessions_mutex.unlock();
+	return session;
 }
 
 void Player::run(int argc, char *argv[])
