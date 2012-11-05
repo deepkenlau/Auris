@@ -29,10 +29,12 @@ add_executable(test-mediastore
 	../common/Path.cpp
 )
 
-include_directories(../)
-
-find_package(BoehmGC REQUIRED)
-include_directories(${BOEHMGC_INCLUDE_DIRS})
+add_executable(test-coding
+	Coding.cpp
+	../common/coding/Decoder.cpp
+	../common/coding/XMLDecoder.cpp
+)
 
 target_link_libraries(test-database ${BOEHMGC_LIBRARIES})
 target_link_libraries(test-http ${BOEHMGC_LIBRARIES})
+target_link_libraries(test-coding ${BOEHMGC_LIBRARIES})

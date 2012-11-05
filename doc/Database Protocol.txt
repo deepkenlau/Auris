@@ -1,0 +1,16 @@
+//Download/stream media file specified by uuid, either in the main format or
+//the format specified.
+GET /media/{uuid}
+GET /media/{uuid}/{format}
+
+//Upload media file. Returns the uuid of the generated database entry.
+PUT /media
+
+//Returns a list of song uuids stored in the database.
+GET /songs
+
+//
+GET /metadata
+GET /metadata/{uuid}
+PUT /metadata/{uuid}
+POST /metadata (form encoded)
