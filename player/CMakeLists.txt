@@ -3,6 +3,7 @@ add_executable(${PLAYER_EXEC_NAME}
 	main.cpp
 	Connection.cpp
 	Player.cpp
+	Session.cpp
 	../common/Socket.cpp
 	../common/tinyxml2.cpp
 	../common/Error.cpp

@@ -9,7 +9,7 @@ namespace player
 	{
 		const int id;
 	public:
-		Session(int id) : id(id);
+		Session(int id) : id(id) {}
 		void play(std::string host, std::string uuid);
 		void stop();
 		int getId() const;
