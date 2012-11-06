@@ -33,6 +33,8 @@ add_executable(test-coding
 	Coding.cpp
 	../common/coding/Decoder.cpp
 	../common/coding/XMLDecoder.cpp
+	../common/Error.cpp
+	../common/tinyxml2.cpp
 )
 
 target_link_libraries(test-database ${BOEHMGC_LIBRARIES})
