@@ -9,7 +9,8 @@
 #include <common/Error.h>
 #include <common/uuid.h>
 #include <typeinfo>
-
+#include <string>
+#include <cstdlib>
 
 using player::Connection;
 using player::Session;
@@ -124,9 +125,59 @@ void Connection::received()
 
 	clog << request->path << endl;
 
+	if (request->path.at(0) != '/')
+		throw new GenericError("Invalid Command.");
+	int i,j;
+	for (i = 1; i < request->path.length()
+		&& request->path.at(i) != '/'; i++){}
+
+	std::string sid = request->path.substr(1,i-1);
+
+	for (j = ++i; i < request->path.length()
+		&& request->path.at(j) != '/'; j++){}
+
+	std::string command = request->path.substr(i, j-i);
+	std::string host = request->path.substr(j+1);
+
+	Session * session;
+	int  sidInt;
+	if (sid == "new")
+	{
+		session = player->makeSession();
+		sidInt = session->getId();
+		session->start();
+
+	} else if (sid.substr(1, 3) == "sid")
+	{
+		sidInt = atoi(sid.substr(4).c_str());
+	} else
+		throw new GenericError("Invalid command.");
 
 
-	if(request->path.at(0) != '/')
+	if (command == "play")
+	{
+		session->play(host);
+	} else if (command == "stop")
+	{
+
+	} else if (command == "pause")
+	{
+
+	} else if (command == "resume")
+	{
+
+	} else
+		throw new GenericError("Invalid command.");
+
+
+	HTTP::Response r;
+	std::stringstream strstream;
+	strstream << sidInt;
+	r.content = strstream.str();
+	r.finalize();
+	write(r);
+	close();
+	/*if(request->path.at(0) != '/')
 	{
 		clog << "invalid request" << endl;
 		HTTP::Response r;
@@ -156,31 +207,12 @@ void Connection::received()
 	clog << command << endl;
 	if (command == "/play")
 	{
-		for(j = i+1; j < request->path.length() &&
-			request->path.at(j) != '/'; j++)
-		{}
-		clog << "j= " << j << endl << "length= " <<
-			request->path.length() << endl;
-		if (j == request->path.length())
-		{
-			clog << "invalid request" << endl;
-			HTTP::Response r;
-			r.statusCode = 400;
-			r.statusText = string("Requested object ") + request->path + " not found.";
-			r.finalize();
-			write(r);
-			close();
-			return;		
-		}
-		std::string host = request->path.substr(i+1,j-(i+1));
-		std::string uuid = request->path.substr(j+1);
-
 		clog << "Creating new session.\n";
 
 		//create a new session
 		Session * session = player->makeSession();
 		clog << "Created new session.\n";
-		session->play(host, uuid);
+		session->play(request->path, this);
 	}
 	else if (command == "/stop")
 	{
@@ -194,7 +226,7 @@ void Connection::received()
 		r.finalize();
 		write(r);
 		close();
-	}
+	}*/
 }
 
 /** Stores the given data in the output buffer to be sent. Thread-safe. */

@@ -75,7 +75,7 @@ Socket* Socket::makeConnected(string hostname, int port)
 	//Resolve the hostname.
 	struct hostent *server = gethostbyname(hostname.c_str());
 	if(server == NULL)
-		throw new GenericError("Host " + hostname + " not found.");
+		throw new GenericError("Host '" + hostname + "' not found.");
 
 	//Create the socket.
 	UnixSocket *sock = new UnixSocket;
