@@ -5,6 +5,8 @@
 #include <map>
 #include <string>
 #include <common/Mutex.h>
+#include <common/coding/Encoder.h>
+#include <common/coding/Decoder.h>
 
 
 namespace database
@@ -29,6 +31,9 @@ namespace database
 			void load(const std::string &hash);
 
 			std::string describe() const;
+
+			void encode(coding::Encoder *encoder) const;
+			void decode(coding::Decoder *decoder);
 
 		protected:
 			Table* const table;

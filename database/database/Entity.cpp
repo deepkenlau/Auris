@@ -79,3 +79,14 @@ string Entity::describe() const
 	s << "\n}";
 	return s.str();
 }
+
+void Entity::encode(coding::Encoder *encoder) const
+{
+	for (Fields::const_iterator it = fields.begin(); it != fields.end(); it++)
+		encoder->add(it->second->describe(), it->first);
+}
+
+void Entity::decode(coding::Decoder *decoder)
+{
+
+}
