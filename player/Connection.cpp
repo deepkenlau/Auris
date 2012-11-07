@@ -162,7 +162,6 @@ void Connection::received()
 		Session * s = player->getSession(sidInt = atoi(sid.substr(4).c_str()));
 		if (s == NULL)
 			throw new GenericError("Session not found.");
-		s->stop();
 	} else
 	{
 		throw new GenericError("Invalid command. '" + command + "'");
@@ -173,7 +172,8 @@ void Connection::received()
 		session->play(host);
 	} else if (command == "stop")
 	{
-		atoi(sid.substr(3).c_str());
+		player->getSession(atoi(sid.substr(3).c_str()))->stop(); //session->stop()
+
 	} else if (command == "pause")
 	{
 

@@ -224,7 +224,7 @@ void Session::stop()
 {
 	commandLock.lock();
 	playing = false;
-	commandLock.lock();
+	commandLock.unlock();
 	std::cout << "playingFlag = " << playing << endl;
 }
 
