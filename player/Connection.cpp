@@ -132,12 +132,22 @@ void Connection::received()
 		&& request->path.at(i) != '/'; i++){}
 
 	std::string sid = request->path.substr(1,i-1);
+	std::cout << "pathString = " << request->path << endl; 	
+	std::cout << "sidString = " << sid << endl;
 
-	for (j = ++i; i < request->path.length()
+	for (j = ++i; j < request->path.length()
 		&& request->path.at(j) != '/'; j++){}
 
-	std::string command = request->path.substr(i, j-i);
-	std::string host = request->path.substr(j+1);
+	std::string command;
+	std::string host;
+
+	if (j == request->path.length())
+		command = request->path.substr(i);
+	else
+	{
+		command = request->path.substr(i, j-i);
+		host = request->path.substr(j+1);
+	}
 
 	Session * session;
 	int  sidInt;
@@ -147,19 +157,23 @@ void Connection::received()
 		sidInt = session->getId();
 		session->start();
 
-	} else if (sid.substr(1, 3) == "sid")
+	} else if (sid.length() >= 4 && sid.substr(0, 3) == "sid")
 	{
-		sidInt = atoi(sid.substr(4).c_str());
+		Session * s = player->getSession(sidInt = atoi(sid.substr(4).c_str()));
+		if (s == NULL)
+			throw new GenericError("Session not found.");
+		s->stop();
 	} else
-		throw new GenericError("Invalid command.");
-
+	{
+		throw new GenericError("Invalid command. '" + command + "'");
+	}
 
 	if (command == "play")
 	{
 		session->play(host);
 	} else if (command == "stop")
 	{
-
+		atoi(sid.substr(3).c_str());
 	} else if (command == "pause")
 	{
 

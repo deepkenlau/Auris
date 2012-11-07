@@ -12,6 +12,7 @@
 #include <ao/ao.h>
 #include <iostream>
 #include <complex>
+#include <unistd.h>
 
 extern "C" {
 	#define __STDC_CONSTANT_MACROS
@@ -53,90 +54,102 @@ static void* sessionThread(void *param)
 void Session::run()
 {
 	int i;
-	for (i = 0; i < host.length()
-		&& host.at(i) != '/'; i++) {}
-	if (i == host.length())
-		throw new GenericError("Invalid host.");
-
-	std::string hostname = host.substr(0,i);
-	std::string uuid = host.substr(i);
-	//play
-	//create new socket
-	Socket * socket = Socket::makeConnected(hostname, 8080);
-	//send request
-	HTTP::Request request;
-	request.type = HTTP::Request::kGET;
-	stringstream str;
-	str << "/download";
-	str << uuid;
-	request.path = str.str();
-	std::string data = request.toString();
-	socket->write(data.c_str(), data.length());
-
-	//Enter the main loop which runs as long as the socket is connected.
-	const int BUFFER_SIZE = 1024;
-	char buffer[BUFFER_SIZE];
-	std::string inputBuffer;
-	while (socket->isOpen())
+	commandLock.lock();
+	active = true;
+	commandLock.unlock();
+	while(active)
 	{
-		int num_read = socket->read(buffer, BUFFER_SIZE);
-		inputBuffer.append(buffer, num_read);
-	}
-	HTTP::Response * response = HTTP::Response::fromString(inputBuffer);
+	    while (!startPlaying)
+	    	usleep(5000);
+	    commandLock.lock();
+	    startPlaying = false;
+	    playing = true;
+	    commandLock.unlock();
+
+		for (i = 0; i < host.length()
+			&& host.at(i) != '/'; i++) {}
+		if (i == host.length())
+			throw new GenericError("Invalid host '" + host  + "'.");
+
+		std::string hostname = host.substr(0,i);
+		std::string uuid = host.substr(i);
+		//play
+		//create new socket
+		Socket * socket = Socket::makeConnected(hostname, 8080);
+		//send request
+		HTTP::Request request;
+		request.type = HTTP::Request::kGET;
+		stringstream str;
+		str << "/download";
+		str << uuid;
+		request.path = str.str();
+		std::string data = request.toString();
+		socket->write(data.c_str(), data.length());
+
+		//Enter the main loop which runs as long as the socket is connected.
+		const int BUFFER_SIZE = 1024;
+		char buffer[BUFFER_SIZE];
+		std::string inputBuffer;
+		while (socket->isOpen())
+		{
+			int num_read = socket->read(buffer, BUFFER_SIZE);
+			inputBuffer.append(buffer, num_read);
+		}
+		HTTP::Response * response = HTTP::Response::fromString(inputBuffer);
 
 
-	//Wrap the blob data in a stringstream object.
-	std::istringstream stream(response->content);
+		//Wrap the blob data in a stringstream object.
+		std::istringstream stream(response->content);
 
-	//Create a new AVIOContext for reading data from an istream instead of a file.
-	unsigned char *buffer_3 = (unsigned char *)av_malloc(8192);
-	AVIOContext *ioctx = avio_alloc_context(buffer_3, 8192, 0, (void*)&stream, &readistream, NULL, NULL);
+		//Create a new AVIOContext for reading data from an istream instead of a file.
+		unsigned char *buffer_3 = (unsigned char *)av_malloc(8192);
+		AVIOContext *ioctx = avio_alloc_context(buffer_3, 8192, 0, (void*)&stream, &readistream, NULL, NULL);
 
-	//Create a new AVFormatContext that uses the IO context created above.
-	AVFormatContext* ctx = avformat_alloc_context();
-	ctx->pb = ioctx;
+		//Create a new AVFormatContext that uses the IO context created above.
+		AVFormatContext* ctx = avformat_alloc_context();
+		ctx->pb = ioctx;
 
-	//Try to open the file.
-	if (avformat_open_input(&ctx, "dummyFilename", NULL, NULL))
-		throw new GenericError("Unable to avformat_open_input with the new media file.");
+		//Try to open the file.
+		if (avformat_open_input(&ctx, "dummyFilename", NULL, NULL))
+			throw new GenericError("Unable to avformat_open_input with the new media file.");
 
-	if (av_find_stream_info(ctx) < 0)
-       	throw new GenericError("Unable to av_find_stream_info.");
+		if (av_find_stream_info(ctx) < 0)
+	       	throw new GenericError("Unable to av_find_stream_info.");
 
-    int stream_id = -1;
-    // To find the first audio stream. This process may not be necessary
-    // if you can gurarantee that the ctx contains only the desired
-    // audio stream
-    for (i = 0; i < ctx->nb_streams; i++) {
-        if (ctx->streams[i]->codec->codec_type == CODEC_TYPE_AUDIO) {
-            stream_id = i;
-            break;
-        }
-    }
-	 
-    if (stream_id == -1) {
-        throw new GenericError("Could not find an audio stream");
-    }
+	    int stream_id = -1;
+	    // To find the first audio stream. This process may not be necessary
+	    // if you can gurarantee that the ctx contains only the desired
+	    // audio stream
+	    for (i = 0; i < ctx->nb_streams; i++) {
+	        if (ctx->streams[i]->codec->codec_type == CODEC_TYPE_AUDIO) {
+	            stream_id = i;
+	            break;
+	        }
+	    }
+		 
+	    if (stream_id == -1) {
+	        throw new GenericError("Could not find an audio stream");
+	    }
 
-    //Extract some metadata.
-    AVDictionary* metadata = ctx->metadata;
-	AVCodecContext* codec_context = ctx->streams[stream_id]->codec;
-	AVCodec* codec = avcodec_find_decoder(codec_context->codec_id);
-	if (!avcodec_open(codec_context, codec) < 0)
-		throw new GenericError("Unable to avcodec_find_decoder.");
+	    //Extract some metadata.
+	    AVDictionary* metadata = ctx->metadata;
+		AVCodecContext* codec_context = ctx->streams[stream_id]->codec;
+		AVCodec* codec = avcodec_find_decoder(codec_context->codec_id);
+		if (!avcodec_open(codec_context, codec) < 0)
+			throw new GenericError("Unable to avcodec_find_decoder.");
 
-	//initialize libao for playback
-	ao_initialize();
-	int driver = ao_default_driver_id();
+		//initialize libao for playback
+		ao_initialize();
+		int driver = ao_default_driver_id();
 
-	//configure format
-	ao_sample_format sample_format;
-	sample_format.bits = 16;
-	sample_format.channels = 2;
-    sample_format.rate = 44100;
-    sample_format.byte_format = AO_FMT_NATIVE;
-    sample_format.matrix = 0;
-    ao_device* device = ao_open_live(driver, &sample_format, NULL);
+		//configure format
+		ao_sample_format sample_format;
+		sample_format.bits = 16;
+		sample_format.channels = 2;
+	    sample_format.rate = 44100;
+	    sample_format.byte_format = AO_FMT_NATIVE;
+	    sample_format.matrix = 0;
+	    ao_device* device = ao_open_live(driver, &sample_format, NULL);
 
 	    int buffer_size;
 	    int8_t buffer_2[AVCODEC_MAX_AUDIO_FRAME_SIZE + FF_INPUT_BUFFER_PADDING_SIZE];
@@ -146,12 +159,13 @@ void Session::run()
 	    size_t offsetInData = 0;
 	    bool eof = false;
 
-		while (!eof) {
+
+		while (!eof && playing) {
 			//Read a packet.
 			if (offsetInData >= packet.size) {
 				av_free_packet(&packet);
 				offsetInData = 0;
-				while (true) {
+				while (playing) {
 					if (av_read_frame(ctx, &packet) < 0) {
 						eof = true;
 						break;
@@ -182,7 +196,8 @@ void Session::run()
 	    }
 	 
 	    avformat_close_input(&ctx);
-	    ao_shutdown();   
+	    ao_shutdown(); 
+	} 
 }
 
 
@@ -196,7 +211,20 @@ int Session::getId() const
 	return id;
 }
 
-void Session::play(std::string host)
+void Session::play(std::string url)
 {
-	this->host = host;
+	host = url;
+	commandLock.lock();
+	playing = false;
+	startPlaying = true;
+	commandLock.unlock();
 }
+
+void Session::stop()
+{
+	commandLock.lock();
+	playing = false;
+	commandLock.lock();
+	std::cout << "playingFlag = " << playing << endl;
+}
+

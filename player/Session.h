@@ -15,6 +15,7 @@ namespace player
 		Mutex commandLock;
 		bool active;
 		bool playing;
+		bool startPlaying;
 		std::string host;
 	public:
 		Session(int id) : id(id) {}

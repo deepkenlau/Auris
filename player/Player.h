@@ -21,6 +21,7 @@ namespace player
 
 		Player();
 		Session * makeSession();
+		Session * getSession(int sid);
 	private:
 		int nextSessionId;
 		Mutex sessions_mutex;

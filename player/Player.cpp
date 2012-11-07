@@ -25,8 +25,27 @@ Session * Player::makeSession()
 {
 	sessions_mutex.lock();
 	Session * session = new Session(nextSessionId++);
+	sessions.insert(session);
 	sessions_mutex.unlock();
 	return session;
+}
+
+Session * Player::getSession(int sid)
+{
+//debug
+std::cout << "Looking for session " << sid << std::endl;
+	sessions_mutex.lock();
+	for(Sessions::iterator i = sessions.begin(); i != sessions.end(); i++)
+	{
+		std::cout << "Looking at session " << (*i)->getId() << endl;
+		if ((*i)->getId() == sid)
+		{
+			sessions_mutex.unlock();
+			return *i;
+		}
+	}
+	sessions_mutex.unlock();
+	return NULL;
 }
 
 void Player::run(int argc, char *argv[])
