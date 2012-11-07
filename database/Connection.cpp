@@ -6,10 +6,13 @@
 #include <common/strutil.h>
 #include <common/HTTP/Error.h>
 #include <common/coding/Encoder.h>
+#include <common/MimeType.h>
 
 using std::string;
 using std::endl;
 using std::stringstream;
+using database::library::Library;
+using coding::Encoder;
 
 
 /** Creates a new connection object that will handle communication on the given
@@ -42,22 +45,48 @@ void database::Connection::received(HTTP::Request *request)
 	log() << "serving " << path;
 	if (!suffix.empty()) std::cout << " (as " << suffix << ")";
 	std::cout << ", headers:" << endl << request->headers.toString();
+	MimeType responseType = MimeType::makeWithSuffix(suffix);
 
-	//Process the request.
-	if (path == "/songs") {
-		stringstream s;
-		const library::Library::Songs &e = server->library->getSongs();
-		for (library::Library::Songs::const_iterator it = e.begin(); it != e.end(); it++) {
-			s << (*it)->getID() << " " << (*it)->getMetadata()->describe() << "\n";
+	//Returns a list of song IDs stored in the database.
+	if (path == "/songs" && request->type == HTTP::Request::kGET) {
+		Encoder *encoder = Encoder::makeForSuffix(suffix);
+		const Library::Songs &e = server->library->getSongs();
+		for (Library::Songs::const_iterator it = e.begin(); it != e.end(); it++) {
+			encoder->add((*it)->getID());
 		}
+		encoder->finalize();
 
 		HTTP::Response r;
-		r.content = s.str();
+		r.headers.add("Content-Type", responseType.getName());
+		r.content = encoder->getOutputString();
 		r.finalize();
 		write(r);
 		close();
+		return;
 	}
-	else if (path == "/add") {
+
+	//Process metadata requests.
+	if (strutil::consumePrefix(path, "/metadata/")) {
+		library::Song *song = server->library->getSong(path);
+		if (!song) {
+			throw new HTTP::NotFoundError("No song with ID " + path + " exists.");
+		}
+
+		Encoder *encoder = Encoder::makeForSuffix(suffix);
+		song->getMetadata()->encode(encoder);
+		encoder->finalize();
+
+		HTTP::Response r;
+		r.headers.add("Content-Type", responseType.getName());
+		r.content = encoder->getOutputString();
+		r.finalize();
+		write(r);
+		close();
+		return;
+	}
+
+
+	if (path == "/add") {
 		library::Song *song = server->library->addMedia(Blob(request->content.c_str(), request->content.length()));
 		if (!song) {
 			throw new GenericError("Library didn't return a song upon addMedia().");
@@ -68,6 +97,7 @@ void database::Connection::received(HTTP::Request *request)
 		r.finalize();
 		write(r);
 		close();
+		return;
 	}
 	else if (path.find("/download/") == 0) {
 		string id = path.substr(10); //skip the /download/ part
@@ -82,6 +112,7 @@ void database::Connection::received(HTTP::Request *request)
 		r.finalize();
 		write(r);
 		close();
+		return;
 	}
 	else if (path == "/info") {
 		coding::Encoder *encoder = coding::Encoder::makeForSuffix(suffix);
@@ -105,8 +136,8 @@ void database::Connection::received(HTTP::Request *request)
 		r.finalize();
 		write(r);
 		close();
+		return;
 	}
-	else {
-		throw new HTTP::NotFoundError(string("Requested object ") + path + " not found.", request);
-	}
+
+	throw new HTTP::NotFoundError(string("Requested object ") + path + " not found.", request);
 }
