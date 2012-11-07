@@ -34,7 +34,7 @@ namespace coding
 			tinyxml2::XMLElement *element;
 			tinyxml2::XMLElement *current;
 		public:
-			Array(tinyxml2::XMLElement *e) : element(e) { current = element->FirstChildElement(); }
+			Array(tinyxml2::XMLElement *e);
 			bool getArray(Decoder::Array *&v);
 			bool getObject(Decoder::Object *&v);
 			bool getValue(std::string &v);

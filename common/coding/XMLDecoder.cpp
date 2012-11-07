@@ -66,15 +66,31 @@ bool XMLDecoder::Object::getValue(const std::string &key, std::string &v)
 	return true;
 }
 
+
+XMLDecoder::Array::Array(tinyxml2::XMLElement *e)
+{
+	element = e;
+	current = e->FirstChildElement();
+}
+
 bool XMLDecoder::Array::getArray(Decoder::Array *&v)
 {
-	return false;
+	if (!current) return false;
+	v = new Array(current);
+	current = current->NextSiblingElement();
+	return true;
 }
 bool XMLDecoder::Array::getObject(Decoder::Object *&v)
 {
-	return false;
+	if (!current) return false;
+	v = new Object(current);
+	current = current->NextSiblingElement();
+	return true;
 }
 bool XMLDecoder::Array::getValue(std::string &v)
 {
-	return false;
+	if (!current) return false;
+	v = current->GetText();
+	current = current->NextSiblingElement();
+	return true;
 }

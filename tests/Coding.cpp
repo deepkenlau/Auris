@@ -27,6 +27,11 @@ int main(int argc, char *argv[])
 		std::cout << "someBool: " << structure->getValue<bool>("someBool") << std::endl;
 		std::cout << "aFloat: " << structure->getValue<double>("aFloat") << std::endl;
 
+		std::string s;
+		while (names->getValue(s)) {
+			std::cout << "- name '" << s << "'" << std::endl;
+		}
+
 		fin.close();
 	}
 	catch (std::runtime_error &e) {
