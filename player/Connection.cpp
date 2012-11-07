@@ -172,14 +172,14 @@ void Connection::received()
 		session->play(host);
 	} else if (command == "stop")
 	{
-		player->getSession(atoi(sid.substr(3).c_str()))->stop(); //session->stop()
+		player->getSession(atoi(sid.substr(3).c_str()))->stop();
 
 	} else if (command == "pause")
 	{
-
+		player->getSession(atoi(sid.substr(3).c_str()))->pause();
 	} else if (command == "resume")
 	{
-
+		player->getSession(atoi(sid.substr(3).c_str()))->resume();
 	} else
 		throw new GenericError("Invalid command.");
 

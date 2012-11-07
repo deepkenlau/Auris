@@ -166,6 +166,8 @@ void Session::run()
 				av_free_packet(&packet);
 				offsetInData = 0;
 				while (playing) {
+						while (paused)
+	    					usleep(5000);
 					if (av_read_frame(ctx, &packet) < 0) {
 						eof = true;
 						break;
@@ -228,3 +230,12 @@ void Session::stop()
 	std::cout << "playingFlag = " << playing << endl;
 }
 
+void Session::pause()
+{
+	paused = true;
+}
+
+void Session::resume()
+{
+	paused = false;
+}

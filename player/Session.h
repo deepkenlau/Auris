@@ -15,6 +15,7 @@ namespace player
 		Mutex commandLock;
 		bool active;
 		bool playing;
+		bool paused;
 		bool startPlaying;
 		std::string host;
 	public:
