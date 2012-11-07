@@ -36,4 +36,5 @@ namespace HTTP
 
 	HTTP_ERROR_CLASS(BadRequestError, 400, "Bad Request")
 	HTTP_ERROR_CLASS(NotFoundError, 404, "Not Found")
+	HTTP_ERROR_CLASS(MethodNotAllowedError, 405, "Method Not Allowed")
 }
