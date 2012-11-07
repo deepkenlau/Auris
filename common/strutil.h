@@ -37,4 +37,13 @@ public:
 		} while (lineEnd < s.length());
 		return dict;
 	}
+
+	static bool consumePrefix(std::string &subject, const std::string &prefix)
+	{
+		if (subject.find(prefix) == 0) {
+			subject.erase(0, prefix.length());
+			return true;
+		}
+		return false;
+	}
 };
