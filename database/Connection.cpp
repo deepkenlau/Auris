@@ -6,6 +6,7 @@
 #include <common/strutil.h>
 #include <common/HTTP/Error.h>
 #include <common/coding/Encoder.h>
+#include <common/coding/Decoder.h>
 #include <common/MimeType.h>
 
 using std::string;
@@ -13,6 +14,7 @@ using std::endl;
 using std::stringstream;
 using database::library::Library;
 using coding::Encoder;
+using coding::Decoder;
 
 
 /** Creates a new connection object that will handle communication on the given
@@ -46,6 +48,7 @@ void database::Connection::received(HTTP::Request *request)
 	if (!suffix.empty()) std::cout << " (as " << suffix << ")";
 	std::cout << ", headers:" << endl << request->headers.toString();
 	MimeType responseType = MimeType::makeWithSuffix(suffix);
+	MimeType requestType  = MimeType::makeWithName(request->headers.get("Content-Type"));
 
 	//Returns a list of song IDs stored in the database.
 	if (path == "/songs" && request->type == HTTP::Request::kGET) {
@@ -72,17 +75,32 @@ void database::Connection::received(HTTP::Request *request)
 			throw new HTTP::NotFoundError("No song with ID " + path + " exists.");
 		}
 
-		Encoder *encoder = Encoder::makeForSuffix(suffix);
-		song->getMetadata()->encode(encoder);
-		encoder->finalize();
+		if (request->type == HTTP::Request::kGET) {
+			Encoder *encoder = Encoder::makeForSuffix(suffix);
+			song->getMetadata()->encode(encoder);
+			encoder->finalize();
 
-		HTTP::Response r;
-		r.headers.add("Content-Type", responseType.getName());
-		r.content = encoder->getOutputString();
-		r.finalize();
-		write(r);
-		close();
-		return;
+			HTTP::Response r;
+			r.headers.add("Content-Type", responseType.getName());
+			r.content = encoder->getOutputString();
+			r.finalize();
+			write(r);
+			close();
+			return;
+		}
+		else if (request->type == HTTP::Request::kPUT) {
+			Decoder *decoder = Decoder::make(request->content, requestType.getName());
+			song->getMetadata()->decode(decoder->getRootObject());
+			server->library->getDatabase().commit();
+
+			HTTP::Response r;
+			r.finalize();
+			write(r);
+			close();
+			return;
+		}
+
+		throw new HTTP::MethodNotAllowedError("Method not allowed for metadata.");
 	}
 
 

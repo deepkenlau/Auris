@@ -86,7 +86,23 @@ void Entity::encode(coding::Encoder *encoder) const
 		encoder->add(it->second->describe(), it->first);
 }
 
-void Entity::decode(coding::Decoder *decoder)
+void Entity::decode(coding::Decoder::Object *object)
 {
-
+	for (Fields::const_iterator it = fields.begin(); it != fields.end(); it++) {
+		switch (it->second->getType()) {
+			case Field::kString: {
+				std::string s;
+				if (object->getValue(it->first, s)) *(it->second) = s;
+			} break;
+			case Field::kInteger:
+			case Field::kCounter: {
+				int v;
+				if (object->getValue(it->first, v)) *(it->second) = v;
+			} break;
+			case Field::kFloat: {
+				double v;
+				if (object->getValue(it->first, v)) *(it->second) = v;
+			} break;
+		}
+	}
 }

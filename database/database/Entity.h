@@ -33,7 +33,7 @@ namespace database
 			std::string describe() const;
 
 			void encode(coding::Encoder *encoder) const;
-			void decode(coding::Decoder *decoder);
+			void decode(coding::Decoder::Object *object);
 
 		protected:
 			Table* const table;
