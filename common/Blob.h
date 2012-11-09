@@ -7,6 +7,7 @@ class Blob : public gc
 public:
 	int length;
 	const void *buffer;
+	Blob() { this->length = 0; this->buffer = NULL; }
 	Blob(const void * buffer, int length)
 	{
 		this->length = length;

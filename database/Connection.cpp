@@ -72,7 +72,7 @@ void database::Connection::received(HTTP::Request *request)
 	if (strutil::consumePrefix(path, "/metadata/")) {
 		library::Song *song = server->library->getSong(path);
 		if (!song) {
-			throw new HTTP::NotFoundError("No song with ID " + path + " exists.");
+			throw new HTTP::NotFoundError("No song with ID " + path + " exists.", request);
 		}
 
 		if (request->type == HTTP::Request::kGET) {
@@ -100,24 +100,65 @@ void database::Connection::received(HTTP::Request *request)
 			return;
 		}
 
-		throw new HTTP::MethodNotAllowedError("Method not allowed for metadata.");
+		throw new HTTP::MethodNotAllowedError("Method not allowed for metadata.", request);
 	}
 
+	//Process media requests.
+	//  PUT /media
+	//  GET /media/{id}
+	//  GET /media/{id}/{format}
+	if (strutil::consumePrefix(path, "/media")) {
+		if (request->type == HTTP::Request::kGET) {
+			//Extract the ID of the media file in question.
+			if (path.length() > 1 && path[0] == '/') {
+				size_t slash = path.find('/', 1);
+				string id, format;
+				if (slash != string::npos) {
+					id = path.substr(1, slash-1);
+					format = path.substr(slash+1);
+				} else {
+					id = path.substr(1);
+				}
 
-	if (path == "/add") {
-		library::Song *song = server->library->addMedia(Blob(request->content.c_str(), request->content.length()));
-		if (!song) {
-			throw new GenericError("Library didn't return a song upon addMedia().");
+				//Fetch the song from the library.
+				library::Song *song = server->library->getSong(id);
+				if (!song) {
+					throw new HTTP::NotFoundError(string("Song ") + id + " does not exist.", request);
+				}
+
+				//Either get the main format or the format specified.
+				Blob blob;
+				if (format.empty()) {
+					blob = song->loadMainFormat();
+				} else {
+					//blob = song->loadFormat(format);
+					throw new HTTP::NotFoundError("Media requests in specific format not yet supported.", request);
+				}
+
+				HTTP::Response r;
+				r.content.assign((const char*)blob.buffer, blob.length);
+				r.finalize();
+				write(r);
+				close();
+				return;
+			}
 		}
+		else if (request->type == HTTP::Request::kPUT) {
+			library::Song *song = server->library->addMedia(Blob(request->content.c_str(), request->content.length()));
+			if (!song) {
+				throw new GenericError("Library didn't return a song upon addMedia().");
+			}
 
-		HTTP::Response r;
-		r.content = song->getID();
-		r.finalize();
-		write(r);
-		close();
-		return;
+			HTTP::Response r;
+			r.content = song->getID();
+			r.finalize();
+			write(r);
+			close();
+			return;
+		}
 	}
-	else if (path.find("/download/") == 0) {
+
+	/*if (path.find("/download/") == 0) {
 		string id = path.substr(10); //skip the /download/ part
 		library::Song *song = server->library->getSong(id);
 		if (!song) {
@@ -155,7 +196,7 @@ void database::Connection::received(HTTP::Request *request)
 		write(r);
 		close();
 		return;
-	}
+	}*/
 
 	throw new HTTP::NotFoundError(string("Requested object ") + path + " not found.", request);
 }
