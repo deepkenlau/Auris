@@ -12,37 +12,29 @@ namespace HTTP
 		Error(int status, const std::string message, Request *request = NULL, ::Error *underlying = NULL);
 		virtual std::string describe();
 		virtual std::string prefix() { return "HTTP Error: "; }
+
+		int getStatus() const { return status; }
+		const std::string& getMessage() const { return message; }
+		Request* getRequest() const { return request; }
 	protected:
 		int status;
 		std::string message;
 		Request *request;
 	};
 
+
+	/* Define some HTTP errors that connections may catch and convert into an
+	 * appropriate response. */
 	#define HTTP_ERROR_CLASS(_name, _status, _prefix) \
 	class _name : public Error \
 	{ \
 	public: \
-		_name(const std::string message, Request *request, ::Error *underlying = NULL) \
+		_name(const std::string message, Request *request = NULL, ::Error *underlying = NULL) \
 		: Error(_status, message, request, underlying) {} \
-		virtual std::string prefix() { return "HTTP " #_status " " _prefix ": "; } \
-	}
-
-	HTTP_ERROR_CLASS(BadRequestError, 400, "Bad Request");
-	HTTP_ERROR_CLASS(NotFoundError, 404, "Not Found");
-
-	/*class BadRequestError : public Error
-	{
-	public:
-		BadRequestError(const std::string message, Request *request, ::Error *underlying = NULL)
-		: Error(400, message, request, underlying);
-		virtual std::string prefix() { return "HTTP Bad Request: "; }
+		virtual std::string prefix() { return "HTTP " _prefix ": "; } \
 	};
 
-	class NotFoundError : public Error
-	{
-	public:
-		NotFoundError(const std::string message, Request *request, ::Error *underlying = NULL)
-		: Error(404, message, request, underlying);
-		virtual std::string prefix() { return "HTTP Not Found: "; }
-	}*/
+	HTTP_ERROR_CLASS(BadRequestError, 400, "Bad Request")
+	HTTP_ERROR_CLASS(NotFoundError, 404, "Not Found")
+	HTTP_ERROR_CLASS(MethodNotAllowedError, 405, "Method Not Allowed")
 }

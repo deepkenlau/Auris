@@ -11,7 +11,9 @@ public:
 	{
 		size_t offset = 0;
 		while ((offset = s.find('\n', offset)) != std::string::npos) {
-			s.insert(offset+1, "\t");
+			if (offset < s.length()-1) {
+				s.insert(offset+1, "\t");
+			}
 			offset++;
 		}
 		return s;
@@ -34,5 +36,14 @@ public:
 			lineStart = lineEnd+1;
 		} while (lineEnd < s.length());
 		return dict;
+	}
+
+	static bool consumePrefix(std::string &subject, const std::string &prefix)
+	{
+		if (subject.find(prefix) == 0) {
+			subject.erase(0, prefix.length());
+			return true;
+		}
+		return false;
 	}
 };
