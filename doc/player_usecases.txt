@@ -1,0 +1,53 @@
+Cases:
+- play myMix
+	fetch myMix from database
+- play any playlist
+	fetch from database
+- skip song playing
+	player skips and sends timing information to database
+- jump to previous
+	player jumps back and sends timing information to database
+- jump to any song in playlist
+	player jumps and sends uuid of new song to database
+- play songs as they appear in gui
+	if reordering: send xml with new order to player
+- pause
+	clear
+- stop
+	clear
+- resume
+	clear
+- jump to position in song
+- see playback position
+- see metadata of any song
+- manage metadata of any song
+- shuffle
+- stream internetradio
+- search and play search results
+	send search url to player
+
+
+
+
+Protocol requirements:
+
+- Get list of outputs
+- get version of player
+- which output is playing which song
+- get metadata of song
+
+Protocol:
+POST /source/<output>
+	url: url to playlist
+	[parameters]
+POST /play/<output>
+	[uuid]: uuid to first song
+	[position]: position in the song
+GET /version.<format> //returns various versions software used in player
+GET /status.<format> //returns status of currently playing output/songs/etc.
+any /pause/<output>
+any /resume/<output>
+any /stop/<output>
+any /skip/<output>
+any /previous/<output>
+GET /metadata/<output>.<format>
