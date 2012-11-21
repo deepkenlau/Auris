@@ -48,7 +48,11 @@ void database::Connection::received(HTTP::Request *request)
 	if (!suffix.empty()) std::cout << " (as " << suffix << ")";
 	std::cout << ", headers:" << endl << request->headers.toString();
 	MimeType responseType = MimeType::makeWithSuffix(suffix);
-	MimeType requestType  = MimeType::makeWithName(request->headers.get("Content-Type"));
+	MimeType requestType;
+	if (request->headers.has("Content-Type"))
+		requestType = MimeType::makeWithName(request->headers.get("Content-Type"));
+	else
+		requestType = responseType;
 
 	//Returns a list of song IDs stored in the database.
 	if (path == "/songs" && request->type == HTTP::Request::kGET) {
@@ -157,46 +161,6 @@ void database::Connection::received(HTTP::Request *request)
 			return;
 		}
 	}
-
-	/*if (path.find("/download/") == 0) {
-		string id = path.substr(10); //skip the /download/ part
-		library::Song *song = server->library->getSong(id);
-		if (!song) {
-			throw new HTTP::NotFoundError(string("Song ") + id + " does not exist.", request);
-		}
-		Blob blob = song->loadMainFormat();
-
-		HTTP::Response r;
-		r.content.assign((const char*)blob.buffer, blob.length);
-		r.finalize();
-		write(r);
-		close();
-		return;
-	}
-	else if (path == "/info") {
-		coding::Encoder *encoder = coding::Encoder::makeForSuffix(suffix);
-		encoder->add("1.0.0 beta", "version");
-		encoder->pushArray("names");
-		encoder->add("hello");
-		encoder->add("world");
-		encoder->add("whadup?");
-		encoder->popArray();
-		encoder->add(235, "age");
-		encoder->pushObject("structure");
-		encoder->add("fred", "name");
-		encoder->add("debug", "test");
-		encoder->add(true, "someBool");
-		encoder->add((float)34.2, "aFloat");
-		encoder->popObject();
-		encoder->finalize();
-
-		HTTP::Response r;
-		r.content = encoder->getOutputString();
-		r.finalize();
-		write(r);
-		close();
-		return;
-	}*/
 
 	throw new HTTP::NotFoundError(string("Requested object ") + path + " not found.", request);
 }

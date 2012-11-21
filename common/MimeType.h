@@ -33,7 +33,7 @@ public:
 		return t;
 	}
 
-	const std::string& getName() { return names[0]; }
+	const std::string getName() { return names.empty() ? "application/octet" : names[0]; }
 	const std::string getSuffix() { return suffices.empty() ? "" : suffices[0]; }
 
 	const Strings& getNames() const { return names; }
