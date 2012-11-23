@@ -13,6 +13,8 @@
 namespace database
 {
 	class Connection;
+	class Playlist;
+	class ShufflePlaylist;
 
 	class Server : public gc
 	{
@@ -31,7 +33,14 @@ namespace database
 		Connections connections;
 		void addConnection(Connection* c);
 
+		typedef std::set<Playlist*, std::less<Playlist*>, gc_allocator<Playlist*> > Playlists;
+		Mutex playlists_mutex;
+		int playlistID;
+		Playlists shufflePlaylists;
+
 	protected:
 		void removeConnection(Connection* c);
+
+		ShufflePlaylist* getShufflePlaylist(unsigned int id = 0);
 	};
 }

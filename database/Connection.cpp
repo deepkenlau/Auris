@@ -8,6 +8,7 @@
 #include <common/coding/Encoder.h>
 #include <common/coding/Decoder.h>
 #include <common/MimeType.h>
+#include "ShufflePlaylist.h"
 
 using std::string;
 using std::endl;
@@ -161,6 +162,19 @@ void database::Connection::received(HTTP::Request *request)
 			return;
 		}
 	}
+
+	//Handle playlist requests.
+	/*if (strutil::consumePrefix(path, "/playlist")) {
+		//Shuffle playlist.
+		if (path == "/shuffle") {
+			int id = 0;
+			if (request->headers.has("X-Playlist-ID")) {
+				id = atoi(request->headers.get("X-Playlist-ID"));
+			}
+			ShufflePlaylist *p = server->getShufflePlaylist(id);
+			
+		}
+	}*/
 
 	throw new HTTP::NotFoundError(string("Requested object ") + path + " not found.", request);
 }

@@ -33,6 +33,10 @@ void Library::load()
 	for (database::Table::Entities::const_iterator ie = entities.begin(); ie != entities.end(); ie++) {
 		Song *song = new Song(this, (*ie)->getID());
 		songs.insert(song);
+
+		//DEBUG: reload the metadata
+		clog << "DEBUG: reloading metadata for " << song->getID() << std::endl;
+		song->importMetadata(store.load(song->getID(), store.getMainFormat(song->getID())));
 	}
 	clog << songs.size() << " songs loaded" << endl;
 	songs_lock.unlock();
@@ -82,24 +86,27 @@ Song* Library::addMedia(const Blob &blob)
 	database::Song *md = database.getSongs().newEntity();
 	md->setID(uuid);
 
-	AVDictionaryEntry *tag = NULL;
+	/*AVDictionaryEntry *tag = NULL;
 	if ((tag = av_dict_get(ctx->metadata, "title",  tag, 0))) md->title  = tag->value;
 	if ((tag = av_dict_get(ctx->metadata, "artist", tag, 0))) md->artist = tag->value;
 	if ((tag = av_dict_get(ctx->metadata, "album",  tag, 0))) md->album  = tag->value;
-	clog << "create metadata song " << md->describe() << endl;
+	clog << "create metadata song " << md->describe() << endl;*/
+
+	//Create the song object for this media file and import the metadata.
+	Song *song = new Song(this, uuid);
+	song->importMetadata(ctx);
 
 	database.commit();
 
-	//Dump the metadata for debugging purposes.
+	/*//Dump the metadata for debugging purposes.
 	tag = NULL;
 	while ((tag = av_dict_get(ctx->metadata, "", tag, 0)))
-		printf("%s=%s\n", tag->key, tag->value);
+		printf("%s=%s\n", tag->key, tag->value);*/
 
 	//Clean up.
 	avformat_free_context(ctx);
-
-	//Create the song object for this media file.
-	Song *song = new Song(this, uuid);
+	
+	//Add the song to the library.
 	songs_lock.lock();
 	songs.insert(song);
 	songs_lock.unlock();

@@ -5,6 +5,7 @@
 #include <gc_cpp.h>
 #include <common/Blob.h>
 
+struct AVFormatContext;
 
 namespace database
 {
@@ -28,6 +29,9 @@ namespace database
 			std::set<std::string> getFormats() const;
 
 			Blob loadMainFormat() const;
+
+			void importMetadata(const Blob &blob);
+			void importMetadata(AVFormatContext *ctx);
 
 		private:
 			Library * const library;

@@ -2,6 +2,7 @@
 #include "Connection.h"
 #include "Server.h"
 #include "../common/Socket.h"
+#include "ShufflePlaylist.h"
 #include <iostream>
 #include <stdexcept>
 extern "C" {
@@ -19,6 +20,7 @@ Server::Server()
 {
 	Path p("~/Music/Auris");
 	library = new library::Library(p);
+	playlistID = 1;
 }
 
 void Server::run(int argc, char *argv[])
@@ -56,4 +58,30 @@ void Server::removeConnection(Connection* c)
 	connections_mutex.lock();
 	connections.erase(c);
 	connections_mutex.unlock();
+}
+
+/** Returns the shuffle playlist with the given ID, or a new one if 0 is passed. */
+database::ShufflePlaylist* Server::getShufflePlaylist(unsigned int id)
+{
+	ShufflePlaylist *p = NULL;
+
+	//Try to find the playlist with the given ID.
+	if (id) {
+		for (Playlists::iterator ip = shufflePlaylists.begin(); ip != shufflePlaylists.end(); ip++) {
+			if ((*ip)->getID() == id) {
+				p = (ShufflePlaylist*)*ip;
+				break;
+			}
+		}
+	}
+
+	//If no playlist was found, create a new one.
+	if (!p) {
+		playlists_mutex.lock();
+		p = new ShufflePlaylist(this, playlistID++);
+		shufflePlaylists.insert(p);
+		playlists_mutex.unlock();
+	}
+
+	return p;
 }

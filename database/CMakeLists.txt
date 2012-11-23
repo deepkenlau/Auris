@@ -36,6 +36,8 @@ add_executable(${DATABASE_EXEC_NAME}
 	media/Store.cpp
 	library/Library.cpp
 	library/Song.cpp
+
+	ShufflePlaylist.cpp
 )
 
 target_link_libraries(${DATABASE_EXEC_NAME} ${BOEHMGC_LIBRARIES} ${LIBAV_LIBRARIES} ${LIBUUID_LIBRARIES})
