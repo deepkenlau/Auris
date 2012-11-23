@@ -90,6 +90,6 @@ void Song::importMetadata(AVFormatContext *ctx)
 	av_dump_format(ctx, 0, NULL, 0);
 	tag = NULL;
 	printf("Raw Metadata:\n");
-	while ((tag = av_dict_get(ctx->metadata, "", tag, 0)))
-		printf("%s=%s\n", tag->key, tag->value);
+	while ((tag = av_dict_get(ctx->streams[0]->metadata, "", tag, AV_DICT_IGNORE_SUFFIX)))
+		printf("- %s = %s\n", tag->key, tag->value);
 }
