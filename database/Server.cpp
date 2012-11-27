@@ -25,6 +25,7 @@ Server::Server()
 
 void Server::run(int argc, char *argv[])
 {
+	avcodec_register_all();
 	av_register_all();
 
 	//Load the database.

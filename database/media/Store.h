@@ -12,6 +12,9 @@ namespace database
 		class Store : public gc
 		{
 			Path path;
+			Path objectsPath;
+			Path mediaPath;
+
 		public:
 			Store(const Path &path);
 			void persist(const Blob &data, std::string name, std::string format);

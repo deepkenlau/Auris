@@ -37,6 +37,11 @@ add_executable(test-coding
 	../common/tinyxml2.cpp
 )
 
+add_executable(test-libav
+	LibAV.cpp
+)
+
 target_link_libraries(test-database ${BOEHMGC_LIBRARIES})
 target_link_libraries(test-http ${BOEHMGC_LIBRARIES})
 target_link_libraries(test-coding ${BOEHMGC_LIBRARIES})
+target_link_libraries(test-libav ${BOEHMGC_LIBRARIES} ${LIBAV_LIBRARIES})
