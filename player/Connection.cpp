@@ -1,19 +1,20 @@
 /* Copyright © 2012 Fabian Schuiki, Sandro Sgier */
 #include "Connection.h"
 #include "Player.h"
-#include "Session.h"
+#include "Output.h"
 #include "../common/Socket.h"
 #include "../common/Thread.h"
 #include <common/HTTP/Request.h>
+#include <common/HTTP/Error.h>
 #include <common/HTTP/Response.h>
 #include <common/Error.h>
 #include <common/uuid.h>
 #include <typeinfo>
 #include <string>
 #include <cstdlib>
+#include <stdlib.h>
 
-using player::Connection;
-using player::Session;
+using player::Output;
 using std::string;
 using std::endl;
 using std::stringstream;
@@ -24,15 +25,14 @@ using std::stringstream;
 
 /** Creates a new connection object that will handle communication on the given
  * socket for the given server object. */
-Connection::Connection(Socket *socket, Player* player)
+player::Connection::Connection(Socket *socket, Player* player) : HTTP::Connection(socket)
 {
-	this->socket = socket;
 	this->player = player;
 }
 
 /** Main function of the connection thread. Simply calls the connection's run
  * function. */
-static void* connectionThread(void *param)
+/*static void* connectionThread(void *param)
 {
 	Connection *c = (Connection*)param;
 	try {
@@ -43,14 +43,14 @@ static void* connectionThread(void *param)
 		std::cerr << "*** uncaught connection exception " << typeid(e).name() << ": " << e.what() << std::endl;
 	}
 	return NULL;
-}
+}*/
 
 /** Starts the thread that handles this connection. */
-void Connection::start()
+/*void Connection::start()
 {
 	Thread::make(connectionThread, this);
-}
-
+}*/
+/*
 void Connection::run()
 {
 	clog << "connected" << endl;
@@ -108,20 +108,79 @@ void Connection::run()
 	socket->close();
 	clog << "closed" << endl;
 	player->removeConnection(this);
-}
+}*/
 
 /** Called whenever new data arrives in the input buffer. Called on the Connection's
  * thread, which makes it unnecessary to have a lock for the input buffer. */
-void Connection::received()
-{
-	//Try to parse the HTTP request that was received.
-	unsigned int consumed = 0;
-	HTTP::Request *request = HTTP::Request::fromString(inputBuffer, &consumed);
-	if (consumed > 0) {
-		inputBuffer.assign(inputBuffer, consumed, inputBuffer.length() - consumed);
+void player::Connection::received(HTTP::Request *request)
+{	
+	//parsing request->path...
+	if (request->path.at(0) != '/')
+		throw new HTTP::NotFoundError("Invalid path.");
+
+	int i;
+	for (i = 1;i < request->path.length() && request->path.at(i) != '/'; i++) {}
+
+	if (i == request->path.length())
+	{
+		//either version or status
+		if (request->path.length() >= 10
+			&& request->path.substr(1,7) == "version"
+			&& request->path.at(8) == '.')
+		{
+			//ToDo
+			//send back version
+			//dbg
+			std::cout << "Asked for version." << request->path.substr(9) << std::endl;
+		}
+		else if (request->path.length() >= 9
+			&& request->path.substr(1,6) == "status"
+			&& request->path.at(7) == '.')
+		{
+			//ToDo
+			//send back status
+			//dbg
+			std::cout << "Asked for status." << request->path.substr(8) << std::endl;
+		} else
+			throw new HTTP::NotFoundError("Invalid path.");
+	} else
+	{
+		//process and forward to output-object
+		std::string command = request->path.substr(1, i-1);		
+		std::string outputString = request->path.substr(i+1);
+		int outputId = atoi((char*)outputString.c_str());
+
+		if (!outputId)
+			throw new HTTP::NotFoundError("Invalid path.");
+		Output * output = player->getOutput(outputId);
+
+		if (command == "source")
+			output->source(request);
+		
+		else if (command == "play")
+			output->play(request);
+
+		else if (command == "pause")
+			output->pause();
+
+		else if (command == "resume")
+			output->resume();
+
+		else if (command == "stop")
+			output->stop();
+
+		else if (command == "skip")
+			output->skip();
+
+		else if (command == "previous")
+			output->previous();
+
+		else if (command == "metadata")
+			output->metadata();
+		else
+			throw new HTTP::NotFoundError("Invalid path");
 	}
-	if (!request) return;
-	clog << "processing request" << endl;
+	/*clog << "processing request" << endl;
 
 	clog << request->path << endl;
 
@@ -190,7 +249,7 @@ void Connection::received()
 	r.content = strstream.str();
 	r.finalize();
 	write(r);
-	close();
+	close();*/
 	/*if(request->path.at(0) != '/')
 	{
 		clog << "invalid request" << endl;
@@ -244,7 +303,7 @@ void Connection::received()
 }
 
 /** Stores the given data in the output buffer to be sent. Thread-safe. */
-void Connection::write(const char *data, unsigned int length)
+/*void Connection::write(const char *data, unsigned int length)
 {
 	outputBuffer_lock.lock();
 	outputBuffer.append(data, length);
@@ -263,18 +322,18 @@ void Connection::write(const std::string &s)
 {
 	write(s.c_str(), s.length());
 }
-
+*/
 /** Marks the connection as to be closed as soon as the last byte of the output
  * buffer is sent. */
-void Connection::close()
+/*void Connection::close()
 {
 	closeAfterWrite = true;
-}
+}*/
 
 /** Returns a string to identify the connected client. This might be the client's
  * IP address, the client's name if logged in, or the like. */
-const std::string& Connection::getClientName()
+/*const std::string& Connection::getClientName()
 {
 	return socket->getRemoteAddress();
 
-}
+}*/

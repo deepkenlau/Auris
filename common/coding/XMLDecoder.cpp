@@ -11,10 +11,9 @@ void XMLDecoder::load(const string &input)
 {
     doc.Parse(input.c_str());
     if (doc.Error()) {
-    	string msg("Unable to parse XML.");
-    	if (const char *s = doc.GetErrorStr1()) { msg += " "; msg += s; msg += "."; }
-    	if (const char *s = doc.GetErrorStr2()) { msg += " "; msg += s; msg += "."; }
-    	throw new Error(msg);
+    	doc.PrintError();
+    	std::cerr << input << std::endl;
+    	throw new Error("Unable to parse XML.");
     }
 }
 

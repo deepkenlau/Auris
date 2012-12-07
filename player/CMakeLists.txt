@@ -3,18 +3,24 @@ add_executable(${PLAYER_EXEC_NAME}
 	main.cpp
 	Connection.cpp
 	Player.cpp
-	Session.cpp
+	Output.cpp
 	../common/Socket.cpp
 	../common/tinyxml2.cpp
 	../common/Error.cpp
 	../common/HTTP/Request.cpp
 	../common/HTTP/Response.cpp
+	../common/HTTP/Connection.cpp
+	../common/Connection.cpp
 	../common/HTTP/HeaderSet.cpp
+	../common/HTTP/Error.cpp
 	../common/Path.cpp
 	../common/FileSystem.cpp
 	../common/sha1.cpp
 	../common/sha1_utils.cpp
 	../common/uuid.cpp
+	../common/coding/Decoder.cpp
+	../common/coding/XMLDecoder.cpp
+	../common/MimeType.cpp
 
 )
 find_package(LibAO REQUIRED)

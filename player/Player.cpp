@@ -1,6 +1,6 @@
 /* Copyright © 2012 Fabian Schuiki, Sandro Sgier */
 #include "Connection.h"
-#include "Session.h"
+#include "Output.h"
 #include "Player.h"
 #include "../common/Socket.h"
 #include <iostream>
@@ -10,7 +10,7 @@ extern "C" {
 }
 
 using player::Player;
-using player::Session;
+using player::Output;
 using std::cerr;
 using std::endl;
 using std::runtime_error;
@@ -18,34 +18,24 @@ using std::runtime_error;
 
 Player::Player()
 {
-	nextSessionId = 0;
 }
 
-Session * Player::makeSession()
+Output * Player::getOutput(int oid)
 {
-	sessions_mutex.lock();
-	Session * session = new Session(nextSessionId++);
-	sessions.insert(session);
-	sessions_mutex.unlock();
-	return session;
-}
-
-Session * Player::getSession(int sid)
-{
-//debug
-std::cout << "Looking for session " << sid << std::endl;
-	sessions_mutex.lock();
-	for(Sessions::iterator i = sessions.begin(); i != sessions.end(); i++)
+	outputs_mutex.lock();
+	for(Outputs::iterator i = outputs.begin(); i != outputs.end(); i++)
 	{
-		std::cout << "Looking at session " << (*i)->getId() << endl;
-		if ((*i)->getId() == sid)
+		std::cout << "Looking at Output " << (*i)->getId() << endl;
+		if ((*i)->getId() == oid)
 		{
-			sessions_mutex.unlock();
+			outputs_mutex.unlock();
 			return *i;
 		}
 	}
-	sessions_mutex.unlock();
-	return NULL;
+	Output * output = new Output(oid);
+	outputs.insert(output);
+	outputs_mutex.unlock();
+	return output;
 }
 
 void Player::run(int argc, char *argv[])
@@ -80,4 +70,11 @@ void Player::removeConnection(Connection* c)
 	connections_mutex.lock();
 	connections.erase(c);
 	connections_mutex.unlock();
+}
+
+void Player::removeOutput(Output * o)
+{
+	outputs_mutex.lock();
+	outputs.erase(o);
+	outputs_mutex.unlock();
 }
