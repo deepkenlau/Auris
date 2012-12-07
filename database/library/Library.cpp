@@ -9,13 +9,15 @@ extern "C" {
 	#include <libavutil/dict.h>
 }
 
+#define AURIS_CONSOLE_ENTITY "library"
+#define AURIS_CONSOLE_IDENTITY this->path
+#include <common/console.h>
+
 using database::library::Library;
 using database::library::Song;
 using std::string;
 using std::endl;
 using std::stringstream;
-
-#define clog std::cout << "[library " << this->path << "] "
 
 
 Library::Library(Path p) : path(p), database(p), store(p)
@@ -35,11 +37,15 @@ void Library::load()
 		songs.insert(song);
 
 		//DEBUG: reload the metadata
-		clog << "DEBUG: reloading metadata for " << song->getID() << std::endl;
-		song->importMetadata(store.load(song->getID(), store.getMainFormat(song->getID())));
+		//clog << "DEBUG: reloading metadata for " << song->getID() << std::endl;
+		//song->importMetadata(store.load(song->getID(), store.getMainFormat(song->getID())));
+		clog << "loaded song: " << song->getMetadata()->describe() << std::endl;
 	}
 	clog << songs.size() << " songs loaded" << endl;
 	songs_lock.unlock();
+
+	//DEBUG: commit the reloaded data
+	//database.commit();
 }
 
 //Used by the AVIOContext to read data from an istream instead of a file.

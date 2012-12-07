@@ -12,6 +12,10 @@ extern "C" {
 #include <sstream>
 #include <fstream>
 
+#define AURIS_CONSOLE_ENTITY "song"
+#define AURIS_CONSOLE_IDENTITY this->id
+#include <common/console.h>
+
 using database::library::Song;
 using std::set;
 using std::string;
@@ -49,7 +53,7 @@ Blob Song::loadMainFormat() const
 static int readistream(void* opaque, uint8_t* buf, int buf_size)
 {
     std::istream *me = (std::istream*)opaque;
-    std::cout << "reading " << buf_size << " into " << (void*)buf << std::endl;
+    //std::cout << "reading " << buf_size << " into " << (void*)buf << std::endl;
     me->read((char*)buf, buf_size);
    	me->clear();
     return me->gcount();
@@ -57,7 +61,7 @@ static int readistream(void* opaque, uint8_t* buf, int buf_size)
 
 static int64_t seekistream(void* opaque, int64_t offset, int whence)
 {
-	std::cout << "seek to " << offset << " (whence = " << whence << ")" << std::endl;
+	//std::cout << "seek to " << offset << " (whence = " << whence << ")" << std::endl;
 	whence &= ~AVSEEK_FORCE;
     std::istream *me = (std::istream*)opaque;
     std::ios_base::seekdir dir;
@@ -67,7 +71,7 @@ static int64_t seekistream(void* opaque, int64_t offset, int whence)
     	int64_t length = me->tellg();
     	me->seekg(last, std::ios::beg);
     	me->clear();
-    	std::cout << "  returning " << length << std::endl;
+    	//std::cout << "  returning " << length << std::endl;
     	return length;
     }
     switch (whence) {
@@ -89,7 +93,7 @@ void Song::importMetadata(const Blob &blob)
 	//Create a new AVIOContext for reading data from an istream instead of a file.
 	int buffer_size = 8192;
 	unsigned char *buffer = (unsigned char *)av_malloc(buffer_size);
-	std::cout << "allocated buffer " << (void*)buffer << std::endl;
+	//std::cout << "allocated buffer " << (void*)buffer << std::endl;
 	AVIOContext *ioctx = avio_alloc_context(buffer, buffer_size, 0, (void*)&stream, &readistream, NULL, &seekistream);
 
 	//Create a new AVFormatContext that uses the IO context created above.
@@ -113,7 +117,7 @@ void Song::importMetadata(const Blob &blob)
 			throw new GenericError("Unable to find codec.");
 		}
 		if (avcodec_open2(decoder, decoder->codec, NULL) == 0) {
-			std::cout << "opened codec " << decoder->codec->long_name << " (" << decoder->codec->name << ")" << std::endl;
+			//std::cout << "opened codec " << decoder->codec->long_name << " (" << decoder->codec->name << ")" << std::endl;
 		}
 	}
 
@@ -133,9 +137,9 @@ void Song::importMetadata(const Blob &blob)
 		std::cout << "  channels: " << s->codec->channels << std::endl;
 		std::cout << "  sample rate: " << s->codec->sample_rate << std::endl;
 	}*/
-	av_dump_format(ctx, 0, NULL, 0);
+	//av_dump_format(ctx, 0, NULL, 0);
 
-	//importMetadata(ctx);
+	importMetadata(ctx);
 	//library->getDatabase().commit();
 	avformat_free_context(ctx);
 }
@@ -148,11 +152,11 @@ void Song::importMetadata(AVFormatContext *ctx)
 	if ((tag = av_dict_get(ctx->metadata, "title",  tag, 0))) md->title  = tag->value;
 	if ((tag = av_dict_get(ctx->metadata, "artist", tag, 0))) md->artist = tag->value;
 	if ((tag = av_dict_get(ctx->metadata, "album",  tag, 0))) md->album  = tag->value;
+	clog << "loaded title = '" << (string)md->title << "', artist = '" << (string)md->artist << "', album = '" << (string)md->album << "'" << std::endl;
 
 	//Dump the metadata for debugging purposes.
-	av_dump_format(ctx, 0, NULL, 0);
-	tag = NULL;
+	/*tag = NULL;
 	printf("Raw Metadata:\n");
-	while ((tag = av_dict_get(ctx->streams[0]->metadata, "", tag, AV_DICT_IGNORE_SUFFIX)))
-		printf("- %s = %s\n", tag->key, tag->value);
+	while ((tag = av_dict_get(ctx->metadata, "", tag, AV_DICT_IGNORE_SUFFIX)))
+		printf("- %s = %s\n", tag->key, tag->value);*/
 }
