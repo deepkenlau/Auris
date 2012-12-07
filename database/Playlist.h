@@ -15,6 +15,9 @@ namespace database
 	public:
 		Playlist(Server *server, unsigned int id) : server(server), id(id) {}
 
+		typedef struct { int start; int length; } Range;
+		const static Range kNilRange;
+
 		unsigned int getID() const { return id; }
 	};
 }

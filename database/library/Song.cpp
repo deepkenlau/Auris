@@ -85,9 +85,8 @@ static int64_t seekistream(void* opaque, int64_t offset, int whence)
 	return 0;
 }
 
-void Song::importMetadata(const Blob &blob)
+AVFormatContext* Song::openInputBuffer(const Blob &blob)
 {
-	std::cout << LIBAVFORMAT_IDENT << std::endl;
 	std::istringstream stream(string((const char*)blob.buffer, blob.length));
 
 	//Create a new AVIOContext for reading data from an istream instead of a file.
@@ -120,6 +119,46 @@ void Song::importMetadata(const Blob &blob)
 			//std::cout << "opened codec " << decoder->codec->long_name << " (" << decoder->codec->name << ")" << std::endl;
 		}
 	}
+
+	return ctx;
+}
+
+void Song::importMetadata(const Blob &blob)
+{
+	/*std::cout << LIBAVFORMAT_IDENT << std::endl;
+	std::istringstream stream(string((const char*)blob.buffer, blob.length));
+
+	//Create a new AVIOContext for reading data from an istream instead of a file.
+	int buffer_size = 8192;
+	unsigned char *buffer = (unsigned char *)av_malloc(buffer_size);
+	//std::cout << "allocated buffer " << (void*)buffer << std::endl;
+	AVIOContext *ioctx = avio_alloc_context(buffer, buffer_size, 0, (void*)&stream, &readistream, NULL, &seekistream);
+
+	//Create a new AVFormatContext that uses the IO context created above.
+	AVFormatContext* ctx = avformat_alloc_context();
+	ctx->pb = ioctx;
+
+	//Try to open the file.
+	if (avformat_open_input(&ctx, "", NULL, NULL) < 0)
+		throw new GenericError("Unable to avformat_open_input with the new media file.");
+
+	//Find the stream info.
+	if (avformat_find_stream_info(ctx, NULL) < 0) {
+		throw new GenericError("Unable to avformat_find_stream_info.");
+	}
+
+	//Open all the codecs.
+	for (int i = 0; i < ctx->nb_streams; i++) {
+		AVCodecContext *decoder = ctx->streams[i]->codec;
+		decoder->codec = avcodec_find_decoder(decoder->codec_id);
+		if (!decoder->codec) {
+			throw new GenericError("Unable to find codec.");
+		}
+		if (avcodec_open2(decoder, decoder->codec, NULL) == 0) {
+			//std::cout << "opened codec " << decoder->codec->long_name << " (" << decoder->codec->name << ")" << std::endl;
+		}
+	}*/
+	AVFormatContext *ctx = openInputBuffer(blob);
 
 	//Assemble the format information.
 	/*stringstream format;

@@ -1,7 +1,7 @@
 /* Copyright © 2012 Fabian Schuiki, Sandro Sgier */
 #pragma once
 #include "Playlist.h"
-#include <vector>
+#include <map>
 #include <common/Mutex.h>
 #include <common/coding/Encoder.h>
 #include "library/Song.h"
@@ -12,16 +12,19 @@ namespace database
 	class ShufflePlaylist : public Playlist
 	{
 	public:
-		typedef std::vector<library::Song*> Songs;
+		typedef std::map<int, std::string> Songs;
 
 		ShufflePlaylist(Server *server, unsigned int id);
-		void generate(coding::Encoder *encoder);
+		void encode(coding::Encoder *encoder, Range range = kNilRange);
+		void prepareRange(Range range);
+
+		Songs getSongs() { lock.lock(); Songs s = songs; lock.unlock(); return s; }
 
 	protected:
 		Mutex lock;
 		Songs songs;
-		int offset;
 
-		void extend();
+		int min_id;
+		int max_id;
 	};
 }

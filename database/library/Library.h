@@ -32,6 +32,8 @@ namespace database
 			Song* getSong(std::string id);
 			Songs getSongs();
 
+			const Path& getPath() const { return path; }
+
 		private:
 			database::Database database;
 			media::Store store;

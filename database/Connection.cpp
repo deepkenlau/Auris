@@ -142,6 +142,8 @@ void database::Connection::received(HTTP::Request *request)
 
 				HTTP::Response r;
 				r.content.assign((const char*)blob.buffer, blob.length);
+				//r.headers.add("Content-Disposition", "attachment; filename=somemusic.mp3");
+				r.headers.add("Content-Type", "audio/*");
 				r.finalize();
 				write(r);
 				close();
@@ -164,17 +166,65 @@ void database::Connection::received(HTTP::Request *request)
 	}
 
 	//Handle playlist requests.
-	/*if (strutil::consumePrefix(path, "/playlist")) {
+	if (strutil::consumePrefix(path, "/playlist")) {
 		//Shuffle playlist.
 		if (path == "/shuffle") {
 			int id = 0;
 			if (request->headers.has("X-Playlist-ID")) {
-				id = atoi(request->headers.get("X-Playlist-ID"));
+				id = atoi(request->headers.get("X-Playlist-ID").c_str());
+			}
+			ShufflePlaylist::Range range = {-1,-1};
+			if (request->headers.has("X-Playlist-Range")) {
+				string r = request->headers.get("X-Playlist-Range");
+				size_t minus = r.find('-');
+				if (minus > 0) {
+					range.start = atoi(r.substr(0, minus).c_str());
+				}
+				if (minus+1 < r.length()) {
+					range.length = atoi(r.substr(minus+1).c_str());
+				}
 			}
 			ShufflePlaylist *p = server->getShufflePlaylist(id);
-			
+			p->prepareRange(range);
+
+			Encoder *encoder = Encoder::makeForSuffix(suffix);
+			p->encode(encoder, range);
+			encoder->finalize();
+
+			std::stringstream id_str;
+			id_str << p->getID();
+
+			HTTP::Response r;
+			r.headers.add("Content-Type", responseType.getName());
+			r.headers.add("X-Playlist-ID", id_str.str());
+			r.content = encoder->getOutputString();
+			r.finalize();
+			write(r);
+			close();
+			return;
 		}
-	}*/
+	}
+
+	//Process quality reports.
+	if (path == "/quality") {
+		Decoder *decoder = Decoder::make(request->content, requestType.getName());
+		Decoder::Object *report = decoder->getRootObject();
+
+		string fromUUID, toUUID;
+		double quality;
+		if (!report->getValue("from", fromUUID) || !report->getValue("to", toUUID) || !report->getValue("quality", quality)) {
+			throw new HTTP::BadRequestError("Missing from, to or quality field in quality report.", request);
+		}
+
+		log() << "quality " << fromUUID << " -> " << toUUID << " = " << quality << std::endl;
+		server->reportQuality(fromUUID, toUUID, quality);
+
+		HTTP::Response r;
+		r.finalize();
+		write(r);
+		close();
+		return;
+	}
 
 	throw new HTTP::NotFoundError(string("Requested object ") + path + " not found.", request);
 }

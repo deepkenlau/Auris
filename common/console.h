@@ -1,5 +1,6 @@
 /* Copyright © 2012 Fabian Schuiki, Sandro Sgier */
 #pragma once
+#include <iostream>
 
 #if defined(AURIS_CONSOLE_ENTITY)
 	#if defined(AURIS_CONSOLE_IDENTITY)

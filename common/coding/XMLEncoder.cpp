@@ -26,7 +26,6 @@ void XMLEncoder::add(const std::string &value, const std::string &key)
 
 void XMLEncoder::push(enum CollectionType type, const std::string &key)
 {
-	std::cout << "pushing collection '" << key << "'\n";
 	if (key.empty()) {
 		ensureCollectionType(kArray);
 		collections.push(Collection(type, (type == kObject ? "object" : "array")));

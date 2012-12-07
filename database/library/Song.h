@@ -33,6 +33,8 @@ namespace database
 			void importMetadata(const Blob &blob);
 			void importMetadata(AVFormatContext *ctx);
 
+			static AVFormatContext* openInputBuffer(const Blob &blob);
+
 		private:
 			Library * const library;
 			std::string id;

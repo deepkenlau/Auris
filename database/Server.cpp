@@ -4,6 +4,7 @@
 #include "../common/Socket.h"
 #include "ShufflePlaylist.h"
 #include <iostream>
+#include <fstream>
 #include <stdexcept>
 extern "C" {
 	#define __STDC_CONSTANT_MACROS
@@ -14,6 +15,8 @@ using database::Server;
 using std::cerr;
 using std::endl;
 using std::runtime_error;
+using std::ofstream;
+using std::ifstream;
 
 
 Server::Server()
@@ -30,6 +33,7 @@ void Server::run(int argc, char *argv[])
 
 	//Load the database.
 	library->load();
+	loadQualities();
 
 	//Setup the listening socket for the control connections.
 	Socket* listener = Socket::makeListening(8080);
@@ -85,4 +89,44 @@ database::ShufflePlaylist* Server::getShufflePlaylist(unsigned int id)
 	}
 
 	return p;
+}
+
+void Server::reportQuality(std::string from, std::string to, double quality)
+{
+	qualities_mutex.lock();
+	qualities[from][to].quality += quality;
+	qualities[from][to].count++;
+	qualities_mutex.unlock();
+	storeQualities();
+}
+
+void Server::loadQualities()
+{
+	std::cout << "loading qualities" << std::endl;
+	qualities_mutex.lock();
+	ifstream f(library->getPath().down("qualities"));
+	while (!f.eof()) {
+		std::string from, to;
+		double quality;
+		int count;
+		f >> from >> to >> quality >> count;
+		if (from.empty() || to.empty()) break;
+		qualities[from][to].quality = quality;
+		qualities[from][to].count = count;
+	}
+	f.close();
+	qualities_mutex.unlock();
+}
+
+void Server::storeQualities()
+{
+	qualities_mutex.lock();
+	ofstream f(library->getPath().down("qualities"));
+	for (QualityMap::iterator ia = qualities.begin(); ia != qualities.end(); ia++) {
+		for (Qualities::iterator ib = ia->second.begin(); ib != ia->second.end(); ib++) {
+			f << ia->first << " " << ib->first << " " << ib->second.quality << " " << ib->second.count << "\n";
+		}
+	}
+	f.close();
+	qualities_mutex.unlock();
 }

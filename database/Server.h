@@ -27,6 +27,13 @@ namespace database
 
 		library::Library *library;
 
+		void reportQuality(std::string from, std::string to, double quality);
+		void loadQualities();
+		void storeQualities();
+
+		struct Quality { double quality; int count; Quality() { quality = 0; count = 0; }};
+		Quality getQuality(const std::string &from, const std::string &to) { qualities_mutex.lock(); Quality q = qualities[from][to]; qualities_mutex.unlock(); return q; };
+
 	private:
 		Mutex connections_mutex;
 		typedef std::set<Connection*, std::less<Connection*>, gc_allocator<Connection*> > Connections;
@@ -37,6 +44,11 @@ namespace database
 		Mutex playlists_mutex;
 		int playlistID;
 		Playlists shufflePlaylists;
+
+		typedef std::map<std::string, Quality> Qualities;
+		typedef std::map<std::string, Qualities> QualityMap;
+		Mutex qualities_mutex;
+		QualityMap qualities;
 
 	protected:
 		void removeConnection(Connection* c);

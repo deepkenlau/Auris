@@ -39,7 +39,7 @@ void Library::load()
 		//DEBUG: reload the metadata
 		//clog << "DEBUG: reloading metadata for " << song->getID() << std::endl;
 		//song->importMetadata(store.load(song->getID(), store.getMainFormat(song->getID())));
-		clog << "loaded song: " << song->getMetadata()->describe() << std::endl;
+		//clog << "loaded song: " << song->getMetadata()->describe() << std::endl;
 	}
 	clog << songs.size() << " songs loaded" << endl;
 	songs_lock.unlock();
@@ -65,7 +65,7 @@ Song* Library::addMedia(const Blob &blob)
 	string uuid = uuid::generate();
 	clog << "adding media " << uuid << " of " << blob.length << " Bytes" << endl;
 
-	//Wrap the blob data in a stringstream object.
+	/*//Wrap the blob data in a stringstream object.
 	std::istringstream stream(string((const char*)blob.buffer, blob.length));
 
 	//Create a new AVIOContext for reading data from an istream instead of a file.
@@ -78,7 +78,9 @@ Song* Library::addMedia(const Blob &blob)
 
 	//Try to open the file.
 	if (avformat_open_input(&ctx, "dummyFilename", NULL, NULL))
-		throw new GenericError("Unable to avformat_open_input with the new media file.");
+		throw new GenericError("Unable to avformat_open_input with the new media file.");*/
+
+	AVFormatContext *ctx = Song::openInputBuffer(blob);
 
 	//Assemble the format information.
 	stringstream format;
