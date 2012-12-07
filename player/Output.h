@@ -4,7 +4,7 @@
 #include <string>
 #include "Connection.h"
 #include <common/Mutex.h>
-#include <list>
+#include <map>
 
 
 namespace player
@@ -12,11 +12,21 @@ namespace player
 	class Output : public gc
 	{
 		const int id;
-		std::list<std::string> songList;
+		int list_id;
+		bool playing_list;
+		bool playing_song;
+		bool paused;
+		//bool source_is_set = false;
+
+		//temporary
+		int currentPosition;
+		int currentSong;
+		//\temporary
+		std::map<int, std::string> songList;
 		Mutex lock;
 
 	public:
-		Output(int id) : id(id) {}
+		Output(int id) : id(id) {start();}
 		void start();
 		void run();
 		void source(HTTP::Request *request);

@@ -41,7 +41,7 @@ POST /source/<output>
 	url: url to playlist
 	[parameters]
 POST /play/<output>
-	[uuid]: uuid to first song
+	[sequence]: uuid to first song
 	[position]: position in the song
 GET /version.<format> //returns various versions software used in player
 GET /status.<format> //returns status of currently playing output/songs/etc.
