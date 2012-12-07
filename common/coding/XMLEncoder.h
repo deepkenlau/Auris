@@ -27,6 +27,8 @@ namespace coding
 		};
 		std::stack<Collection> collections;
 
+		static std::string escape(std::string s);
+
 		void ensureCollectionType(enum CollectionType type);
 		std::string finalizeCollection(Collection &c);
 	};

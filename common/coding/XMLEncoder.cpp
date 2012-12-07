@@ -16,10 +16,10 @@ void XMLEncoder::add(const std::string &value, const std::string &key)
 {
 	if (key.empty()) {
 		ensureCollectionType(kArray);
-		collections.top().body +=  "<string>" + value + "</string>\n";
+		collections.top().body +=  "<string>" + escape(value) + "</string>\n";
 	} else {
 		ensureCollectionType(kObject);
-		collections.top().attrs += " " + key + "=\"" + value + "\"";
+		collections.top().attrs += " " + key + "=\"" + escape(value) + "\"";
 	}
 }
 
@@ -46,10 +46,8 @@ void XMLEncoder::pop(enum CollectionType type)
 			"Trying to pop an array with an object or no collection pushed.");
 	}
 	Collection c = collections.top();
-	std::cout << "popping collection '" << c.name << "'\n";
 	collections.pop();
 	collections.top().body += finalizeCollection(c);
-	std::cout << "body of " << collections.top().name << " modified to " << collections.top().body << "\n";
 }
 
 
@@ -91,4 +89,22 @@ std::string XMLEncoder::finalizeCollection(Collection &c)
 		op << "</" << c.name << ">\n";
 	}
 	return op.str();
+}
+
+std::string XMLEncoder::escape(std::string s)
+{
+	for (int i = 0; i < s.length(); i++) {
+		const char *replacement = NULL;
+		if (s[i] == '&') replacement = "&amp;";
+		if (s[i] == '"') replacement = "&quot;";
+		if (s[i] == '\'') replacement = "&apos;";
+		if (s[i] == '<') replacement = "&lt;";
+		if (s[i] == '>') replacement = "&gt;";
+		if (replacement) {
+			s.replace(i, 1, replacement);
+			i += strlen(replacement);
+			i--;
+		}
+	}
+	return s;
 }
