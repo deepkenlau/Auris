@@ -34,6 +34,9 @@ namespace database
 		struct Quality { double quality; int count; Quality() { quality = 0; count = 0; }};
 		Quality getQuality(const std::string &from, const std::string &to) { qualities_mutex.lock(); Quality q = qualities[from][to]; qualities_mutex.unlock(); return q; };
 
+		void updateRatings();
+		double getRating(const std::string &id) { qualities_mutex.lock(); double r = ratings[id]; qualities_mutex.unlock(); return r; }
+
 	private:
 		Mutex connections_mutex;
 		typedef std::set<Connection*, std::less<Connection*>, gc_allocator<Connection*> > Connections;
@@ -49,6 +52,8 @@ namespace database
 		typedef std::map<std::string, Qualities> QualityMap;
 		Mutex qualities_mutex;
 		QualityMap qualities;
+		typedef std::map<std::string, double> Ratings;
+		Ratings ratings;
 
 	protected:
 		void removeConnection(Connection* c);

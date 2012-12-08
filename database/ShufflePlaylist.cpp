@@ -65,7 +65,15 @@ void ShufflePlaylist::prepareRange(Range range)
 			for (library::Library::Songs::iterator is = librarySongs.begin(); is != librarySongs.end(); is++) {
 				//Find the sequence quality.
 				double maxBadness = 0;
-				double maxGoodness = 0.05;
+				double maxGoodness = 1;
+				/*double overallQuality = 0;
+				for (library::Library::Songs::iterator is2 = librarySongs.begin(); is2 != librarySongs.end(); is2++) {
+					Server::Quality quality = server->getQuality((*is2)->getID(), (*is)->getID());
+					overallQuality += quality.quality;
+				}
+				if (overallQuality < 0.01) overallQuality = 0.01;*/
+				//clog << "overall quality of " << (*is)->getID() << " = " << overallQuality << std::endl;
+
 				for (Songs::iterator it = songs.begin(); it != songs.end(); it++) {
 					double distance = abs(it->first - new_id);
 					double badness = 0;
@@ -85,9 +93,12 @@ void ShufflePlaylist::prepareRange(Range range)
 					badness *= distanceFactor;
 					goodness *= distanceFactor;
 					if (badness > maxBadness) maxBadness = badness;
-					if (goodness > maxGoodness) maxGoodness = goodness;
+					//if (goodness > maxGoodness) maxGoodness = goodness;
+					maxGoodness += goodness;
 				}
-				probs[*is] = (1 - maxBadness) * maxGoodness;
+				//clog << "badness = " << maxBadness << std::endl;
+				//clog << "goodness = " << maxGoodness << std::endl;
+				probs[*is] = (1 - maxBadness) * maxGoodness * exp(server->getRating((*is)->getID()));
 			}
 
 			//Convert the list of weights into probabilities.
@@ -96,12 +107,12 @@ void ShufflePlaylist::prepareRange(Range range)
 				total += it->second;
 			}
 			for (Probabilities::iterator it = probs.begin(); it != probs.end(); it++) {
-				it->second /= total;
+				//it->second /= total;
 				std::cout << it->first->getID() << " = " << it->second << std::endl;
 			}
 
 			//Choose one.
-			double p = (double)(rand() % RAND_MAX) / RAND_MAX;
+			double p = (double)(rand() % RAND_MAX) / RAND_MAX * total;
 			clog << "p = " << p << std::endl;
 			for (Probabilities::iterator it = probs.begin(); it != probs.end(); it++) {
 				p -= it->second;

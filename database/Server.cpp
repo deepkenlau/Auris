@@ -98,6 +98,7 @@ void Server::reportQuality(std::string from, std::string to, double quality)
 	qualities[from][to].count++;
 	qualities_mutex.unlock();
 	storeQualities();
+	updateRatings();
 }
 
 void Server::loadQualities()
@@ -116,17 +117,40 @@ void Server::loadQualities()
 	}
 	f.close();
 	qualities_mutex.unlock();
+	updateRatings();
 }
 
 void Server::storeQualities()
 {
 	qualities_mutex.lock();
-	ofstream f(library->getPath().down("qualities"));
+	ofstream f(library->getPath().down("qualities"), std::ios::trunc);
 	for (QualityMap::iterator ia = qualities.begin(); ia != qualities.end(); ia++) {
 		for (Qualities::iterator ib = ia->second.begin(); ib != ia->second.end(); ib++) {
 			f << ia->first << " " << ib->first << " " << ib->second.quality << " " << ib->second.count << "\n";
 		}
 	}
 	f.close();
+	qualities_mutex.unlock();
+}
+
+void Server::updateRatings()
+{
+	qualities_mutex.lock();
+	std::cout << "updating ratings" << std::endl;
+	std::map<std::string, int> counts;
+	for (Ratings::iterator it = ratings.begin(); it != ratings.end(); it++) {
+		it->second = 0;
+		counts[it->first] = 0;
+	}
+	for (QualityMap::iterator ia = qualities.begin(); ia != qualities.end(); ia++) {
+		for (Qualities::iterator ib = ia->second.begin(); ib != ia->second.end(); ib++) {
+			ratings[ib->first] += ib->second.quality;
+			counts[ib->first] += ib->second.count;
+		}
+	}
+	for (Ratings::iterator it = ratings.begin(); it != ratings.end(); it++) {
+		int c = counts[it->first];
+		if (c > 0) it->second /= c;
+	}
 	qualities_mutex.unlock();
 }
