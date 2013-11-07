@@ -1,30 +1,30 @@
-cmake_minimum_required(VERSION 2.6)
+# Copyright © 2013 Fabian Schuiki
+# This is the root build configuration for the Auris project. It looks up
+# common libraries and pulls in the source directories that need to be built.
+
+cmake_minimum_required(VERSION 2.8)
 project(Auris)
+
 
 # Default to debug build.
 if (NOT CMAKE_BUILD_TYPE)
-	set(CMAKE_BUILD_TYPE Debug)
+	set(CMAKE_BUILD_TYPE Debug CACHE STRING "Choose the type of build (Debug or Release)" FORCE)
+endif()
+if (CMAKE_BUILD_TYPE MATCHES Debug)
+	add_definitions("-DBUILD_DEBUG")
+else()
+	add_definitions("-DBUILD_RELEASE")
 endif()
 
+# Add the modules directory to the CMake module search path.
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/modules")
 
 
-# Make the root directory of the project available.
-include_directories(.)
+# Find the required packages and configure the include directories.
+find_package(Boost REQUIRED COMPONENTS filesystem system)
+
+include_directories(${Boost_INCLUDE_DIRS})
+include_directories(source)
 
 
-# Find the required libraries
-find_package(LibUUID REQUIRED)
-find_package(BoehmGC REQUIRED)
-find_package(LibAV REQUIRED)
-
-include_directories(${BOEHMGC_INCLUDE_DIRS})
-include_directories(${LIBUUID_INCLUDE_DIRS})
-include_directories(${LIBAV_INCLUDE_DIRS})
-
-
-# Add the three components
-#add_subdirectory(controller)
-add_subdirectory(player)
-add_subdirectory(database)
-add_subdirectory(tests)
+add_subdirectory(source)
