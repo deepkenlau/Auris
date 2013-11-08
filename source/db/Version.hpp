@@ -1,24 +1,20 @@
 /* Copyright © 2013 Fabian Schuiki */
 #pragma once
 #include "Track.hpp"
-#include <boost/filesystem/path.hpp>
+#include <list>
 
 namespace auris {
 namespace db {
 
-class Database
+class Database;
+
+class Version
 {
 public:
-	typedef boost::filesystem::path Path;
 	typedef list<Track> TrackList;
 
-	const Path path;
-
-	Database(const Path& p);
-	~Database();
-
-	void add();
-	void remove();
+	Database& db;
+	const string hash;
 
 	TrackList& getTrackList();
 

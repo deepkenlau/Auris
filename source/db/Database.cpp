@@ -11,3 +11,9 @@ Database::Database(const Path& p): path(p)
 Database::~Database()
 {
 }
+
+TrackList& Database::getTrackList()
+{
+	
+	return trackList;
+}

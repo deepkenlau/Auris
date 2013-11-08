@@ -16,7 +16,7 @@ void print_usage(const char *argv0)
 int main(int argc, char *argv[])
 {
 	try {
-		if (argc != 2) {
+		if (argc != 3) {
 			print_usage(*argv);
 			return 1;
 		}
@@ -24,6 +24,7 @@ int main(int argc, char *argv[])
 		// Initialize the database and dump some information.
 		Database db(argv[1]);
 		
+		Database::TrackList tl = db.getTrackList();
 
 	} catch (std::exception &e) {
 		cerr << e.what() << endl;
