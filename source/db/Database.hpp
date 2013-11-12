@@ -2,9 +2,12 @@
 #pragma once
 #include "Track.hpp"
 #include <boost/filesystem/path.hpp>
+#include <list>
 
 namespace auris {
 namespace db {
+
+using std::list;
 
 class Database
 {

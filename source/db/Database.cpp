@@ -12,7 +12,7 @@ Database::~Database()
 {
 }
 
-TrackList& Database::getTrackList()
+Database::TrackList& Database::getTrackList()
 {
 	
 	return trackList;
