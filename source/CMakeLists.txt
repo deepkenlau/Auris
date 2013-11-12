@@ -3,3 +3,4 @@
 # Refer to the CMakeLists.txt of each subdirectory for more information.
 
 add_subdirectory(db)
+add_subdirectory(tools)
