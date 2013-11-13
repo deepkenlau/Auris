@@ -21,7 +21,7 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/modules")
 
 
 # Find the required packages and configure the include directories.
-find_package(Boost REQUIRED COMPONENTS filesystem system)
+find_package(Boost REQUIRED COMPONENTS filesystem system program_options)
 
 include_directories(${Boost_INCLUDE_DIRS})
 include_directories(source)
