@@ -1,5 +1,6 @@
 /* Copyright (c) 2013 Fabian Schuiki */
 #include <common/sha1.hpp>
+#include <common/uuid.hpp>
 #include <iostream>
 #include <boost/program_options.hpp>
 #include <boost/filesystem.hpp>
@@ -119,11 +120,13 @@ public:
 
 			fs::path path(opt_files[i]);
 			stringstream meta;
+			meta << "ID: " << auris::uuid::generate() << "\n";
 			meta << "Title: " << path.filename().native() << "\n";
 			meta << "Extension: " << path.extension().native() << "\n";
 			meta << "Added: " << "some_random_date" << "\n";
 			meta << "\n" << file_hash << "\n";
 			string metadata = meta.str();
+			cout << meta.str();
 
 			char meta_hash[41];
 			auris::sha1().from_string(metadata).hex(meta_hash);
