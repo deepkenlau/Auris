@@ -30,6 +30,7 @@ public:
 
 	sha1& from_stream(std::istream& is)
 	{
+		if (!is.good()) throw std::runtime_error("input stream not good");
 		char buffer[1024];
 		while (is.good()) {
 			is.read(buffer, sizeof(buffer));

@@ -2,16 +2,20 @@
 #include <common/sha1.hpp>
 #include <iostream>
 #include <boost/program_options.hpp>
+#include <boost/filesystem.hpp>
 #include <string>
 #include <vector>
+#include <sstream>
 
 namespace po = boost::program_options;
+namespace fs = boost::filesystem;
 using std::cout;
 using std::cin;
 using std::cerr;
 using std::endl;
 using std::string;
 using std::vector;
+using std::stringstream;
 
 class DatabaseTool
 {
@@ -98,12 +102,39 @@ public:
 
 	int main()
 	{
-		cout << "running db-add on repo " << opt_repository << endl;
+		// Create the index directory if required.
+		fs::path index_path(opt_repository);
+		index_path /= "index";
+		if (!fs::exists(index_path)) {
+			fs::create_directory(index_path);
+		} else if (!fs::is_directory(index_path)) {
+			throw std::runtime_error("Index at " + index_path.native() + " is not a directory.");
+		}
+
+		// Process each input file individually.
 		for (int i = 0; i < opt_files.size(); i++) {
-			char hex[41];
-			cout << "- adding " << opt_files[i];
-			auris::sha1().from_file(opt_files[i].c_str()).hex(hex);
-			cout << " " << hex << endl;
+			char file_hash[41];
+			auris::sha1().from_file(opt_files[i].c_str()).hex(file_hash);
+			cout << "+ " << opt_files[i] << " " << file_hash << endl;
+
+			fs::path path(opt_files[i]);
+			stringstream meta;
+			meta << "Title: " << path.filename().native() << "\n";
+			meta << "Extension: " << path.extension().native() << "\n";
+			meta << "Added: " << "some_random_date" << "\n";
+			meta << "\n" << file_hash << "\n";
+			string metadata = meta.str();
+
+			char meta_hash[41];
+			auris::sha1().from_string(metadata).hex(meta_hash);
+
+			string file_name("+");
+			file_name += file_hash;
+			fs::path index_file_path = index_path / file_name;
+			fs::path index_meta_path = index_path / meta_hash;
+
+			cout << "file goes to " << index_file_path << endl;
+			cout << "meta goes to " << index_meta_path << endl;
 		}
 
 		return 0;
