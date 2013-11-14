@@ -78,6 +78,14 @@ public:
 		return dst - dst_start;
 	}
 
+	std::string hex()
+	{
+		std::string op;
+		op.resize(40);
+		hex(&op[0], false);
+		return op;
+	}
+
 private:
 	boost::uuids::detail::sha1 sha;
 };
