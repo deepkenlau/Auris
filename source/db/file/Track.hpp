@@ -77,8 +77,10 @@ public:
 		// name of the file when it was added (as a hint). Finally, the format
 		// is wrapped up and added to the 'formats' member set.
 		while (is.good()) {
-			if (is.peek() == '\n')
+			if (is.peek() == '\n') {
+				is.get();
 				continue;
+			}
 			std::stringstream br_buffer, fmt_buffer, on_buffer;
 
 			// Read the blob reference field, delimited by a space (' ').
@@ -87,7 +89,7 @@ public:
 				if (c == '\n')
 					throw std::runtime_error("track: input contains malformatted line, after '" + br_buffer.str() + "'");
 				if (!is.good())
-					throw std::runtime_error("track: unexpected end of format line after '" + br_buffer.str() + "'");
+					throw std::runtime_error("track: unexpected end of file, within blob reference of format line, after '" + br_buffer.str() + "'");
 				br_buffer.put(c);
 			}
 			is.get(); // skip whitespace
@@ -101,7 +103,7 @@ public:
 				if (c == '\n')
 					throw std::runtime_error("track: input contains malformatted line, after '" + fmt_buffer.str() + "'");
 				if (!is.good())
-					throw std::runtime_error("track: unexpected end of format line after '" + fmt_buffer.str() + "'");
+					throw std::runtime_error("track: unexpected end of file, within format field of format line, after '" + fmt_buffer.str() + "'");
 				fmt_buffer.put(c);
 			}
 			is.get(); // skip whitespace
@@ -112,6 +114,7 @@ public:
 				on_buffer.put(c);
 			}
 			is.get(); // skip newline
+			is.peek(); // causes the flags to indicate an EOF such that the loop terminates properly
 
 			formats.insert(Format(br_buffer.str(), fmt_buffer.str(), on_buffer.str()));
 		}
