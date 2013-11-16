@@ -1,108 +1,35 @@
 /* Copyright (c) 2013 Fabian Schuiki */
+#include "Generic.hpp"
+
 #include <common/sha1.hpp>
 #include <common/uuid.hpp>
 #include <common/Date.hpp>
 #include <db/file/Index.hpp>
 #include <db/file/Track.hpp>
-#include <iostream>
-#include <boost/program_options.hpp>
-#include <boost/filesystem.hpp>
+
 #include <string>
 #include <vector>
 #include <sstream>
 #include <ctime>
 #include <set>
 
-namespace po = boost::program_options;
-namespace fs = boost::filesystem;
-using std::cout;
-using std::cin;
-using std::cerr;
-using std::endl;
+namespace auris {
+namespace tools {
+
 using std::string;
 using std::vector;
 using std::set;
 using std::stringstream;
 
-class DatabaseTool
-{
-public:
-	int argc;
-	char **argv;
-	po::variables_map vm;
-
-	string opt_repository;
-
-	DatabaseTool(int argc, char **argv): argc(argc), argv(argv)
-	{
-		opt_repository = ".";
-	}
-
-	void print_usage()
-	{
-		cout << "usage: " << *argv << ' ' << usage_string() << endl;
-	}
-
-	int run()
-	{
-		try {
-			// Configure the general command line options.
-			po::options_description general("General options");
-			general.add_options()
-				("help,h", "show help message")
-				("repository,r", po::value<string>(&opt_repository), "path of repository to operate on");
-			options.add(general);
-			build_options();
-
-			// Build the set of options which are used for parsing.
-			po::options_description all_options;
-			all_options.add(options).add(hidden_options);
-
-			// Parse the command line options.
-			po::store(po::command_line_parser(argc, argv)
-				.options(all_options)
-				.positional(positional_options)
-				.run(), vm);
-			po::notify(vm);
-
-			// Show the help if required.
-			if (vm.count("help")) {
-				print_usage();
-				cout << options << endl;
-				return 1;
-			}
-
-			// Call the subclass' main function.
-			return main();
-
-		} catch (std::exception &e) {
-			cerr << e.what() << endl;
-			return 1;
-		}
-		return 0;
-	}
-
-	virtual const char * usage_string() = 0;
-	virtual void build_options() {};
-	virtual int main() = 0;
-
-protected:
-	po::options_description options;
-	po::options_description hidden_options;
-	po::positional_options_description positional_options;
-
-	string nice_hash(const string& in)
-	{
-		return in.substr(0, 7);
-	}
-};
-
-class ThisTool : public DatabaseTool
+/**
+ * @brief Tool that adds files to the database.
+ */
+class db_add : public Generic
 {
 public:
 	vector<string> opt_files;
 
-	ThisTool(int argc, char **argv): DatabaseTool(argc, argv) {}
+	db_add(int argc, char **argv): Generic(argc, argv) {}
 	const char* usage_string() { return "file1 ..."; }
 
 	void build_options()
@@ -244,8 +171,11 @@ public:
 	}
 };
 
+} // namespace tools
+} // namespace auris
+
 int main(int argc, char *argv[])
 {
-	ThisTool t(argc, argv);
+	auris::tools::db_add t(argc, argv);
 	return t.run();
 }
