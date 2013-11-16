@@ -30,7 +30,7 @@ public:
 	vector<string> opt_files;
 
 	db_add(int argc, char **argv): Generic(argc, argv) {}
-	const char* usage_string() { return "file1 ..."; }
+	const char* usage_string() const { return "file1 ..."; }
 
 	void build_options()
 	{

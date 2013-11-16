@@ -37,7 +37,7 @@ public:
 	 * usage_string is the result of the usage_string() method which has to be
 	 * overridden by subclasses.
 	 */
-	void print_usage()
+	void print_usage() const
 	{
 		cout << "usage: " << *argv << ' ' << usage_string() << '\n';
 	}
@@ -107,7 +107,7 @@ public:
 	 * launch the tool and usage_string is the result of the usage_string()
 	 * function.
 	 */
-	virtual const char * usage_string() = 0;
+	virtual const char * usage_string() const = 0;
 
 	/**
 	 * @brief Overridden by subclasses to provide their command line options.
