@@ -3,6 +3,7 @@
 #include <common/uuid.hpp>
 #include <common/Date.hpp>
 #include <db/file/Index.hpp>
+#include <db/file/Track.hpp>
 #include <iostream>
 #include <boost/program_options.hpp>
 #include <boost/filesystem.hpp>
@@ -182,18 +183,14 @@ public:
 			}
 
 			// Build the initial metadata entry.
-			time_t now = time(0);
-			struct tm now_tm = *localtime(&now);
-			char date[80];
-			strftime(date, sizeof(date), "%Y-%m-%d %H:%M:%S %z", &now_tm);
-
-			string uuid = auris::uuid::generate();
-			stringstream meta;
-			meta << "ID: " << uuid << "\n";
-			meta << "Title: " << path.filename().native() << "\n";
-			meta << "Added: " << auris::Date().str() << "\n";
-			meta << "\n" << file_hash << " -- " << path.filename().native() << "\n";
-			string metadata = meta.str();
+			auris::db::file::Track meta;
+			meta.id = auris::uuid::generate();
+			meta.md["Title"] = path.filename().native();
+			meta.md["Added"] = auris::Date().str();
+			meta.formats.insert(auris::db::file::Track::Format(file_hash, "", path.filename().native()));
+			stringstream meta_buffer;
+			meta.write(meta_buffer);
+			string metadata = meta_buffer.str();
 
 			// Calculate the hash of the metadata to be added and write the
 			// data to tisk.
@@ -208,7 +205,7 @@ public:
 			f.close();
 
 			// Print a line showing what was added.
-			cout << meta_hash.substr(0,8) << " " << uuid << " " << path.native() << "\n";
+			cout << nice_hash(meta_hash) << " " << meta.id << " " << path.native() << "\n";
 		}
 
 		// Write the new tracks file.
