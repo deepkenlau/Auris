@@ -94,7 +94,7 @@ public:
 		{
 			fs::path path(opt_files[i]);
 			if (!fs::exists(path)) {
-				cerr << path << " does not exist" << endl;
+				cerr << path << " does not exist\n";
 				continue;
 			}
 

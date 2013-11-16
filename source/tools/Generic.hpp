@@ -11,7 +11,6 @@ namespace po = boost::program_options;
 namespace fs = boost::filesystem;
 using std::cout;
 using std::cerr;
-using std::endl;
 
 /**
  * @brief Common structure of command line utilities.
@@ -40,7 +39,7 @@ public:
 	 */
 	void print_usage()
 	{
-		cout << "usage: " << *argv << ' ' << usage_string() << endl;
+		cout << "usage: " << *argv << ' ' << usage_string() << '\n';
 	}
 
 	/**
@@ -85,7 +84,7 @@ public:
 			// Show the help if required.
 			if (vm.count("help")) {
 				print_usage();
-				cout << options << endl;
+				cout << options << '\n';
 				return 1;
 			}
 
@@ -93,7 +92,7 @@ public:
 			return main();
 
 		} catch (std::exception &e) {
-			cerr << e.what() << endl;
+			cerr << e.what() << '\n';
 			return 1;
 		}
 		return 0;
