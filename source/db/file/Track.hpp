@@ -96,20 +96,22 @@ public:
 
 			// Read the format field, delimited by a double hyphen and a space ('-- ').
 			int ctmp[2] = {0,0};
-			while (ctmp[0] != '-' && ctmp[1] != '-' && is.peek() != ' ') {
+			while (ctmp[0] != '-' || ctmp[1] != '-' || is.peek() != ' ') {
 				int c = is.get();
+				int bc = ctmp[0]; // character that will move into buffer
 				ctmp[0] = ctmp[1];
 				ctmp[1] = c;
 				if (c == '\n')
 					throw std::runtime_error("track: input contains malformatted line, after '" + fmt_buffer.str() + "'");
 				if (!is.good())
 					throw std::runtime_error("track: unexpected end of file, within format field of format line, after '" + fmt_buffer.str() + "'");
-				fmt_buffer.put(c);
+				if (bc != 0)
+					fmt_buffer.put(bc);
 			}
 			is.get(); // skip whitespace
 
 			// Read the rest of the line which is the original format field.
-			while (is.good() && is.peek() != '\n') {
+			while (is.peek() != '\n' && is.good()) {
 				int c = is.get();
 				on_buffer.put(c);
 			}
