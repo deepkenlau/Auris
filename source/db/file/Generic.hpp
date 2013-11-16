@@ -45,6 +45,15 @@ protected:
 		return true;
 	}
 
+	bool read_stream(std::istream &is, std::string &name, std::ostream &value)
+	{
+		std::stringstream nb;
+		if (!read_stream(is, nb, value))
+			return false;
+		name = nb.str();
+		return true;
+	}
+
 	template <typename N, typename V> bool read_value(std::istream &is, N &name, V &value)
 	{
 		std::stringstream nb, vb;
