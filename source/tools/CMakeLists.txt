@@ -3,5 +3,7 @@
 
 add_executable(db-add db-add.cpp)
 add_executable(db-meta db-meta.cpp)
+add_executable(db-list db-list.cpp)
 target_link_libraries(db-add ${Boost_LIBRARIES} common)
 target_link_libraries(db-meta ${Boost_LIBRARIES} common)
+target_link_libraries(db-list ${Boost_LIBRARIES} common)
