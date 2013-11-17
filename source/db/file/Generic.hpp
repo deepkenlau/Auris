@@ -98,6 +98,34 @@ protected:
 
 		return true;
 	}
+
+
+	void write_preamble(std::ostream &os, const std::string& type)
+	{
+		if (!os.good())
+			throw std::runtime_error("cannot write " + type + " file, output stream invalid");
+
+		Object o;
+		o.type = type;
+		o.write(os);
+
+		if (!os.good())
+			throw std::runtime_error("output stream for " + type + " file becomes invalid after writing preamble");
+	}
+
+	void read_preamble(std::istream &is, const std::string& required_type)
+	{
+		if (!is.good())
+			throw std::runtime_error("cannot read " + required_type + " file, input stream invalid");
+		
+		Object o;
+		o.read(is);
+
+		if (o.type != required_type)
+			throw std::runtime_error("object is not a " + required_type);
+		if (!is.good())
+			throw std::runtime_error("input stream for " + required_type + " file becomes invalid after preamble");
+	}
 };
 
 } // namespace file

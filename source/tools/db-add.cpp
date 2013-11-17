@@ -69,12 +69,6 @@ public:
 			std::ifstream f(dbs.object(orig_index_ref).path.c_str());
 			if (!f.good())
 				throw std::runtime_error("index does not exist");
-
-			db::file::Object index_object;
-			index_object.read(f);
-			if (index_object.type != "index")
-				throw std::runtime_error("object " + nice_hash(orig_index_ref) + " is not an index");
-
 			index.read(f);
 		}
 
@@ -109,14 +103,11 @@ public:
 			track.md["Added"] = auris::Date().str();
 			track.formats.insert(auris::db::file::Track::Format(file_hash, "", path.filename().native()));
 
-			db::file::Object track_object;
-			track_object.type = "track";
-
 			stringstream track_buffer;
-			track_object.write(track_buffer);
 			track.write(track_buffer);
-			string track_str = track_buffer.str();
-			string track_hash = auris::sha1().from_string(track_str).hex();
+			string track_hash = auris::sha1().from_stream(track_buffer).hex();
+			track_buffer.clear();
+			track_buffer.seekg(0);
 
 			// Modify the index, write the file to 
 			index.tracks.insert(track_hash);
@@ -135,7 +126,7 @@ public:
 					std::istreambuf_iterator<char>(),
 					std::ostreambuf_iterator<char>(f));
 			}
-			mapfile::write(dbs.object(track_hash).prime().path.c_str(), track_str);
+			mapfile::write(dbs.object(track_hash).prime().path.c_str(), track_buffer);
 
 			// Print a line showing what was added.
 			cout << nice_hash(track_hash) << " " << track.id << " " << path.native() << "\n";
@@ -146,17 +137,14 @@ public:
 			index.date = Date().str();
 			index.base = orig_index_ref;
 
-			db::file::Object index_object;
-			index_object.type = "index";
-
 			stringstream index_buffer;
-			index_object.write(index_buffer);
 			index.write(index_buffer);
-			string index_str = index_buffer.str();
-			string index_hash = auris::sha1().from_string(index_str).hex();
+			string index_hash = auris::sha1().from_stream(index_buffer).hex();
+			index_buffer.clear();
+			index_buffer.seekg(0);
 
 			if (index_hash != orig_index_ref) {
-				mapfile::write(dbs.object(index_hash).prime().path.c_str(), index_str);
+				mapfile::write(dbs.object(index_hash).prime().path.c_str(), index_buffer);
 				mapfile::write(dbs.ref("index").prime().path.c_str(), index_hash);
 			}
 		}

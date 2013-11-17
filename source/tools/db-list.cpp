@@ -33,12 +33,6 @@ public:
 		std::ifstream index_ifs(dbs.object(index_ref).path.c_str());
 		if (!index_ifs.good())
 			throw std::runtime_error("index does not exist");
-		
-		db::file::Object index_object;
-		index_object.read(index_ifs);
-		if (index_object.type != "index")
-			throw std::runtime_error("object " + nice_hash(index_ref) + " is not an index");
-
 		db::file::Index index;
 		index.read(index_ifs);
 

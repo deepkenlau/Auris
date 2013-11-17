@@ -1,6 +1,7 @@
 /* Copyright (c) 2013 Fabian Schuiki */
 #pragma once
-#include "Generic.hpp"
+#include <iostream>
+#include <sstream>
 
 namespace auris {
 namespace db {
@@ -9,7 +10,7 @@ namespace file {
 /**
  * @brief Reads and writes an object's preamble.
  */
-class Object : public Generic
+class Object
 {
 public:
 	std::string type;

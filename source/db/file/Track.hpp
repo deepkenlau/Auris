@@ -49,8 +49,8 @@ public:
 	 */
 	void read(std::istream &is)
 	{
-		if (!is.good())
-			throw std::runtime_error("cannot read track file, input stream invalid");
+		read_preamble(is, "track");
+		
 		id.clear();
 		md.clear();
 		formats.clear();
@@ -129,6 +129,7 @@ public:
 	{
 		if (id.empty())	throw std::runtime_error("track: missing 'id' field");
 
+		write_preamble(os, "track");
 		write_value(os, "Id", id);
 		for (map<string,string>::const_iterator it = md.begin(); it != md.end(); it++) {
 			write_value(os, it->first, it->second);

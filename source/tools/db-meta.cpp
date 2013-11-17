@@ -69,12 +69,6 @@ public:
 		std::ifstream track_ifs(dbs.object(track_ref).path.c_str());
 		if (!track_ifs.good())
 			throw std::runtime_error("cannot open track " + track_ref);
-
-		db::file::Object track_object;
-		track_object.read(track_ifs);
-		if (track_object.type != "track")
-			throw std::runtime_error("object " + nice_hash(track_ref) + " is not a track");
-
 		auris::db::file::Track track;
 		track.read(track_ifs);
 		track_ifs.close();
@@ -120,11 +114,7 @@ public:
 				track.md[(*it).substr(0,sep)] = (*it).substr(sep+1);
 			}
 
-			db::file::Object track_object;
-			track_object.type = "track";
-
 			std::stringstream track_buffer;
-			track_object.write(track_buffer);
 			track.write(track_buffer);
 			string track_hash = auris::sha1().from_stream(track_buffer).hex();
 			if (track_hash == track_ref)
@@ -138,12 +128,6 @@ public:
 				std::ifstream f(dbs.object(index_ref).path.c_str());
 				if (!f.good())
 					throw std::runtime_error("index does not exist");
-
-				db::file::Object index_object;
-				index_object.read(f);
-				if (index_object.type != "index")
-					throw std::runtime_error("object " + nice_hash(index_ref) + " is not an index");
-
 				index.read(f);
 				index.base = index_ref;
 			}
@@ -161,13 +145,8 @@ public:
 			index.tracks.erase(it);
 			index.tracks.insert(track_hash);
 
-			db::file::Object index_object;
-			index_object.type = "index";
-
 			std::stringstream index_buffer;
-			index_object.write(index_buffer);
 			index.write(index_buffer);
-			string index_str = index_buffer.str();
 			string index_hash = auris::sha1().from_stream(index_buffer).hex();
 			index_buffer.clear();
 			index_buffer.seekg(0);

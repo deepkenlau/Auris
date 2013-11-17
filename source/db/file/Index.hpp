@@ -26,8 +26,8 @@ public:
 	 */
 	void read(std::istream &is)
 	{
-		if (!is.good())
-			throw std::runtime_error("cannot read index file, input stream invalid");
+		read_preamble(is, "index");
+		
 		base.clear();
 		date.clear();
 		tracks.clear();
@@ -76,6 +76,7 @@ public:
 	{
 		if (date.empty()) throw std::runtime_error("index: missing date field");
 
+		write_preamble(os, "index");
 		if (!base.empty()) write_value(os, "Base", base);
 		write_value(os, "Date", date);
 		os.put('\n');
