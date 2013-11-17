@@ -66,7 +66,7 @@ public:
 		auris::db::file::Track track;
 		track.read(track_ifs);
 
-		cout << "# track " << nice_hash(track_ref) << " (" << track.formats.size() << " formats)\n";
+		cerr << "# track " << nice_hash(track_ref) << " (" << track.formats.size() << " formats)\n";
 		if (!opt_only_formats) {
 			if (opt_fields.empty() || opt_fields.count("Id")) {
 				cout << "Id: " << track.id << '\n';
