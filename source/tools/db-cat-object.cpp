@@ -1,7 +1,10 @@
 /* Copyright (c) 2013 Fabian Schuiki */
 #include "Generic.hpp"
+
 #include <aux/mapfile.hpp>
+#include <db/Structure.hpp>
 #include <db/file/Object.hpp>
+
 #include <string>
 #include <fstream>
 #include <sstream>
@@ -36,20 +39,16 @@ public:
 
 	int main()
 	{
+		db::Structure dbs(repo);
+
 		bool opt_type = vm.count("type");
 		if (opt_object.empty()) {
 			cerr << "no object specified\n";
 			return 1;
 		}
 
-		fs::path pgrp = repo/"objects"/opt_object.substr(0,2);
-		fs::path pobj = pgrp/opt_object.substr(2);
-		if (!fs::exists(pobj)) {
-			cerr << "object " << opt_object << " does not exist\n";
-			return 2;
-		}
-
-		std::ifstream fobj(pobj.c_str());
+		db::Structure::Object obj = dbs.object(dbs.resolve_name(opt_object));
+		std::ifstream fobj(obj.path.c_str());
 		if (!fobj.good()) {
 			cerr << "cannot open object " << fobj << " for reading\n";
 			return 3;

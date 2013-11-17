@@ -1,8 +1,11 @@
 /* Copyright (c) 2013 Fabian Schuiki */
 #include "Generic.hpp"
+
 #include <common/sha1.hpp>
+#include <db/Structure.hpp>
 #include <db/file/Object.hpp>
 #include <aux/mapfile.hpp>
+
 #include <string>
 
 namespace auris {
@@ -35,6 +38,8 @@ public:
 
 	int main()
 	{
+		db::Structure dbs(repo);
+
 		bool opt_stdin = vm.count("stdin");
 		bool opt_write = vm.count("write");
 		if (opt_file.empty() && !opt_stdin) {
@@ -59,12 +64,9 @@ public:
 		string hash = sha1().from_stream(buffer).hex();
 
 		if (opt_write) {
-			fs::path pgrp = repo/"objects"/hash.substr(0,2);
-			fs::path pobj = pgrp/hash.substr(2);
-			ensure_dir(pgrp);
 			buffer.clear();
 			buffer.seekg(0);
-			aux::mapfile::write(pobj.c_str(), buffer);
+			aux::mapfile::write(dbs.object(hash).prime().path.c_str(), buffer);
 		}
 
 		cout << hash << '\n';
