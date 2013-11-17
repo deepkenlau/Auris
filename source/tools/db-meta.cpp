@@ -4,6 +4,7 @@
 #include <common/sha1.hpp>
 #include <common/Date.hpp>
 #include <aux/mapfile.hpp>
+#include <db/file/Object.hpp>
 #include <db/file/Index.hpp>
 #include <db/file/Track.hpp>
 
@@ -63,13 +64,20 @@ public:
 			cerr << "no track specified\n";
 			return 2;
 		}
-		string track_ref = resolve_refish(opt_track);
+		string track_ref = dbs.resolve_name(opt_track);
 
-		std::ifstream track_ifs((repo/"objects"/track_ref).c_str());
+		std::ifstream track_ifs(dbs.object(track_ref).path.c_str());
 		if (!track_ifs.good())
 			throw std::runtime_error("cannot open track " + track_ref);
+
+		db::file::Object track_object;
+		track_object.read(track_ifs);
+		if (track_object.type != "track")
+			throw std::runtime_error("object " + nice_hash(track_ref) + " is not a track");
+
 		auris::db::file::Track track;
 		track.read(track_ifs);
+		track_ifs.close();
 
 		// Display mode, in case no fields are to be set or deleted.
 		if (opt_set_fields.empty() && opt_delete_fields.empty())
@@ -112,20 +120,31 @@ public:
 				track.md[(*it).substr(0,sep)] = (*it).substr(sep+1);
 			}
 
-			std::stringstream buffer;
-			track.write(buffer);
-			string new_str = buffer.str();
-			string new_hash = auris::sha1().from_string(new_str).hex();
-			if (new_hash == track_ref)
+			db::file::Object track_object;
+			track_object.type = "track";
+
+			std::stringstream track_buffer;
+			track_object.write(track_buffer);
+			track.write(track_buffer);
+			string track_hash = auris::sha1().from_stream(track_buffer).hex();
+			if (track_hash == track_ref)
 				return 0; // equal hashes means no changes, so no need to update the index
+			track_buffer.clear();
+			track_buffer.seekg(0);
 
 			std::string index_ref;
 			auris::db::file::Index index;
-			if (mapfile::maybe_read((repo/"refs"/"tracks").c_str(), index_ref)) {
-				std::ifstream index_ifs((repo/"objects"/index_ref).c_str());
-				if (!index_ifs.good())
-					throw std::runtime_error("index '" + index_ref + "' pointed to by refs/tracks does not exist");
-				index.read(index_ifs);
+			if (mapfile::maybe_read(dbs.ref("index").path.c_str(), index_ref)) {
+				std::ifstream f(dbs.object(index_ref).path.c_str());
+				if (!f.good())
+					throw std::runtime_error("index does not exist");
+
+				db::file::Object index_object;
+				index_object.read(f);
+				if (index_object.type != "index")
+					throw std::runtime_error("object " + nice_hash(index_ref) + " is not an index");
+
+				index.read(f);
 				index.base = index_ref;
 			}
 			index.date = auris::Date().str();
@@ -140,43 +159,28 @@ public:
 				return 1;
 			}
 			index.tracks.erase(it);
-			index.tracks.insert(new_hash);
+			index.tracks.insert(track_hash);
 
-			std::stringstream idx_buffer;
-			index.write(idx_buffer);
-			string idx_str = idx_buffer.str();
-			string idx_hash = auris::sha1().from_string(idx_str).hex();
+			db::file::Object index_object;
+			index_object.type = "index";
 
-			mapfile::write((repo/"objects"/new_hash).c_str(), new_str);
-			mapfile::write((repo/"objects"/idx_hash).c_str(), idx_str);
-			mapfile::write((repo/"refs"/"tracks").c_str(), idx_hash);
+			std::stringstream index_buffer;
+			index_object.write(index_buffer);
+			index.write(index_buffer);
+			string index_str = index_buffer.str();
+			string index_hash = auris::sha1().from_stream(index_buffer).hex();
+			index_buffer.clear();
+			index_buffer.seekg(0);
 
-			cout << "track: " << new_hash << '\n';
-			cout << "index: " << idx_hash << '\n';
+			mapfile::write(dbs.object(track_hash).prime().path.c_str(), track_buffer);
+			mapfile::write(dbs.object(index_hash).prime().path.c_str(), index_buffer);
+			mapfile::write(dbs.ref("index").prime().path.c_str(), index_hash);
+
+			cout << "track: " << track_hash << '\n';
+			cout << "index: " << index_hash << '\n';
 		}
 
 		return 0;
-	}
-
-private:
-	string resolve_refish(const string& in)
-	{
-		if (in.empty())
-			throw std::runtime_error("input reference empty");
-		if (in[0] != '.') {
-			if (fs::exists(repo/"objects"/in))
-				return in;
-			if (fs::exists(repo/"objects")) {
-				fs::directory_iterator it, end;
-				for (it = fs::directory_iterator(repo/"objects"); it != end; it++) {
-					fs::path p = (*it).path();
-					string n = p.filename().native();
-					if (n.size() >= in.size() && n.substr(0, in.size()) == in)
-						return n;
-				}
-			}
-		}
-		throw std::runtime_error("unknown reference " + in);
 	}
 };
 

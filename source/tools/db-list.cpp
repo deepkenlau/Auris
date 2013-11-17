@@ -2,6 +2,7 @@
 #include "Generic.hpp"
 
 #include <aux/mapfile.hpp>
+#include <db/file/Object.hpp>
 #include <db/file/Index.hpp>
 
 #include <string>
@@ -26,10 +27,19 @@ public:
 	int main()
 	{
 		string index_ref;
-		auris::db::file::Index index;
-		if (!mapfile::maybe_read((repo/"refs"/"tracks").c_str(), index_ref))
+		if (!mapfile::maybe_read(dbs.ref("index").path.c_str(), index_ref))
 			return 0;
-		std::ifstream index_ifs((repo/"objects"/index_ref).c_str());
+
+		std::ifstream index_ifs(dbs.object(index_ref).path.c_str());
+		if (!index_ifs.good())
+			throw std::runtime_error("index does not exist");
+		
+		db::file::Object index_object;
+		index_object.read(index_ifs);
+		if (index_object.type != "index")
+			throw std::runtime_error("object " + nice_hash(index_ref) + " is not an index");
+
+		db::file::Index index;
 		index.read(index_ifs);
 
 		cerr << "# index " << nice_hash(index_ref) << ", " << index.tracks.size() << " tracks\n";

@@ -4,8 +4,10 @@
 #include <common/sha1.hpp>
 #include <common/uuid.hpp>
 #include <common/Date.hpp>
+#include <db/file/Object.hpp>
 #include <db/file/Index.hpp>
 #include <db/file/Track.hpp>
+#include <aux/mapfile.hpp>
 
 #include <string>
 #include <vector>
@@ -15,6 +17,7 @@
 namespace auris {
 namespace tools {
 
+using namespace auris::aux;
 using std::string;
 using std::vector;
 using std::set;
@@ -56,27 +59,26 @@ public:
 	{
 		bool opt_import_duplicates = vm.count("duplicates");
 		int duplicates_skipped = 0; // increased for every duplicate that was skipped
+		bool index_modified = false; // set to true if the index was modified
 
-		// Useful paths
-		ensure_dir(repo);
-		ensure_dir(repo/"objects");
-		ensure_dir(repo/"refs");
+		// Read the index. If there is no current index (i.e. the repository is
+		// empty), simply do nothing and keep an empty index object.
+		db::file::Index index;
+		string orig_index_ref;
+		if (mapfile::maybe_read(dbs.ref("index").path.c_str(), orig_index_ref)) {
+			std::ifstream f(dbs.object(orig_index_ref).path.c_str());
+			if (!f.good())
+				throw std::runtime_error("index does not exist");
 
-		// Read the tracks ref if it exists and read the tracks list it points
-		// to. Otherwise create a new empty tracks list.
-		auris::db::file::Index tracks;
-		string tracks_ref;
-		fs::path tracks_ref_path = repo/"refs"/"tracks";
-		if (fs::exists(tracks_ref_path)) {
-			std::ifstream ftr(tracks_ref_path.c_str());
-			ftr >> tracks_ref;
+			db::file::Object index_object;
+			index_object.read(f);
+			if (index_object.type != "index")
+				throw std::runtime_error("object " + nice_hash(orig_index_ref) + " is not an index");
 
-			std::ifstream ft((repo/"objects"/tracks_ref).c_str());
-			tracks.read(ft);
+			index.read(f);
 		}
 
 		// Process each input file individually.
-		bool tracks_modified = false;
 		for (int i = 0; i < opt_files.size(); i++)
 		{
 			fs::path path(opt_files[i]);
@@ -85,64 +87,77 @@ public:
 				continue;
 			}
 
-			// Calculate the hash of the file to be added, skipping the file if
-			// it already exists in the library.
-			string file_hash = auris::sha1().from_file(path.c_str()).hex();
-			fs::path db_file_path = repo/"objects"/file_hash;
+			// Read the entire input file into a buffer. Calculate the file
+			// hash and rewind the buffer to the start of the file, since the
+			// hashing moves the cursor position to the file's end.
+			stringstream file_buffer;
+			mapfile::read(path.c_str(), file_buffer);
+			string file_hash = auris::sha1().from_stream(file_buffer).hex();
+			file_buffer.clear();
+			file_buffer.seekg(0);
 
-			if (!opt_import_duplicates && fs::exists(db_file_path)) {
+			if (!opt_import_duplicates && dbs.object(file_hash).exists()) {
 				duplicates_skipped++;
 				cerr << "skipping " << path.native() << " (duplicate)\n";
 				continue;
 			}
 
 			// Build the initial metadata entry.
-			auris::db::file::Track meta;
-			meta.id = auris::uuid::generate();
-			meta.md["Title"] = path.filename().native();
-			meta.md["Added"] = auris::Date().str();
-			meta.formats.insert(auris::db::file::Track::Format(file_hash, "", path.filename().native()));
-			stringstream meta_buffer;
-			meta.write(meta_buffer);
-			string metadata = meta_buffer.str();
+			auris::db::file::Track track;
+			track.id = auris::uuid::generate();
+			track.md["Title"] = path.filename().native();
+			track.md["Added"] = auris::Date().str();
+			track.formats.insert(auris::db::file::Track::Format(file_hash, "", path.filename().native()));
 
-			// Calculate the hash of the metadata to be added and write the
-			// data to tisk.
-			string meta_hash = auris::sha1().from_string(metadata).hex();
-			tracks.tracks.insert(meta_hash);
-			tracks_modified = true;
-			fs::path db_meta_path = repo/"objects"/meta_hash;
+			db::file::Object track_object;
+			track_object.type = "track";
 
-			if (!fs::exists(db_file_path)) fs::copy(path, db_file_path);
-			std::ofstream f(db_meta_path.c_str());
-			f << metadata;
-			f.close();
+			stringstream track_buffer;
+			track_object.write(track_buffer);
+			track.write(track_buffer);
+			string track_str = track_buffer.str();
+			string track_hash = auris::sha1().from_string(track_str).hex();
+
+			// Modify the index, write the file to 
+			index.tracks.insert(track_hash);
+			index_modified = true;
+
+			if (!dbs.object(file_hash).exists())
+			{
+				std::ofstream f(dbs.object(file_hash).prime().path.c_str());
+
+				db::file::Object file_object;
+				file_object.type = "blob";
+				file_object.write(f);
+				
+				std::copy(
+					std::istreambuf_iterator<char>(file_buffer),
+					std::istreambuf_iterator<char>(),
+					std::ostreambuf_iterator<char>(f));
+			}
+			mapfile::write(dbs.object(track_hash).prime().path.c_str(), track_str);
 
 			// Print a line showing what was added.
-			cout << nice_hash(meta_hash) << " " << meta.id << " " << path.native() << "\n";
+			cout << nice_hash(track_hash) << " " << track.id << " " << path.native() << "\n";
 		}
 
-		// Write the new tracks file.
-		if (tracks_modified) {
-			tracks.date = auris::Date().str();
-			tracks.base = tracks_ref;
-			stringstream tracks_stream;
-			tracks.write(tracks_stream);
-			string tracks_string = tracks_stream.str();
-			string tracks_hash = auris::sha1().from_string(tracks_string).hex();
+		// In case the index was modified, we need to write it to disk again.
+		if (index_modified) {
+			index.date = Date().str();
+			index.base = orig_index_ref;
 
-			if (tracks_hash != tracks_ref) {
-				std::ofstream ftracks((repo/"objects"/tracks_hash).c_str());
-				ftracks << tracks_string;
-				ftracks.close();
+			db::file::Object index_object;
+			index_object.type = "index";
 
-				std::ofstream ftr(tracks_ref_path.c_str());
-				ftr << tracks_hash << "\n";
-				ftr.close();
+			stringstream index_buffer;
+			index_object.write(index_buffer);
+			index.write(index_buffer);
+			string index_str = index_buffer.str();
+			string index_hash = auris::sha1().from_string(index_str).hex();
 
-				if (!tracks_ref.empty()) {
-					fs::remove(repo/"objects"/tracks_ref);
-				}
+			if (index_hash != orig_index_ref) {
+				mapfile::write(dbs.object(index_hash).prime().path.c_str(), index_str);
+				mapfile::write(dbs.ref("index").prime().path.c_str(), index_hash);
 			}
 		}
 
