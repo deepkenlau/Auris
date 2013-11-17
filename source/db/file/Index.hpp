@@ -26,8 +26,6 @@ public:
 	 */
 	void read(std::istream &is)
 	{
-		read_preamble(is, "index");
-
 		base.clear();
 		date.clear();
 		tracks.clear();
@@ -76,7 +74,6 @@ public:
 	{
 		if (date.empty()) throw std::runtime_error("index: missing date field");
 
-		os << "index\n";	
 		if (!base.empty()) write_value(os, "Base", base);
 		write_value(os, "Date", date);
 		os.put('\n');

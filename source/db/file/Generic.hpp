@@ -98,22 +98,6 @@ protected:
 
 		return true;
 	}
-
-	void read_preamble(std::istream &is, const char *str)
-	{
-		const char *ptr = str;
-		while (is.good()) {
-			int c = is.get();
-			if (*ptr == 0 && c == '\n')
-				return;
-			if (c != *ptr)
-				break;
-			ptr++;
-		}
-		std::stringstream s;
-		s << "preamble of file not \"" << str << "\" as expected";
-		throw std::runtime_error(s.str());
-	}
 };
 
 } // namespace file
