@@ -1,6 +1,7 @@
 /* Copyright (c) 2013 Fabian Schuiki */
 #pragma once
 #include "Generic.hpp"
+#include "readwrite.hpp"
 #include <string>
 #include <set>
 #include <map>

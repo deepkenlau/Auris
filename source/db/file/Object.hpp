@@ -1,5 +1,6 @@
 /* Copyright (c) 2013 Fabian Schuiki */
 #pragma once
+#include "Generic.hpp"
 #include <iostream>
 #include <sstream>
 
@@ -10,7 +11,7 @@ namespace file {
 /**
  * @brief Reads and writes an object's preamble.
  */
-class Object
+class Object : public Generic
 {
 public:
 	std::string type;
