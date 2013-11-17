@@ -49,6 +49,8 @@ public:
 	 */
 	void read(std::istream &is)
 	{
+		if (!is.good())
+			throw std::runtime_error("cannot read track file, input stream invalid");
 		id.clear();
 		md.clear();
 		formats.clear();

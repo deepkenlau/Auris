@@ -26,6 +26,8 @@ public:
 	 */
 	void read(std::istream &is)
 	{
+		if (!is.good())
+			throw std::runtime_error("cannot read index file, input stream invalid");
 		base.clear();
 		date.clear();
 		tracks.clear();
