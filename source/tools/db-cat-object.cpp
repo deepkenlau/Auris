@@ -1,6 +1,7 @@
 /* Copyright (c) 2013 Fabian Schuiki */
 #include "Generic.hpp"
 #include <aux/mapfile.hpp>
+#include <db/file/Object.hpp>
 #include <string>
 #include <fstream>
 #include <sstream>
@@ -54,19 +55,11 @@ public:
 			return 3;
 		}
 
-		std::stringstream header_buffer;
-		while (fobj.peek() != 0) {
-			int c = fobj.get();
-			if (!fobj.good()) {
-				cerr << "premature end of stream within object header\n";
-				return 4;
-			}
-			header_buffer.put(c);
-		}
-		fobj.get(); // skip the 0 byte
+		auris::db::file::Object object;
+		object.read(fobj);
 
 		if (opt_type) {
-			cout << header_buffer.str() << '\n';
+			cout << object.type << '\n';
 			return 0;
 		}
 

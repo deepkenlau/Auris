@@ -1,6 +1,7 @@
 /* Copyright (c) 2013 Fabian Schuiki */
 #include "Generic.hpp"
 #include <common/sha1.hpp>
+#include <db/file/Object.hpp>
 #include <aux/mapfile.hpp>
 #include <string>
 
@@ -42,8 +43,9 @@ public:
 		}
 
 		std::stringstream buffer;
-		buffer << opt_type;
-		buffer.put(0);
+		auris::db::file::Object object;
+		object.type = opt_type;
+		object.write(buffer);
 
 		if (opt_stdin) {
 			std::copy(
