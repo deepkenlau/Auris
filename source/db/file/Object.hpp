@@ -42,6 +42,8 @@ public:
 	 */
 	void write(std::ostream &os)
 	{
+		if (type.empty())
+			throw std::runtime_error("no type set for object");
 		os << type;
 		os.put(0);
 	}
