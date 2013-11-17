@@ -10,7 +10,6 @@
 #include <string>
 #include <vector>
 #include <sstream>
-#include <ctime>
 #include <set>
 
 namespace auris {
@@ -36,8 +35,7 @@ public:
 	{
 		po::options_description parameters("Parameters");
 		parameters.add_options()
-			("duplicates,d", "import duplicate files")
-			("list,l", "list tracks in database");
+			("duplicates,d", "import duplicate files");
 		options.add(parameters);
 
 		hidden_options.add_options()
@@ -57,7 +55,6 @@ public:
 	int main()
 	{
 		bool opt_import_duplicates = vm.count("duplicates");
-		bool opt_list = vm.count("list");
 		int duplicates_skipped = 0; // increased for every duplicate that was skipped
 
 		// Useful paths
@@ -77,15 +74,6 @@ public:
 
 			std::ifstream ft((dir/"objects"/tracks_ref).c_str());
 			tracks.read(ft);
-		}
-
-		// List all tracks and abort if so requested.
-		if (opt_list) {
-			cerr << "# index " << nice_hash(tracks_ref) << " (" << tracks.date << ")\n";
-			for (set<string>::const_iterator it = tracks.tracks.begin(); it != tracks.tracks.end(); it++) {
-				cout << nice_hash(*it) << "\n";
-			}
-			return 0;
 		}
 
 		// Process each input file individually.
