@@ -89,6 +89,7 @@ public:
 			}
 
 			// Call the subclass' main function.
+			repo = opt_repository;
 			return main();
 
 		} catch (std::exception &e) {
@@ -139,6 +140,8 @@ protected:
 	po::options_description options;
 	po::options_description hidden_options;
 	po::positional_options_description positional_options;
+
+	fs::path repo;
 
 	std::string nice_hash(const std::string& in)
 	{

@@ -58,21 +58,20 @@ public:
 		int duplicates_skipped = 0; // increased for every duplicate that was skipped
 
 		// Useful paths
-		fs::path dir = fs::path(opt_repository);
-		ensure_dir(dir);
-		ensure_dir(dir/"objects");
-		ensure_dir(dir/"refs");
+		ensure_dir(repo);
+		ensure_dir(repo/"objects");
+		ensure_dir(repo/"refs");
 
 		// Read the tracks ref if it exists and read the tracks list it points
 		// to. Otherwise create a new empty tracks list.
 		auris::db::file::Index tracks;
 		string tracks_ref;
-		fs::path tracks_ref_path = dir/"refs"/"tracks";
+		fs::path tracks_ref_path = repo/"refs"/"tracks";
 		if (fs::exists(tracks_ref_path)) {
 			std::ifstream ftr(tracks_ref_path.c_str());
 			ftr >> tracks_ref;
 
-			std::ifstream ft((dir/"objects"/tracks_ref).c_str());
+			std::ifstream ft((repo/"objects"/tracks_ref).c_str());
 			tracks.read(ft);
 		}
 
@@ -89,7 +88,7 @@ public:
 			// Calculate the hash of the file to be added, skipping the file if
 			// it already exists in the library.
 			string file_hash = auris::sha1().from_file(path.c_str()).hex();
-			fs::path db_file_path = dir/"objects"/file_hash;
+			fs::path db_file_path = repo/"objects"/file_hash;
 
 			if (!opt_import_duplicates && fs::exists(db_file_path)) {
 				duplicates_skipped++;
@@ -112,7 +111,7 @@ public:
 			string meta_hash = auris::sha1().from_string(metadata).hex();
 			tracks.tracks.insert(meta_hash);
 			tracks_modified = true;
-			fs::path db_meta_path = dir/"objects"/meta_hash;
+			fs::path db_meta_path = repo/"objects"/meta_hash;
 
 			if (!fs::exists(db_file_path)) fs::copy(path, db_file_path);
 			std::ofstream f(db_meta_path.c_str());
@@ -133,7 +132,7 @@ public:
 			string tracks_hash = auris::sha1().from_string(tracks_string).hex();
 
 			if (tracks_hash != tracks_ref) {
-				std::ofstream ftracks((dir/"objects"/tracks_hash).c_str());
+				std::ofstream ftracks((repo/"objects"/tracks_hash).c_str());
 				ftracks << tracks_string;
 				ftracks.close();
 
@@ -142,7 +141,7 @@ public:
 				ftr.close();
 
 				if (!tracks_ref.empty()) {
-					fs::remove(dir/"objects"/tracks_ref);
+					fs::remove(repo/"objects"/tracks_ref);
 				}
 			}
 		}

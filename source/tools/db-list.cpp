@@ -25,8 +25,6 @@ public:
 
 	int main()
 	{
-		fs::path repo = fs::path(opt_repository);
-
 		string index_ref;
 		auris::db::file::Index index;
 		if (!mapfile::maybe_read((repo/"refs"/"tracks").c_str(), index_ref))

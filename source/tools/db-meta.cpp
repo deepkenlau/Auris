@@ -23,7 +23,6 @@ using std::vector;
 class db_meta : public Generic
 {
 public:
-	fs::path repo;
 	string opt_track;
 	bool opt_only_metadata;
 	bool opt_only_formats;
@@ -49,7 +48,6 @@ public:
 
 	int main()
 	{
-		repo = opt_repository;
 		opt_only_metadata = vm.count("only-metadata");
 		opt_only_formats = vm.count("only-formats");
 		opt_fields.insert(opt_fields_vector.begin(), opt_fields_vector.end());
