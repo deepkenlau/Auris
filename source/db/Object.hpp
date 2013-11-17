@@ -1,6 +1,7 @@
 /* Copyright (c) 2013 Fabian Schuiki */
 #pragma once
 #include "file/Generic.hpp"
+#include "Structure.hpp"
 #include <common/sha1.hpp>
 #include <aux/mapfile.hpp>
 #include <string>
@@ -88,6 +89,96 @@ public:
 
 private:
 	std::stringstream internal_buffer; // in case the constructor does not provide a buffer
+};
+
+/**
+ * @brief Reads and writes Generic file T.
+ */
+template <class T> class ObjectBuffer : public T
+{
+public:
+	typedef ObjectBuffer<T> self;
+	const Structure &dbs;
+	std::string maintain_ref;
+	std::string hash_in, hash_out;
+
+	ObjectBuffer(const Structure &dbs):
+		dbs(dbs), reader(*this), writer(*this) {}
+	ObjectBuffer(const Structure &dbs, std::stringstream &write_buffer):
+		dbs(dbs), reader(*this), writer(*this, write_buffer) {}
+
+
+	bool maybe_read(const std::string &hash)
+	{
+		assert_unread();
+		hash_in = hash;
+		return reader.maybe_read(dbs.object(hash));
+	}
+
+	self& read(const std::string &hash)
+	{
+		assert_unread();
+		hash_in = hash;
+		reader.read(dbs.object(hash));
+		return *this;
+	}
+
+	bool maybe_ref(const std::string &ref)
+	{
+		maintain_ref = ref;
+		std::string hash;
+		if (!aux::mapfile::maybe_read(dbs.ref(ref).path.c_str(), hash))
+			return false;
+		read(hash);
+		return true;
+	}
+
+	self& ref(const std::string &ref)
+	{
+		assert_unread();
+		maintain_ref = ref;
+		std::string hash;
+		aux::mapfile::read(dbs.ref(ref).path.c_str(), hash);
+		read(hash);
+		return *this;
+	}
+
+	self& fill_buffer()
+	{
+		writer.fill_buffer();
+		hash_out = writer.hash;
+		return *this;
+	}
+
+	self& write()
+	{
+		assert_unwritten();
+		fill_buffer(); // won't do anything if already done so
+		if (hash_in == hash_out)
+			return *this; // equal hashes means no changes, so no need to write anything
+		writer.write(dbs);
+		if (!maintain_ref.empty())
+			aux::mapfile::write(dbs.ref(maintain_ref).prime().path.c_str(), writer.hash);
+		return *this;
+	}
+
+private:
+	ObjectReader reader;
+	ObjectWriter writer;
+
+	void assert_unread()
+	{
+		if (!hash_in.empty()) {
+			throw std::runtime_error("object has already been read from " + hash_in);
+		}
+	}
+
+	void assert_unwritten()
+	{
+		if (!writer.buffer.good()) {
+			throw std::runtime_error("object has already been written to " + hash_out);
+		}
+	}
 };
 
 } // namespace db
