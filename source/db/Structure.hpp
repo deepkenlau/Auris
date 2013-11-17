@@ -17,7 +17,8 @@ namespace fs = boost::filesystem;
 class Structure
 {
 public:
-	const fs::path dir;
+	fs::path dir;
+	Structure() {}
 	Structure(const fs::path& dir): dir(dir) {}
 
 	struct Object

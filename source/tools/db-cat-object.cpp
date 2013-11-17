@@ -39,16 +39,13 @@ public:
 
 	int main()
 	{
-		db::Structure dbs(repo);
-
 		bool opt_type = vm.count("type");
 		if (opt_object.empty()) {
 			cerr << "no object specified\n";
 			return 1;
 		}
 
-		db::Structure::Object obj = dbs.object(dbs.resolve_name(opt_object));
-		std::ifstream fobj(obj.path.c_str());
+		std::ifstream fobj(dbs.object(dbs.resolve_name(opt_object)).path.c_str());
 		if (!fobj.good()) {
 			cerr << "cannot open object " << fobj << " for reading\n";
 			return 3;

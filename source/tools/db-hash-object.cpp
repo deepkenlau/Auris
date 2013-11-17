@@ -38,8 +38,6 @@ public:
 
 	int main()
 	{
-		db::Structure dbs(repo);
-
 		bool opt_stdin = vm.count("stdin");
 		bool opt_write = vm.count("write");
 		if (opt_file.empty() && !opt_stdin) {

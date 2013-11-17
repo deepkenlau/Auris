@@ -1,6 +1,7 @@
 /* Copyright (c) 2013 Fabian Schuiki */
 #include <boost/program_options.hpp>
 #include <boost/filesystem.hpp>
+#include <db/Structure.hpp>
 #include <iostream>
 #include <string>
 
@@ -90,6 +91,7 @@ public:
 
 			// Call the subclass' main function.
 			repo = opt_repository;
+			dbs = db::Structure(repo);
 			return main();
 
 		} catch (std::exception &e) {
@@ -142,6 +144,7 @@ protected:
 	po::positional_options_description positional_options;
 
 	fs::path repo;
+	db::Structure dbs;
 
 	std::string nice_hash(const std::string& in)
 	{
