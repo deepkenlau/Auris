@@ -66,14 +66,14 @@ public:
 			return 2;
 		}
 
-		db::file::Track track;
-		db::ObjectReader track_reader(track);
-		track_reader.maybe_read(dbs.object(dbs.resolve_name(opt_track)));
+		// Read the track specified by the user.
+		db::ObjectBuffer<db::file::Track> track(dbs);
+		track.read(dbs.resolve_name(opt_track));
 
 		// Display mode, in case no fields are to be set or deleted.
 		if (opt_set_fields.empty() && opt_delete_fields.empty())
 		{
-			cerr << "# track " << nice_hash(track_reader.hash) << " (" << track.formats.size() << " formats)\n";
+			cerr << "# track " << nice_hash(track.hash_in) << " (" << track.formats.size() << " formats)\n";
 			if (!opt_only_formats) {
 				if (opt_fields.empty() || opt_fields.count("Id")) {
 					cout << "Id: " << track.id << '\n';
@@ -113,49 +113,35 @@ public:
 				track.md[(*it).substr(0,sep)] = (*it).substr(sep+1);
 			}
 
-			// Buffer and hash the new track object. It is necessary to call
-			// fill_buffer() right away, since the modification of the index
-			// that follows further down requires the track's new hash.
-			db::ObjectWriter track_writer(track);
-			track_writer.fill_buffer();
-			if (track_writer.hash == track_reader.hash)
-				return 0; // equal hashes means no changes, so no need to update the index
+			// Call fill_buffer() right away, since the modification of the
+			// index that follows further down requires the track's new hash.
+			track.fill_buffer();
+			if (track.hash_in == track.hash_out)
+				return 0;
 
-			std::string index_ref;
-			auris::db::file::Index index;
-			if (mapfile::maybe_read(dbs.ref("index").path.c_str(), index_ref)) {
-				std::ifstream f(dbs.object(index_ref).path.c_str());
-				if (!f.good())
-					throw std::runtime_error("index does not exist");
-				index.read(f);
-				index.base = index_ref;
-			}
-			index.date = auris::Date().str();
+			// Read the current index, pointed to by refs/index. The
+			// ObjectBuffer will ensure that the ref is being updated whenever
+			// a new version of the index is written to disk.
+			db::ObjectBuffer<db::file::Index> index(dbs);
+			index.maybe_ref("index"); // maybe_* since refs/index might not exist
+			index.base = index.hash_in;
+			index.date = Date().str();
 
-			set<string>::iterator it = index.tracks.find(track_reader.hash);
+			set<string>::iterator it = index.tracks.find(track.hash_in);
 			if (it == index.tracks.end()) {
-				if (index_ref.empty()) {
-					cerr << "no index in place";
-				} else {
-					cerr << "index " << nice_hash(index_ref) << " does not contain track " << opt_track << '\n';
-				}
+				cerr << "track " + nice_hash(track.hash_in) + " is not in the index\n";
 				return 1;
 			}
 			index.tracks.erase(it);
-			index.tracks.insert(track_writer.hash);
+			index.tracks.insert(track.hash_out);
 
-			// Write the track and index to disk. If given a db::Structure, the
-			// write() function of db::ObjectWriter automatically queries it
-			// for a path to the buffered object through its hash. The path is
-			// primed internally, i.e. the directories are created for us.
-			db::ObjectWriter index_writer(index);
+			// Write the track and index to disk. index.write() will also cause
+			// refs/index to be updated due to the maybe_ref() call at the top.
+			track.write();
+			index.write();
 
-			track_writer.write(dbs);
-			index_writer.write(dbs);
-			mapfile::write(dbs.ref("index").prime().path.c_str(), index_writer.hash);
-
-			cout << "track: " << track_writer.hash << '\n';
-			cout << "index: " << index_writer.hash << '\n';
+			cout << "track: " << track.hash_out << '\n';
+			cout << "index: " << index.hash_out << '\n';
 		}
 
 		return 0;
