@@ -10,7 +10,47 @@ namespace auris {
 namespace db {
 
 /**
- * @brief Writes a Generic file to a buffer and calculates the hash.
+ * @brief Reads a Generic file from disk.
+ */
+class ObjectReader
+{
+public:
+	file::Generic &object;
+	std::string hash;
+
+	explicit ObjectReader(file::Generic &object): object(object) {}
+
+	bool maybe_read(const char* path, const std::string& hash = "")
+	{
+		this->hash = hash;
+		std::ifstream f(path);
+
+		if (!f.good()) {
+			return false;
+		} else {
+			object.read(f);
+			return true;
+		}
+	}
+
+	bool maybe_read(const fs::path &path, const std::string& hash = "") { return maybe_read(path.c_str(), hash); }
+	bool maybe_read(Structure::Object dbso) { return maybe_read(dbso.path.c_str(), dbso.hash); }
+
+	ObjectReader& read(const char* path, const std::string& hash = "")
+	{
+		if (!maybe_read(path, hash)) {
+			throw std::runtime_error(std::string("object does not exist at ") + path);
+		}
+		return *this;
+	}
+
+	ObjectReader& read(const fs::path &path, const std::string& hash = "") { return read(path.c_str(), hash); }
+	ObjectReader& read(Structure::Object dbso) { return read(dbso.path.c_str(), dbso.hash); }
+};
+
+/**
+ * @brief Writes a Generic file to a buffer, calculates the hash and writes the
+ * file to disk.
  */
 class ObjectWriter
 {
@@ -32,6 +72,8 @@ public:
 		
 		buffer.clear();
 		buffer.seekg(0);
+
+		return *this;
 	}
 
 	ObjectWriter& write(const char* path)
