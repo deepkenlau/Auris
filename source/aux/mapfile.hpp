@@ -1,5 +1,6 @@
 /* Copyright (c) 2013 Fabian Schuiki */
 #pragma once
+#include "trim.hpp"
 #include <iostream>
 #include <fstream>
 #include <sstream>
@@ -20,7 +21,7 @@ public:
 		std::ifstream is(path);
 		if (!is.good())
 			return false;
-		std::copy(std::istream_iterator<char>(is), std::istream_iterator<char>(), std::ostream_iterator<char>(os));
+		std::copy(std::istreambuf_iterator<char>(is), std::istreambuf_iterator<char>(), std::ostreambuf_iterator<char>(os));
 		return true;
 	}
 
@@ -29,7 +30,8 @@ public:
 		std::ifstream is(path);
 		if (!is.good())
 			return false;
-		str.assign(std::istream_iterator<char>(is), std::istream_iterator<char>());
+		str.assign(std::istreambuf_iterator<char>(is), std::istreambuf_iterator<char>());
+		trim(str, "\n\t\r ");
 		return true;
 	}
 
@@ -45,18 +47,19 @@ public:
 			throw std::runtime_error("unable to open file for reading");
 	}
 
+
 	static bool maybe_write(const char* path, std::istream &is)
 	{
 		std::ofstream os(path);
 		if (!os.good())
 			return false;
-		std::copy(std::istream_iterator<char>(is), std::istream_iterator<char>(), std::ostream_iterator<char>(os));
+		std::copy(std::istreambuf_iterator<char>(is), std::istreambuf_iterator<char>(), std::ostreambuf_iterator<char>(os));
 		return true;
 	}
 
 	static bool maybe_write(const char* path, const std::string &str)
 	{
-		std::stringstream is(str);
+		std::stringstream is(*(str.end()-1) == '\n' ? str : str + '\n');
 		return maybe_write(path, is);
 	}
 
