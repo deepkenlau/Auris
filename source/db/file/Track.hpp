@@ -117,7 +117,7 @@ public:
 				on_buffer.put(c);
 			}
 			is.get(); // skip newline
-			is.peek(); // causes the flags to indicate an EOF such that the loop terminates properly
+			is.peek(); // checks for EOF such that the loop terminates properly
 
 			formats.insert(Format(br_buffer.str(), fmt_buffer.str(), on_buffer.str()));
 		}
