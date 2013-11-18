@@ -98,7 +98,7 @@ public:
 
 			// Build the initial metadata entry.
 			auris::db::file::Track track;
-			track.id = auris::uuid::generate();
+			track.id = sha1().from_string(auris::uuid::generate()).hex();
 			track.md["Title"] = path.filename().native();
 			track.md["Added"] = auris::Date().str();
 			track.formats.insert(auris::db::file::Track::Format(file_hash, "", path.filename().native()));
@@ -129,7 +129,7 @@ public:
 			mapfile::write(dbs.object(track_hash).prime().path.c_str(), track_buffer);
 
 			// Print a line showing what was added.
-			cout << track.id << ' ' << nice_hash(track_hash) << ' ' << path.native() << "\n";
+			cout << track.id << ' ' << nice_hash(track_hash) << '\n';
 		}
 
 		// In case the index was modified, we need to write it to disk again.
