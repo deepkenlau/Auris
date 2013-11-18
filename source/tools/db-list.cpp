@@ -1,9 +1,8 @@
 /* Copyright (c) 2013 Fabian Schuiki */
 #include "Generic.hpp"
 
-#include <aux/mapfile.hpp>
-#include <db/file/Object.hpp>
 #include <db/file/Index.hpp>
+#include <db/Object.hpp>
 
 #include <string>
 #include <set>
@@ -26,17 +25,10 @@ public:
 
 	int main()
 	{
-		string index_ref;
-		if (!mapfile::maybe_read(dbs.ref("index").path.c_str(), index_ref))
-			return 0;
+		db::ObjectBuffer<db::file::Index> index(dbs);
+		index.maybe_ref("index");
 
-		std::ifstream index_ifs(dbs.object(index_ref).path.c_str());
-		if (!index_ifs.good())
-			throw std::runtime_error("index does not exist");
-		db::file::Index index;
-		index.read(index_ifs);
-
-		cerr << "# index " << nice_hash(index_ref) << ", " << index.tracks.size() << " tracks\n";
+		cerr << "# index " << nice_hash(index.hash_in) << ", " << index.tracks.size() << " tracks\n";
 		cerr << "# changed on " << index.date << '\n';
 		for (set<string>::const_iterator it = index.tracks.begin(); it != index.tracks.end(); it++) {
 			cout << nice_hash(*it) << '\n';
