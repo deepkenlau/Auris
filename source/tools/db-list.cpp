@@ -5,14 +5,14 @@
 #include <db/Object.hpp>
 
 #include <string>
-#include <set>
+#include <map>
 
 namespace auris {
 namespace tools {
 
 using namespace auris::aux;
 using std::string;
-using std::set;
+using std::map;
 
 /**
  * @brief Tool that adds files to the database.
@@ -30,8 +30,8 @@ public:
 
 		cerr << "# index " << nice_hash(index.hash_in) << ", " << index.tracks.size() << " tracks\n";
 		cerr << "# changed on " << index.date << '\n';
-		for (set<string>::const_iterator it = index.tracks.begin(); it != index.tracks.end(); it++) {
-			cout << nice_hash(*it) << '\n';
+		for (map<string, string>::const_iterator it = index.tracks.begin(); it != index.tracks.end(); it++) {
+			cout << it->first << ' ' << nice_hash(it->second) << '\n';
 		}
 		
 		return 0;

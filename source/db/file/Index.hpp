@@ -2,7 +2,7 @@
 #pragma once
 #include "Generic.hpp"
 #include "readwrite.hpp"
-#include <set>
+#include <map>
 #include <string>
 
 namespace auris {
@@ -10,7 +10,7 @@ namespace db {
 namespace file {
 
 using std::string;
-using std::set;
+using std::map;
 
 /**
  * @brief Index file listing the tracks of a database.
@@ -20,7 +20,7 @@ class Index : public Generic
 public:
 	string base;
 	string date;
-	set<string> tracks;
+	map<string, string> tracks;
 
 	/**
 	 * @brief Reads the index from an input stream.
@@ -55,18 +55,35 @@ public:
 		// a buffer which is added as a track listing as soon as a '\n' is
 		// encountered. The additional 'empty' flag makes sure no empty lines
 		// are added (e.g. the newline separating fields and this list).
-		std::stringstream buffer;
+
 		bool empty = true;
 		while (is.good()) {
-			int c = is.get();
-			if (c == '\n') {
-				if (!empty)
-					tracks.insert(buffer.str());
-				buffer.str("");
-			} else {
-				empty = false;
-				buffer.put(c);
+			if (is.peek() == '\n') {
+				is.get();
+				continue;
 			}
+			std::stringstream id_buffer, hash_buffer;
+
+			// Read the id.
+			while (is.peek() != ' ') {
+				int c = is.get();
+				if (c == '\n')
+					throw std::runtime_error("input contains garbage line '" + id_buffer.str() + "'");
+				if (!is.good())
+					throw std::runtime_error("unexpected end of file, within id field of track, after '" + id_buffer.str() + "'");
+				id_buffer.put(c);
+			}
+			is.get(); // skip whitespace
+
+			// Read the rest of the line.
+			while (is.peek() != '\n' && is.good()) {
+				int c = is.get();
+				hash_buffer.put(c);
+			}
+			is.get(); // skip newline
+			is.peek(); // checks for EOF such that the loop terminates properly
+
+			tracks[id_buffer.str()] = hash_buffer.str();
 		}
 	}
 
@@ -81,8 +98,8 @@ public:
 		if (!base.empty()) write_value(os, "Base", base);
 		write_value(os, "Date", date);
 		os.put('\n');
-		for (set<string>::const_iterator it = tracks.begin(); it != tracks.end(); it++) {
-			os << *it << '\n';
+		for (map<string, string>::const_iterator it = tracks.begin(); it != tracks.end(); it++) {
+			os << it->first << " " << it->second << '\n';
 		}
 	}
 };

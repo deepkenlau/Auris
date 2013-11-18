@@ -110,7 +110,7 @@ public:
 			track_buffer.seekg(0);
 
 			// Modify the index, write the file to 
-			index.tracks.insert(track_hash);
+			index.tracks[track.id] = track_hash;
 			index_modified = true;
 
 			if (!dbs.object(file_hash).exists())
@@ -129,7 +129,7 @@ public:
 			mapfile::write(dbs.object(track_hash).prime().path.c_str(), track_buffer);
 
 			// Print a line showing what was added.
-			cout << nice_hash(track_hash) << " " << track.id << " " << path.native() << "\n";
+			cout << track.id << ' ' << nice_hash(track_hash) << ' ' << path.native() << "\n";
 		}
 
 		// In case the index was modified, we need to write it to disk again.

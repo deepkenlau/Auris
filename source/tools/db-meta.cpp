@@ -127,13 +127,12 @@ public:
 			index.base = index.hash_in;
 			index.date = Date().str();
 
-			set<string>::iterator it = index.tracks.find(track.hash_in);
-			if (it == index.tracks.end()) {
-				cerr << "track " + nice_hash(track.hash_in) + " is not in the index\n";
+			map<string, string>::iterator it = index.tracks.find(track.id);
+			if (it == index.tracks.end() || it->second != track.hash_in) {
+				cerr << "track " + track.id + " " + nice_hash(track.hash_in) + " is not in the index\n";
 				return 1;
 			}
-			index.tracks.erase(it);
-			index.tracks.insert(track.hash_out);
+			it->second = track.hash_out;
 
 			// Write the track and index to disk. index.write() will also cause
 			// refs/index to be updated due to the maybe_ref() call at the top.
