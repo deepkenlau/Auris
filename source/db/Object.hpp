@@ -81,6 +81,7 @@ public:
 	{
 		fill_buffer(); // fill the buffer if not already done
 		aux::mapfile::write(path, buffer);
+		return *this;
 	}
 
 	ObjectWriter& write(const fs::path &path) { return write(path.c_str()); }
