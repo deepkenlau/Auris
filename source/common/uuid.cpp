@@ -29,6 +29,8 @@ std::string uuid::generate()
 	uuid_generate_random(uuid);
 	char s[37];
 	uuid_unparse(uuid, s);
+	for (char *p = s; *p; p++)
+		*p = tolower(*p);
 	return s;
 }
 #endif
