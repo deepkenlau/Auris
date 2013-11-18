@@ -1,5 +1,6 @@
 /* Copyright (c) 2013 Fabian Schuiki */
 #pragma once
+#include "Object.hpp" // for preamble
 #include <iostream>
 #include <sstream>
 
