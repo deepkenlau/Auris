@@ -135,7 +135,7 @@ public:
 		// In case the index was modified, we need to write it to disk again.
 		if (index_modified) {
 			index.date = Date().str();
-			index.base = orig_index_ref;
+			index.parent = orig_index_ref;
 
 			stringstream index_buffer;
 			index.write(index_buffer);

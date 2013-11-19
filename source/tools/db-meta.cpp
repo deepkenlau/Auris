@@ -73,15 +73,18 @@ public:
 		// Display mode, in case no fields are to be set or deleted.
 		if (opt_set_fields.empty() && opt_delete_fields.empty())
 		{
+			const int fw = 10;
 			cerr << "# track " << nice_hash(track.hash_in) << " (" << track.formats.size() << " formats)\n";
 			if (!opt_only_formats) {
-				if (opt_fields.empty() || opt_fields.count("Id")) {
-					cout << "Id: " << track.id << '\n';
+				if (opt_fields.empty() || opt_fields.count("id")) {
+					cout.width(fw);
+					cout << std::left << "id:" << ' ' << track.id << '\n';
 				}
 				for (map<string,string>::const_iterator it = track.md.begin(); it != track.md.end(); it++) {
 					if (!opt_fields.empty() && !opt_fields.count(it->first))
 						continue; // if field filter is set, skip fields it does not name
-					cout << it->first << ": " << it->second << '\n';
+					cout.width(fw);
+					cout << std::left << (it->first + ":") << ' ' << it->second << '\n';
 				}
 			}
 
@@ -92,8 +95,8 @@ public:
 				for (set<auris::db::file::Track::Format>::const_iterator it = track.formats.begin(); it != track.formats.end(); it++) {
 					cout << nice_hash((*it).blob_ref);
 					if (!(*it).format.empty())
-						cout << "  <" << (*it).format << '>';
-					cout << "  " << (*it).orig_name << '\n';
+						cout << " <" << (*it).format << '>';
+					cout << " " << (*it).orig_name << '\n';
 				}
 			}
 		}
@@ -124,7 +127,7 @@ public:
 			// a new version of the index is written to disk.
 			db::ObjectBuffer<db::file::Index> index(dbs);
 			index.maybe_ref("index"); // maybe_* since refs/index might not exist
-			index.base = index.hash_in;
+			index.parent = index.hash_in;
 			index.date = Date().str();
 
 			map<string, string>::iterator it = index.tracks.find(track.id);

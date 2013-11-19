@@ -10,7 +10,7 @@ namespace file {
 
 template <typename N> void write_stream(std::ostream &os, const N &name, std::istream &value)
 {
-	os << name << ": ";
+	os << name << ' ';
 	while (value.good()) {
 		int c = value.get();
 		if (!value.good())
@@ -34,23 +34,22 @@ inline bool read_stream(std::istream &is, std::ostream &name, std::ostream &valu
 	if (!is.good() || is.peek() == '\n')
 		return false;
 
-	// Read into the name buffer, looking for the ":" separator.
+	// Read into the name buffer, looking for the " " separator.
 	while (is.good()) {
 		int c = is.get();
-		if (c == ':') {
-			if (is.peek() == ' ')
-				is.get();
+		if (c < 0)
+			throw std::runtime_error("line read is not a valid field (unexpected end of stream)");
+		if (c == ' ')
 			break;
-		}
-		if (c == '\n') {
-			throw std::runtime_error("line read is not a valid field (missing ':')");
-		}
+		if (c == '\n')
+			throw std::runtime_error("line read is not a valid field (unexpected end of line)");
 		name.put(c);
 	}
 
 	// Read into the value buffer.
 	while (is.good()) {
 		int c = is.get();
+		if (c < 0) break;
 		if (c == '\n') {
 			if (is.peek() == ' ') {
 				is.get();

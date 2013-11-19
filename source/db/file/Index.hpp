@@ -18,7 +18,7 @@ using std::map;
 class Index : public Generic
 {
 public:
-	string base;
+	string parent;
 	string date;
 	map<string, string> tracks;
 
@@ -29,7 +29,7 @@ public:
 	{
 		read_preamble(is, "index");
 		
-		base.clear();
+		parent.clear();
 		date.clear();
 		tracks.clear();
 
@@ -39,12 +39,12 @@ public:
 		// an exception for unknown fields.
 		string name, value;
 		while (read_value(is, name, value)) {
-			if (name == "Date") {
+			if (name == "date") {
 				date = value;
 				continue;
 			}
-			if (name == "Base") {
-				base = value;
+			if (name == "parent") {
+				parent = value;
 				continue;
 			}
 			throw std::runtime_error("unknown field \"" + value + "\"");
@@ -92,11 +92,11 @@ public:
 	 */
 	void write(std::ostream &os)
 	{
-		if (date.empty()) throw std::runtime_error("index: missing date field");
+		if (date.empty()) throw std::runtime_error("index: missing 'date' field");
 
 		write_preamble(os, "index");
-		if (!base.empty()) write_value(os, "Base", base);
-		write_value(os, "Date", date);
+		if (!parent.empty()) write_value(os, "parent", parent);
+		write_value(os, "date", date);
 		os.put('\n');
 		for (map<string, string>::const_iterator it = tracks.begin(); it != tracks.end(); it++) {
 			os << it->first << " " << it->second << '\n';

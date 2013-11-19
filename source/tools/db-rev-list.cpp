@@ -37,7 +37,7 @@ public:
 			db::ObjectBuffer<db::file::Index> index(dbs);
 			index.read(hash);
 			cout << hash << '\n';
-			hash = index.base;
+			hash = index.parent;
 		}
 
 		return 0;

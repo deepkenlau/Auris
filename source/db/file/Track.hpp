@@ -62,7 +62,7 @@ public:
 		// are stored in the 'md' member.
 		string name, value;
 		while (read_value(is, name, value)) {
-			if (name == "Id") {
+			if (name == "id") {
 				id = value;
 			} else {
 				md[name] = value;
@@ -131,7 +131,7 @@ public:
 		if (id.empty())	throw std::runtime_error("track: missing 'id' field");
 
 		write_preamble(os, "track");
-		write_value(os, "Id", id);
+		write_value(os, "id", id);
 		for (map<string,string>::const_iterator it = md.begin(); it != md.end(); it++) {
 			write_value(os, it->first, it->second);
 		}
