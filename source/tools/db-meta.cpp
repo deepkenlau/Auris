@@ -66,9 +66,28 @@ public:
 			return 2;
 		}
 
+		// Load the index as it is used by the name resolver and the rest of
+		// the tool in case of a track modification.
+		db::ObjectBuffer<db::file::Index> index(dbs);
+		index.maybe_ref("index"); // maybe_* since refs/index might not exist
+
+		// Resolve the given track name. First attempt to find a track id that
+		// has the requested name as a prefix. If none is found, try the
+		// regular structure-based resolution that looks for object hashes that
+		// match the input.
+		string resolved_name;
+		map<string,string>::const_iterator it = index.tracks.lower_bound(opt_track);
+		if (it != index.tracks.end()
+			&& it->first.size() >= opt_track.size()
+			&& it->first.substr(0, opt_track.size()) == opt_track) {
+			resolved_name = it->second;
+		} else {
+			resolved_name = dbs.resolve_name(opt_track);
+		}
+
 		// Read the track specified by the user.
 		db::ObjectBuffer<db::file::Track> track(dbs);
-		track.read(dbs.resolve_name(opt_track));
+		track.read(resolved_name);
 
 		// Display mode, in case no fields are to be set or deleted.
 		if (opt_set_fields.empty() && opt_delete_fields.empty())
@@ -122,11 +141,8 @@ public:
 			if (track.hash_in == track.hash_out)
 				return 0;
 
-			// Read the current index, pointed to by refs/index. The
-			// ObjectBuffer will ensure that the ref is being updated whenever
-			// a new version of the index is written to disk.
-			db::ObjectBuffer<db::file::Index> index(dbs);
-			index.maybe_ref("index"); // maybe_* since refs/index might not exist
+			// Adjust the index such that a new revision is created, pointing
+			// back to its current state on disk.
 			index.parent = index.hash_in;
 			index.date = Date().str();
 
