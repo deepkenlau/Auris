@@ -96,12 +96,13 @@ public:
 			is.get(); // skip whitespace
 
 			// Read the format field, delimited by a double hyphen and a space ('-- ').
-			int ctmp[2] = {0,0};
-			while (ctmp[0] != '-' || ctmp[1] != '-' || is.peek() != ' ') {
+			int ctmp[3] = {0, 0,0};
+			while (ctmp[0] != ' ' || ctmp[1] != '-' || ctmp[2] != '-' || is.peek() != ' ') {
 				int c = is.get();
 				int bc = ctmp[0]; // character that will move into buffer
 				ctmp[0] = ctmp[1];
-				ctmp[1] = c;
+				ctmp[1] = ctmp[2];
+				ctmp[2] = c;
 				if (c == '\n')
 					throw std::runtime_error("track: input contains malformatted line, after '" + fmt_buffer.str() + "'");
 				if (!is.good())
