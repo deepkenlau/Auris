@@ -28,22 +28,22 @@ public:
 	 * This structure is used to capture the different blobs listed within a
 	 * track file.
 	 */
-	class Format
+	class Blob
 	{
 	public:
 		string blob_ref;
 		string format;
 		string orig_name;
 
-		Format(const string &br, const string &fmt, const string &on):
+		Blob(const string &br, const string &fmt, const string &on):
 			blob_ref(br), format(fmt), orig_name(on) {}
 
-		bool operator< (const Format &f) const { return blob_ref < f.blob_ref; }
+		bool operator< (const Blob &f) const { return blob_ref < f.blob_ref; }
 	};
 
 	string id;
 	map<string,string> md; // metadata
-	set<Format> formats;
+	set<Blob> blobs;
 
 	/**
 	 * @brief Reads the track from an input stream.
@@ -54,7 +54,7 @@ public:
 		
 		id.clear();
 		md.clear();
-		formats.clear();
+		blobs.clear();
 
 		// Read the fields. The read_value function will read fields until a
 		// newline has been encountered. The field 'Id' is stored separately in
@@ -69,14 +69,14 @@ public:
 			}
 		}
 
-		// Reads the formats. Separated by a newline, the track file lists its
-		// different formats. First, the blob reference (hash) is read until a
+		// Reads the blobs. Separated by a newline, the track file lists its
+		// different blobs. First, the blob reference (hash) is read until a
 		// space (' ') is encountered (which is then skipped). Second, the
 		// format field describing the encoding of the data is read until the
 		// double hyphen separator ('--') is encountered. Third, the rest of
 		// the line is read into the original name field which represents the
 		// name of the file when it was added (as a hint). Finally, the format
-		// is wrapped up and added to the 'formats' member set.
+		// is wrapped up and added to the 'blobs' member set.
 		while (is.good()) {
 			if (is.peek() == '\n') {
 				is.get();
@@ -119,7 +119,7 @@ public:
 			is.get(); // skip newline
 			is.peek(); // checks for EOF such that the loop terminates properly
 
-			formats.insert(Format(br_buffer.str(), fmt_buffer.str(), on_buffer.str()));
+			blobs.insert(Blob(br_buffer.str(), fmt_buffer.str(), on_buffer.str()));
 		}
 	}
 
@@ -136,7 +136,7 @@ public:
 			write_value(os, it->first, it->second);
 		}
 		os.put('\n');
-		for (set<Format>::const_iterator it = formats.begin(); it != formats.end(); it++) {
+		for (set<Blob>::const_iterator it = blobs.begin(); it != blobs.end(); it++) {
 			os << (*it).blob_ref;
 			if (!(*it).format.empty())
 				os << ' ' << (*it).format;

@@ -101,7 +101,7 @@ public:
 			track.id = sha1().from_string(auris::uuid::generate()).hex();
 			track.md["Title"] = path.filename().native();
 			track.md["Added"] = auris::Date().str();
-			track.formats.insert(auris::db::file::Track::Format(file_hash, "", path.filename().native()));
+			track.blobs.insert(auris::db::file::Track::Blob(file_hash, "", path.filename().native()));
 
 			stringstream track_buffer;
 			track.write(track_buffer);
