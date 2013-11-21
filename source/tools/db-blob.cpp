@@ -35,7 +35,6 @@ public:
 	string opt_format;
 	string opt_name;
 	string opt_add;
-	string opt_delete;
 
 	db_blob(int argc, char **argv): Generic(argc, argv) {}
 	const char* usage_string() const { return "<track> [<blob>]"; }
@@ -48,7 +47,7 @@ public:
 			("format,f", po::value<string>(&opt_format), "change the format string of the blob")
 			("name,n", po::value<string>(&opt_name), "change the original name hint of the blob")
 			("add,a", po::value<string>(&opt_add), "add the given file to the track")
-			("delete,d", po::value<string>(&opt_delete), "delete the given blob from the track");
+			("delete,d", "delete the blob from the track");
 		options.add(parameters);
 
 		hidden_options.add_options()
@@ -108,11 +107,8 @@ public:
 
 		if (opt_list) {
 			for (set<db::file::Track::Blob>::const_iterator it = track.blobs.begin(); it != track.blobs.end(); it++) {
-				cout << nice_hash((*it).blob_ref);
-				if (!(*it).format.empty())
-					cout << ' ' << (*it).format;
-				if (!(*it).orig_name.empty())
-					cout << " -- " << (*it).orig_name << '\n';
+				print_blob(cout, *it);
+				cout << '\n';
 			}
 			return 0;
 		}
@@ -128,8 +124,42 @@ public:
 			track_modified = true;
 		}
 		if (vm.count("add")) {
-			cout << "would now add blob " << opt_add << " (format " << opt_format << ", orig_name " << opt_name << ")\n";
+			fs::path path(opt_add);
+			if (!fs::exists(path)) {
+				cerr << path << " does not exist\n";
+				return 1;
+			}
+
+			std::stringstream file_buffer;
+			mapfile::read(path.c_str(), file_buffer);
+			string file_hash = sha1().from_stream(file_buffer).hex();
+			file_buffer.clear();
+			file_buffer.seekg(0);
+
+			for (set<db::file::Track::Blob>::const_iterator it = track.blobs.begin(); it != track.blobs.end(); it++) {
+				if ((*it).blob_ref == file_hash) {
+					cerr << "track already contains " << file_hash << '\n';
+					return 1;
+				}
+			}
+
+			db::file::Track::Blob blob(file_hash, "", path.filename().native());
+			if (vm.count("format")) blob.format = opt_format;
+			if (vm.count("name")) blob.orig_name = opt_name;
+			track.blobs.insert(blob);
+
+			std::ofstream f(dbs.object(file_hash).prime().path.c_str());
+			db::file::Object file_object;
+			file_object.type = "blob";
+			file_object.write(f);
+			std::copy(
+				std::istreambuf_iterator<char>(file_buffer),
+				std::istreambuf_iterator<char>(),
+				std::ostreambuf_iterator<char>(f));
+
 			track_modified = true;
+			cerr << "# + "; print_blob(cerr, blob); cerr << '\n';
+			cout << "blob " << file_hash << '\n';
 		}
 		if (!track_modified && (vm.count("format") || vm.count("name"))) {
 			if (blob == track.blobs.end()) {
@@ -170,11 +200,21 @@ public:
 			track.write();
 			index.write();
 
-			cout << "track: " << track.hash_out << '\n';
-			cout << "index: " << index.hash_out << '\n';
+			cout << "track " << track.hash_out << '\n';
+			cout << "index " << index.hash_out << '\n';
 		}
 
 		return 0;
+	}
+
+private:
+	void print_blob(std::ostream& o, const db::file::Track::Blob& b)
+	{
+		o << nice_hash(b.blob_ref);
+		if (!b.format.empty())
+			o << ' ' << b.format;
+		if (!b.orig_name.empty())
+			o << " -- " << b.orig_name;
 	}
 };
 
