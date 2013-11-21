@@ -99,8 +99,8 @@ public:
 			// Build the initial metadata entry.
 			auris::db::file::Track track;
 			track.id = sha1().from_string(auris::uuid::generate()).hex();
-			track.md["Title"] = path.filename().native();
-			track.md["Added"] = auris::Date().str();
+			track.md["title"] = path.filename().native();
+			track.md["added"] = auris::Date().str();
 			track.blobs.insert(auris::db::file::Track::Blob(file_hash, "", path.filename().native()));
 
 			stringstream track_buffer;
