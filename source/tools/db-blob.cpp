@@ -131,7 +131,11 @@ public:
 			cout << "would now add blob " << opt_add << " (format " << opt_format << ", orig_name " << opt_name << ")\n";
 			track_modified = true;
 		}
-		if (!track_modified) {
+		if (!track_modified && (vm.count("format") || vm.count("name"))) {
+			if (blob == track.blobs.end()) {
+				cerr << "no blob specified to be modified\n";
+				return 1;
+			}
 			db::file::Track::Blob b = *blob;
 			if (vm.count("format")) {
 				b.format = opt_format;
