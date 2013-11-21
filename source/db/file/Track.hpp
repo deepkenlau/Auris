@@ -88,7 +88,7 @@ public:
 			while (is.peek() != ' ') {
 				int c = is.get();
 				if (c == '\n')
-					throw std::runtime_error("track: input contains malformatted line, after '" + br_buffer.str() + "'");
+					throw std::runtime_error("track: input contains malformatted line, within blob reference, after '" + br_buffer.str() + "'");
 				if (!is.good())
 					throw std::runtime_error("track: unexpected end of file, within blob reference of format line, after '" + br_buffer.str() + "'");
 				br_buffer.put(c);
@@ -96,15 +96,15 @@ public:
 			is.get(); // skip whitespace
 
 			// Read the format field, delimited by a double hyphen and a space ('-- ').
-			int ctmp[3] = {0, 0,0};
-			while (ctmp[0] != ' ' || ctmp[1] != '-' || ctmp[2] != '-' || is.peek() != ' ') {
+			int ctmp[3] = {0,0,0};
+			while (ctmp[1] != '-' || ctmp[2] != '-' || is.peek() != ' ') {
 				int c = is.get();
 				int bc = ctmp[0]; // character that will move into buffer
 				ctmp[0] = ctmp[1];
 				ctmp[1] = ctmp[2];
 				ctmp[2] = c;
 				if (c == '\n')
-					throw std::runtime_error("track: input contains malformatted line, after '" + fmt_buffer.str() + "'");
+					throw std::runtime_error("track: input contains malformatted line, within format, after '" + fmt_buffer.str() + "'");
 				if (!is.good())
 					throw std::runtime_error("track: unexpected end of file, within format field of format line, after '" + fmt_buffer.str() + "'");
 				if (bc != 0)
