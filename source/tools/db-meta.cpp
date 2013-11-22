@@ -31,8 +31,6 @@ class db_meta : public Generic
 {
 public:
 	string opt_track;
-	bool opt_only_metadata;
-	bool opt_only_blobs;
 	vector<string> opt_fields_vector, opt_set_fields, opt_delete_fields;
 	set<string> opt_fields;
 
@@ -43,8 +41,6 @@ public:
 	{
 		po::options_description parameters("Parameters");
 		parameters.add_options()
-			("only-metadata,m", "display only metadata")
-			("only-blobs,b", "display only blobs")
 			("field,n", po::value< vector<string> >(&opt_fields_vector), "filter metadata (multiple allowed)")
 			("set-field,s", po::value< vector<string> >(&opt_set_fields), "change metadata (<field>=<value>)")
 			("delete-field,d", po::value< vector<string> >(&opt_delete_fields), "delete metadata field");
@@ -57,8 +53,6 @@ public:
 
 	int main()
 	{
-		opt_only_metadata = vm.count("only-metadata");
-		opt_only_blobs = vm.count("only-blobs");
 		opt_fields.insert(opt_fields_vector.begin(), opt_fields_vector.end());
 
 		if (opt_track.empty()) {
@@ -94,29 +88,15 @@ public:
 		{
 			const int fw = 10;
 			cerr << "# track " << nice_hash(track.hash_in) << " (" << track.blobs.size() << " blobs)\n";
-			if (!opt_only_blobs) {
-				if (opt_fields.empty() || opt_fields.count("id")) {
-					cout.width(fw);
-					cout << std::left << "id:" << ' ' << track.id << '\n';
-				}
-				for (map<string,string>::const_iterator it = track.md.begin(); it != track.md.end(); it++) {
-					if (!opt_fields.empty() && !opt_fields.count(it->first))
-						continue; // if field filter is set, skip fields it does not name
-					cout.width(fw);
-					cout << std::left << (it->first + ":") << ' ' << it->second << '\n';
-				}
+			if (opt_fields.empty() || opt_fields.count("id")) {
+				cout.width(fw);
+				cout << std::left << "id:" << ' ' << track.id << '\n';
 			}
-
-			if (!opt_only_metadata && !opt_only_blobs)
-				cout << '\n';
-
-			if (!opt_only_metadata) {
-				for (set<auris::db::file::Track::Blob>::const_iterator it = track.blobs.begin(); it != track.blobs.end(); it++) {
-					cout << nice_hash((*it).blob_ref);
-					if (!(*it).format.empty())
-						cout << " <" << (*it).format << '>';
-					cout << " " << (*it).orig_name << '\n';
-				}
+			for (map<string,string>::const_iterator it = track.md.begin(); it != track.md.end(); it++) {
+				if (!opt_fields.empty() && !opt_fields.count(it->first))
+					continue; // if field filter is set, skip fields it does not name
+				cout.width(fw);
+				cout << std::left << (it->first + ":") << ' ' << it->second << '\n';
 			}
 		}
 
@@ -158,8 +138,8 @@ public:
 			track.write();
 			index.write();
 
-			cout << "track: " << track.hash_out << '\n';
-			cout << "index: " << index.hash_out << '\n';
+			cout << "track " << track.hash_out << '\n';
+			cout << "index " << index.hash_out << '\n';
 		}
 
 		return 0;
