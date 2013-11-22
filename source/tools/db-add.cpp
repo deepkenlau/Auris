@@ -13,6 +13,7 @@
 #include <vector>
 #include <sstream>
 #include <set>
+#include <map>
 
 namespace auris {
 namespace tools {
@@ -21,6 +22,7 @@ using namespace auris::aux;
 using std::string;
 using std::vector;
 using std::set;
+using std::map;
 using std::stringstream;
 
 /**
@@ -30,6 +32,7 @@ class db_add : public Generic
 {
 public:
 	vector<string> opt_files;
+	vector<string> opt_remove;
 
 	db_add(int argc, char **argv): Generic(argc, argv) {}
 	const char* usage_string() const { return "file1 ..."; }
@@ -38,7 +41,8 @@ public:
 	{
 		po::options_description parameters("Parameters");
 		parameters.add_options()
-			("duplicates,d", "import duplicate files");
+			("duplicates,d", "import duplicate files")
+			("remove", po::value< vector<string> >(&opt_remove), "remove track");
 		options.add(parameters);
 
 		hidden_options.add_options()
@@ -130,6 +134,32 @@ public:
 
 			// Print a line showing what was added.
 			cout << track.id << ' ' << nice_hash(track_hash) << '\n';
+		}
+
+		// Remove tracks.
+		for (int i = 0; i < opt_remove.size(); i++)
+		{
+			string n = opt_remove[i];
+			if (n.size() < 3) {
+				cerr << "name '" << n << "' is too short\n";
+				continue;
+			}
+
+			map<string,string>::iterator it = index.tracks.lower_bound(n);
+			if (it != index.tracks.end()
+				&& it->first.size() >= n.size()
+				&& it->first.substr(0, n.size()) == n) {
+				index.tracks.erase(it);
+				index_modified = true;
+			} else {
+				for (it = index.tracks.begin(); it != index.tracks.end(); it++) {
+					if (it->second.size() >= n.size()
+						&& it->second.substr(0, n.size()) == n) {
+						index.tracks.erase(it);
+						index_modified = true;
+					}
+				}
+			}
 		}
 
 		// In case the index was modified, we need to write it to disk again.
