@@ -124,7 +124,7 @@ public:
 			// Adjust the index such that a new revision is created, pointing
 			// back to its current state on disk.
 			index.parent = index.hash_in;
-			index.date = Date().str();
+			index.date = Date().raw();
 
 			map<string, string>::iterator it = index.tracks.find(track.id);
 			if (it == index.tracks.end() || it->second != track.hash_in) {

@@ -7,17 +7,16 @@ namespace auris {
 class Date
 {
 public:
-	struct tm now;
+	time_t timestamp;
 
 	Date() { from(time(0)); }
 	Date(time_t t) { from(t); }
-	Date(struct tm t) : now(t) {}
 
-	Date& from(time_t t) { now = *localtime(&t); return *this; }
-	Date& from(struct tm t) { now = t; return *this; }
+	Date& from(time_t t) { timestamp = t; return *this; }
 
 	size_t str(char *dst, size_t len)
 	{
+		struct tm now = *localtime(&timestamp);
 		return strftime(dst, len, "%Y-%m-%d %H:%M:%S %z", &now);
 	}
 
@@ -25,6 +24,18 @@ public:
 	{
 		char buffer[80];
 		str(buffer, sizeof(buffer));
+		return buffer;
+	}
+
+	size_t raw(char *dst, size_t len)
+	{
+		return snprintf(dst, len, "%li", timestamp);
+	}
+
+	std::string raw()
+	{
+		char buffer[16];
+		raw(buffer, sizeof(buffer));
 		return buffer;
 	}
 };

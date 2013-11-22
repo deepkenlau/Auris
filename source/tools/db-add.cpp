@@ -104,7 +104,7 @@ public:
 			auris::db::file::Track track;
 			track.id = sha1().from_string(auris::uuid::generate()).hex();
 			track.md["title"] = path.filename().native();
-			track.md["added"] = auris::Date().str();
+			track.md["added"] = Date().raw();
 			track.blobs.insert(auris::db::file::Track::Blob(file_hash, "", path.filename().native()));
 
 			stringstream track_buffer;
@@ -164,7 +164,7 @@ public:
 
 		// In case the index was modified, we need to write it to disk again.
 		if (index_modified) {
-			index.date = Date().str();
+			index.date = Date().raw();
 			index.parent = orig_index_ref;
 
 			stringstream index_buffer;

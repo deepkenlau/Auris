@@ -188,7 +188,7 @@ public:
 				return 0;
 
 			index.parent = index.hash_in;
-			index.date = Date().str();
+			index.date = Date().raw();
 
 			map<string,string>::iterator it = index.tracks.find(track.id);
 			if (it == index.tracks.end() || it->second != track.hash_in) {
