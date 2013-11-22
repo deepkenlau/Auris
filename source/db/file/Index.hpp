@@ -62,6 +62,8 @@ public:
 				is.get();
 				continue;
 			}
+			if (!is.good())
+				break;
 			std::stringstream id_buffer, hash_buffer;
 
 			// Read the id.

@@ -82,6 +82,8 @@ public:
 				is.get();
 				continue;
 			}
+			if (!is.good())
+				break; // in case the file only consisted of trailing newlines
 			std::stringstream br_buffer, fmt_buffer, on_buffer;
 
 			// Read the blob reference field, delimited by a space (' ').
