@@ -6,6 +6,7 @@
 #include <string>
 
 namespace auris {
+namespace aux {
 
 class sha1
 {
@@ -90,4 +91,5 @@ private:
 	boost::uuids::detail::sha1 sha;
 };
 
+} // namespace aux
 } // namespace auris

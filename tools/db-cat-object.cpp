@@ -1,9 +1,9 @@
 /* Copyright (c) 2013 Fabian Schuiki */
 #include "Generic.hpp"
 
-#include <aux/mapfile.hpp>
-#include <db/Structure.hpp>
-#include <db/file/Object.hpp>
+#include <auris/aux/mapfile.hpp>
+#include <auris/Structure.hpp>
+#include <auris/file/Object.hpp>
 
 #include <string>
 #include <fstream>

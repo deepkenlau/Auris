@@ -1,8 +1,8 @@
 /* Copyright (c) 2013 Fabian Schuiki */
 #include "Generic.hpp"
 
-#include <db/file/Index.hpp>
-#include <db/Object.hpp>
+#include <auris/file/Index.hpp>
+#include <auris/Object.hpp>
 
 #include <string>
 #include <map>

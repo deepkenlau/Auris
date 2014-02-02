@@ -16,9 +16,10 @@ else()
 	add_definitions("-DBUILD_RELEASE")
 endif()
 
+install(DIRECTORY auris/ DESTINATION include/auris)
+
 # Add the modules directory to the CMake module search path.
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/modules")
-
 
 # Find the required packages and configure the include directories.
 find_package(Boost REQUIRED COMPONENTS filesystem system program_options)
@@ -26,8 +27,7 @@ if (NOT APPLE)
 	find_package(LibUUID REQUIRED)
 endif()
 
-include_directories(${Boost_INCLUDE_DIRS} ${LibUUID_INCLUDE_DIRS})
-include_directories(source)
+include_directories(${Boost_INCLUDE_DIRS} ${LibUUID_INCLUDE_DIRS} .)
+include_directories(tools)
 
-
-add_subdirectory(source)
+add_subdirectory(tools)

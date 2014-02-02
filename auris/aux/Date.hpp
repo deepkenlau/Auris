@@ -3,6 +3,7 @@
 #include <ctime>
 
 namespace auris {
+namespace aux {
 
 class Date
 {
@@ -40,4 +41,5 @@ public:
 	}
 };
 
+} // namespace aux
 } // namespace auris

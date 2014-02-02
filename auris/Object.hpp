@@ -1,14 +1,16 @@
 /* Copyright (c) 2013 Fabian Schuiki */
 #pragma once
 #include "file/Generic.hpp"
+#include "aux/mapfile.hpp"
+#include "aux/sha1.hpp"
 #include "Structure.hpp"
-#include <common/sha1.hpp>
-#include <aux/mapfile.hpp>
 #include <string>
 #include <sstream>
 
 namespace auris {
 namespace db {
+
+using namespace auris::aux;
 
 /**
  * @brief Reads a Generic file from disk.
@@ -80,7 +82,7 @@ public:
 	ObjectWriter& write(const char* path)
 	{
 		fill_buffer(); // fill the buffer if not already done
-		aux::mapfile::write(path, buffer);
+		mapfile::write(path, buffer);
 		return *this;
 	}
 
@@ -128,7 +130,7 @@ public:
 	{
 		maintain_ref = ref;
 		std::string hash;
-		if (!aux::mapfile::maybe_read(dbs.ref(ref).path.c_str(), hash))
+		if (!mapfile::maybe_read(dbs.ref(ref).path.c_str(), hash))
 			return false;
 		read(hash);
 		return true;
@@ -139,7 +141,7 @@ public:
 		assert_unread();
 		maintain_ref = ref;
 		std::string hash;
-		aux::mapfile::read(dbs.ref(ref).path.c_str(), hash);
+		mapfile::read(dbs.ref(ref).path.c_str(), hash);
 		read(hash);
 		return *this;
 	}
@@ -159,7 +161,7 @@ public:
 			return *this; // equal hashes means no changes, so no need to write anything
 		writer.write(dbs);
 		if (!maintain_ref.empty())
-			aux::mapfile::write(dbs.ref(maintain_ref).prime().path.c_str(), writer.hash);
+			mapfile::write(dbs.ref(maintain_ref).prime().path.c_str(), writer.hash);
 		return *this;
 	}
 

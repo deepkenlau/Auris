@@ -1,13 +1,13 @@
 /* Copyright (c) 2013 Fabian Schuiki */
 #include "Generic.hpp"
 
-#include <common/sha1.hpp>
-#include <common/Date.hpp>
-#include <aux/mapfile.hpp>
-#include <db/file/Object.hpp>
-#include <db/file/Index.hpp>
-#include <db/file/Track.hpp>
-#include <db/Object.hpp>
+#include <auris/aux/sha1.hpp>
+#include <auris/aux/Date.hpp>
+#include <auris/aux/mapfile.hpp>
+#include <auris/file/Object.hpp>
+#include <auris/file/Index.hpp>
+#include <auris/file/Track.hpp>
+#include <auris/Object.hpp>
 
 #include <fstream>
 #include <string>

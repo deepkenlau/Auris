@@ -1,7 +1,7 @@
 /* Copyright (c) 2013 Fabian Schuiki */
 #include <boost/program_options.hpp>
 #include <boost/filesystem.hpp>
-#include <db/Structure.hpp>
+#include <auris/Structure.hpp>
 #include <iostream>
 #include <string>
 

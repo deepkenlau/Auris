@@ -1,0 +1,11 @@
+#!/bin/bash
+# Maps 'auris cmd' to 'auris-cmd'
+if [ -z "$1" ]; then
+	echo "usage: auris <command> <arguments>..." >&2
+	exit 2
+fi
+if [ ! -f "$(dirname "$0")/db-$1" ]; then
+	echo "command auris-$1 not known" >&2
+	exit 1
+fi
+auris-"$@"

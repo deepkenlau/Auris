@@ -1,9 +1,9 @@
 /* Copyright (c) 2013 Fabian Schuiki */
 #include "Generic.hpp"
 
-#include <aux/mapfile.hpp>
-#include <db/file/Index.hpp>
-#include <db/Object.hpp>
+#include <auris/aux/mapfile.hpp>
+#include <auris/file/Index.hpp>
+#include <auris/Object.hpp>
 
 #include <string>
 #include <set>
@@ -11,7 +11,7 @@
 namespace auris {
 namespace tools {
 
-using namespace aux;
+using namespace auris::aux;
 using std::string;
 using std::set;
 

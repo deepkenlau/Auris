@@ -1,29 +1,39 @@
-/* Copyright © 2012 Fabian Schuiki, Sandro Sgier */
-#include "uuid.hpp"
+/* Copyright © 2012-2014 Fabian Schuiki, Sandro Sgier */
+#include <string>
 
-using auris::uuid;
+namespace auris {
+namespace aux {
+
+class uuid
+{
+public:
+    static std::string generate();
+};
+
+} // namespace aux
+} // namespace auris
 
 // Windows
 #ifdef WIN32
 #include <Rpc.h>
-std::string uuid::generate()
+inline std::string auris::aux::uuid::generate()
 {
 	UUID uuid;
 	UuidCreate (&uuid);
-	
+
 	unsigned char* str;
 	UuidToStringA(&uuid, &str);
-	
+
 	std::string s((char *)str);
 
 	RpcStringFreeA(&str);
 	return s;
 }
 
-// useful operating systems
+// actual operating systems
 #else
 #include <uuid/uuid.h>
-std::string uuid::generate()
+inline std::string auris::aux::uuid::generate()
 {
 	uuid_t uuid;
 	uuid_generate_random(uuid);

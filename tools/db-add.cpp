@@ -1,13 +1,13 @@
 /* Copyright (c) 2013 Fabian Schuiki */
 #include "Generic.hpp"
 
-#include <common/sha1.hpp>
-#include <common/uuid.hpp>
-#include <common/Date.hpp>
-#include <db/file/Object.hpp>
-#include <db/file/Index.hpp>
-#include <db/file/Track.hpp>
-#include <aux/mapfile.hpp>
+#include <auris/aux/sha1.hpp>
+#include <auris/aux/uuid.hpp>
+#include <auris/aux/Date.hpp>
+#include <auris/file/Object.hpp>
+#include <auris/file/Index.hpp>
+#include <auris/file/Track.hpp>
+#include <auris/aux/mapfile.hpp>
 
 #include <string>
 #include <vector>
@@ -90,7 +90,7 @@ public:
 			// hashing moves the cursor position to the file's end.
 			stringstream file_buffer;
 			mapfile::read(path.c_str(), file_buffer);
-			string file_hash = auris::sha1().from_stream(file_buffer).hex();
+			string file_hash = sha1().from_stream(file_buffer).hex();
 			file_buffer.clear();
 			file_buffer.seekg(0);
 
@@ -101,15 +101,15 @@ public:
 			}
 
 			// Build the initial metadata entry.
-			auris::db::file::Track track;
-			track.id = sha1().from_string(auris::uuid::generate()).hex();
+			db::file::Track track;
+			track.id = sha1().from_string(uuid::generate()).hex();
 			track.md["title"] = path.filename().native();
 			track.md["added"] = Date().raw();
-			track.blobs.insert(auris::db::file::Track::Blob(file_hash, "", path.filename().native()));
+			track.blobs.insert(db::file::Track::Blob(file_hash, "", path.filename().native()));
 
 			stringstream track_buffer;
 			track.write(track_buffer);
-			string track_hash = auris::sha1().from_stream(track_buffer).hex();
+			string track_hash = sha1().from_stream(track_buffer).hex();
 			track_buffer.clear();
 			track_buffer.seekg(0);
 
@@ -169,7 +169,7 @@ public:
 
 			stringstream index_buffer;
 			index.write(index_buffer);
-			string index_hash = auris::sha1().from_stream(index_buffer).hex();
+			string index_hash = sha1().from_stream(index_buffer).hex();
 			index_buffer.clear();
 			index_buffer.seekg(0);
 

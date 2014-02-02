@@ -1,16 +1,17 @@
 /* Copyright (c) 2013 Fabian Schuiki */
 #include "Generic.hpp"
 
-#include <common/sha1.hpp>
-#include <db/Structure.hpp>
-#include <db/file/Object.hpp>
-#include <aux/mapfile.hpp>
+#include <auris/aux/sha1.hpp>
+#include <auris/Structure.hpp>
+#include <auris/file/Object.hpp>
+#include <auris/aux/mapfile.hpp>
 
 #include <string>
 
 namespace auris {
 namespace tools {
 
+using namespace auris::aux;
 using std::string;
 
 class db_hash_object : public Generic
@@ -56,7 +57,7 @@ public:
 				std::istreambuf_iterator<char>(),
 				std::ostreambuf_iterator<char>(buffer));
 		} else {
-			aux::mapfile::read(opt_file.c_str(), buffer);
+			mapfile::read(opt_file.c_str(), buffer);
 		}
 
 		string hash = sha1().from_stream(buffer).hex();
@@ -64,7 +65,7 @@ public:
 		if (opt_write) {
 			buffer.clear();
 			buffer.seekg(0);
-			aux::mapfile::write(dbs.object(hash).prime().path.c_str(), buffer);
+			mapfile::write(dbs.object(hash).prime().path.c_str(), buffer);
 		}
 
 		cout << hash << '\n';
