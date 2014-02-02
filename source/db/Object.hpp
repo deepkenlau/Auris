@@ -70,7 +70,7 @@ public:
 
 		object.write(buffer);
 		hash = sha1().from_stream(buffer).hex();
-		
+
 		buffer.clear();
 		buffer.seekg(0);
 

@@ -82,7 +82,7 @@ private:
 	}
 };
 
-} // namespace tools
+} // namespace tools
 } // namespace auris
 
 int main(int argc, char *argv[])

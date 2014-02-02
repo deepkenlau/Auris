@@ -45,7 +45,7 @@ public:
 		for (map<string, string>::const_iterator it = index.tracks.begin(); it != index.tracks.end(); it++) {
 			cout << nice_hash(it->first) << ' ' << nice_hash(it->second) << '\n';
 		}
-		
+
 		return 0;
 	}
 };

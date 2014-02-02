@@ -51,7 +51,7 @@ public:
 	void read(std::istream &is)
 	{
 		read_preamble(is, "track");
-		
+
 		id.clear();
 		md.clear();
 		blobs.clear();

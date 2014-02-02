@@ -43,7 +43,7 @@ public:
 
 	Object object(const std::string& hash) const
 	{ return Object(dir/"objects"/hash.substr(0,2)/hash.substr(2), hash); }
-	
+
 	Ref ref(const std::string& name) const
 	{ return Ref(dir/"refs"/name, name); }
 
@@ -65,7 +65,7 @@ public:
 			return false;
 		if (object(in).exists())
 			return true;
-		
+
 		// Assuming that 'in' is an abbreviated hash, try to find a full one.
 		fs::path search_dir = dir/"objects"/in.substr(0,2);
 		if (fs::is_directory(search_dir)) {
@@ -96,4 +96,4 @@ public:
 };
 
 } // namespace db
-} // namespace auris
+} // namespace auris

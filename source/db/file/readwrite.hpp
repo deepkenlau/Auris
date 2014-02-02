@@ -111,7 +111,7 @@ inline void read_preamble(std::istream &is, const std::string& required_type)
 {
 	if (!is.good())
 		throw std::runtime_error("cannot read " + required_type + " file, input stream invalid");
-	
+
 	Object o;
 	o.read(is);
 

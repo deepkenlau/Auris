@@ -113,7 +113,7 @@ public:
 			track_buffer.clear();
 			track_buffer.seekg(0);
 
-			// Modify the index, write the file to 
+			// Modify the index, write the file to disk.
 			index.tracks[track.id] = track_hash;
 			index_modified = true;
 
@@ -124,7 +124,7 @@ public:
 				db::file::Object file_object;
 				file_object.type = "blob";
 				file_object.write(f);
-				
+
 				std::copy(
 					std::istreambuf_iterator<char>(file_buffer),
 					std::istreambuf_iterator<char>(),

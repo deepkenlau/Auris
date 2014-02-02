@@ -28,7 +28,7 @@ public:
 	void read(std::istream &is)
 	{
 		read_preamble(is, "index");
-		
+
 		parent.clear();
 		date.clear();
 		tracks.clear();

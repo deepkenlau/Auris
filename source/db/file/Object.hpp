@@ -51,6 +51,6 @@ public:
 	}
 };
 
-} // namespace file
-} // namespace db
+} // namespace file
+} // namespace db
 } // namespace auris
