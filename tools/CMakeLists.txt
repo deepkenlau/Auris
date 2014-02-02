@@ -18,3 +18,20 @@ target_link_libraries(auris-list ${commonlibs})
 target_link_libraries(auris-hash-object ${commonlibs})
 target_link_libraries(auris-cat-object ${commonlibs})
 target_link_libraries(auris-rev-list ${commonlibs})
+
+add_custom_target(
+	auris-dummy ALL
+	${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/auris-dummy ${CMAKE_CURRENT_BINARY_DIR}/auris
+	SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/auris-dummy)
+
+install(TARGETS
+	auris-add
+	auris-meta
+	auris-blob
+	auris-list
+	auris-hash-object
+	auris-cat-object
+	auris-rev-list
+	RUNTIME DESTINATION bin
+	CONFIGURATIONS Release)
+install(PROGRAMS ${CMAKE_CURRENT_BINARY_DIR}/auris DESTINATION bin CONFIGURATIONS Release)

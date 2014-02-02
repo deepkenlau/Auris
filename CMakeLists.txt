@@ -5,7 +5,6 @@
 cmake_minimum_required(VERSION 2.8)
 project(Auris)
 
-
 # Default to debug build.
 if (NOT CMAKE_BUILD_TYPE)
 	set(CMAKE_BUILD_TYPE Debug CACHE STRING "Choose the type of build (Debug or Release)" FORCE)
@@ -16,18 +15,12 @@ else()
 	add_definitions("-DBUILD_RELEASE")
 endif()
 
-install(DIRECTORY auris/ DESTINATION include/auris)
+install(DIRECTORY auris/ DESTINATION include/auris CONFIGURATIONS Release)
 
-# Add the modules directory to the CMake module search path.
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/modules")
-
-# Find the required packages and configure the include directories.
 find_package(Boost REQUIRED COMPONENTS filesystem system program_options)
 if (NOT APPLE)
 	find_package(LibUUID REQUIRED)
 endif()
-
 include_directories(${Boost_INCLUDE_DIRS} ${LibUUID_INCLUDE_DIRS} .)
-include_directories(tools)
-
 add_subdirectory(tools)
