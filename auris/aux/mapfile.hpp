@@ -6,6 +6,7 @@
 #include <sstream>
 #include <algorithm>
 #include <string>
+#include <stdexcept>
 
 namespace auris {
 namespace aux {

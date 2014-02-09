@@ -6,6 +6,7 @@
 #include "Structure.hpp"
 #include <string>
 #include <sstream>
+#include <stdexcept>
 
 namespace auris {
 namespace db {

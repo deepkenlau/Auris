@@ -4,6 +4,7 @@
 #include <istream>
 #include <fstream>
 #include <string>
+#include <stdexcept>
 
 namespace auris {
 namespace aux {

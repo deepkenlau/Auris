@@ -7,6 +7,7 @@
 #include <map>
 #include <algorithm>
 #include <iterator>
+#include <stdexcept>
 
 namespace auris {
 namespace db {

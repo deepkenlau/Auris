@@ -4,6 +4,7 @@
 #include "readwrite.hpp"
 #include <map>
 #include <string>
+#include <stdexcept>
 
 namespace auris {
 namespace db {

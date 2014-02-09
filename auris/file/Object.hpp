@@ -3,6 +3,7 @@
 #include "Generic.hpp"
 #include <iostream>
 #include <sstream>
+#include <stdexcept>
 
 namespace auris {
 namespace db {

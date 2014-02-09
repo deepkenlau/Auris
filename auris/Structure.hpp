@@ -1,6 +1,7 @@
 /* Copyright (c) 2013 Fabian Schuiki */
 #pragma once
 #include <boost/filesystem.hpp>
+#include <stdexcept>
 
 namespace auris {
 namespace db {

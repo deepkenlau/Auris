@@ -3,6 +3,7 @@
 #include "Object.hpp" // for preamble
 #include <iostream>
 #include <sstream>
+#include <stdexcept>
 
 namespace auris {
 namespace db {
